@@ -1,0 +1,151 @@
+/* Dashboard Styles */
+.dashboard-container {
+    display: flex;
+    background-color: var(--bg-color);
+    min-height: calc(100vh - 60px - 300px);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    max-width: 250px;
+    background-color: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border-color);
+}
+
+.sidebar-header {
+    padding: 0 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.sidebar-collapse {
+    position: relative;
+    left: 224px;
+    padding: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    width: 30px;
+    height: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid var(--text-color);
+    background-color: #fff;
+    margin-bottom: 1.5rem;
+    margin-top: 1rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-collapse:hover {
+    background-color: var(--text-color);
+    color: #fff;
+}
+
+.sidebar-collapse .fa-chevron-right {
+    display: none;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-link {
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: var(--text-color);
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-link:hover {
+    background-color: var(--sidebar-hover);
+    border-bottom: 2px solid var(--text-color);
+}
+
+.sidebar-link.active {
+    background-color: var(--sidebar-active);
+    border-right: 4px solid var(--accent-color);
+}
+.sidebar-link i {
+    width: 20px;
+    text-align: center;
+}
+
+/* Cumulative PnL */
+.cumulative-pnl {
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 6rem;
+    margin-bottom: 1.5rem;
+}
+
+.cumulative-pnl h2 {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.cumulative-pnl .value {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.cumulative-pnl .value.positive {
+    color: #27ae60;
+}
+
+.cumulative-pnl .value.negative {
+    color: #e74c3c;
+}.cumulative-pnl .percentage {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-left: auto;
+}
+
+@media (max-width: 992px) {
+    .sidebar {
+        width: 10%;
+    }
+
+    .sidebar-collapse {
+        left: 70%;
+    }
+
+    .sidebar-collapse .fa-chevron-left {
+        display: block;
+
+    }
+
+    .sidebar-collapse .fa-chevron-right {
+        display: none;
+    }
+
+    .sidebar-header span {
+        display: none;
+        font-size: 1.2rem;
+    }
+
+    .sidebar-link span {
+        display: none;
+    }
+
+    .sidebar-link {
+        justify-content: center;
+        font-size: 1rem;
+    }
+}
