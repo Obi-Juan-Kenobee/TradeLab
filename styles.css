@@ -120,7 +120,7 @@ h2 {
 
 .nav-brand a:hover::after {
     width: 100%;
-    background-color: #3411db;
+    background-color: var(--text-color);
 }
 
 .nav-links {

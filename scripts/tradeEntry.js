@@ -60,10 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedState = localStorage.getItem('sidebarState');
 
      // Add toggle button to sidebar
-    //  const toggleButton = document.createElement('button');
-    //  toggleButton.className = 'sidebar-toggle';
-    //  toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-    //  sidebar.appendChild(toggleButton);
+     const toggleButton = document.createElement('button');
+     toggleButton.className = 'sidebar-toggle';
+     toggleButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+     sidebar.appendChild(toggleButton);
 
     //set initial state
     if (savedState === 'collapsed' || (isMobile && savedState !== 'expanded')) {

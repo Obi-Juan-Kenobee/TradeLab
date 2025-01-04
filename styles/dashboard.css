@@ -7,12 +7,24 @@
 
 /* Sidebar Styles */
 .sidebar {
-    max-width: 250px;
+    position: relative;
+    width: 250px;
+    height: calc(50vh - 60px);
     background-color: var(--sidebar-bg);
     border-bottom: 1px solid var(--border-color);
     padding: 1rem 0;
     flex-shrink: 0;
     border-right: 1px solid var(--border-color);
+    transition: width 0.3s ease, transform 0.3s ease;
+}
+
+.sidebar.collapsed {
+    width: 60px;
+}
+
+.sidebar.collapsed .sidebar-header span,
+.sidebar.collapsed .sidebar-link span {
+    display: none;
 }
 
 .sidebar-header {
@@ -24,35 +36,6 @@
     font-size: 1.6rem;
     font-weight: 600;
     color: var(--text-color);
-}
-
-.sidebar-collapse {
-    position: relative;
-    left: 224px;
-    padding: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    color: var(--text-color);
-    width: 30px;
-    height: 5px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: 2px solid var(--text-color);
-    background-color: #fff;
-    margin-bottom: 1.5rem;
-    margin-top: 1rem;
-    transition: all 0.3s ease;
-}
-
-.sidebar-collapse:hover {
-    background-color: var(--text-color);
-    color: #fff;
-}
-
-.sidebar-collapse .fa-chevron-right {
-    display: none;
 }
 
 .sidebar-nav {
@@ -77,8 +60,36 @@
     border-right: 4px solid var(--accent-color);
 }
 .sidebar-link i {
-    width: 20px;
+    width: 30px;
     text-align: center;
+}
+
+/* Sidebar Toggle */
+.sidebar-toggle {
+    position: absolute;
+    top: 2.5rem;
+    left: calc(100% - 15px);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, left 0.3s ease;
+}
+
+.sidebar-toggle i {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    transition: transform 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle i {
+    transform: rotate(180deg);
 }
 
 /* Cumulative PnL */
@@ -119,33 +130,31 @@
 
 @media (max-width: 992px) {
     .sidebar {
-        width: 10%;
+        position: fixed;
+        left: 0;
+        top: 60px;
+        height: calc(50vh - 60px);
+        z-index: 999;
+        transform: translateX(0);
     }
 
-    .sidebar-collapse {
-        left: 70%;
+    .sidebar.collapsed {
+        transform: translateX(-95%);
+        width: 250px;
     }
 
-    .sidebar-collapse .fa-chevron-left {
-        display: block;
-
+    .sidebar.collapsed .sidebar-header span,
+    .sidebar.collapsed .sidebar-link span {
+        display: inline;
     }
 
-    .sidebar-collapse .fa-chevron-right {
-        display: none;
+    .sidebar-toggle {
+        top: 50px;
+        left: 240px;
     }
 
-    .sidebar-header span {
-        display: none;
-        font-size: 1.2rem;
-    }
-
-    .sidebar-link span {
-        display: none;
-    }
-
-    .sidebar-link {
-        justify-content: center;
-        font-size: 1rem;
+    .main-content {
+        margin-left: 0;
+        width: 100%;
     }
 }
