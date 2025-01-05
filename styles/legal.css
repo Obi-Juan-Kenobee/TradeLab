@@ -1,6 +1,6 @@
 /* Legal pages styles */
 .legal-container {
-    min-height: calc(100vh - 60px - 300px);
+    /* min-height: calc(100vh - 60px - 300px); */
     max-width: 900px;
     margin: 2rem auto;
     padding: 2rem;
