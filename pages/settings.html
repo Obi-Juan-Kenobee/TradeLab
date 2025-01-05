@@ -1,11 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TradeLab - Settings</title>
-</head>
-<body>
-    
-</body>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../styles/settings.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-brand"><a href="../index.html">TradeLab</a></div>
+      <ul class="nav-links">
+        <li><a href="../index.html" class="active">Home</a></li>
+        <li><a href="../index.html#features">Features</a></li>
+        <li><a href="../index.html#pricing">Pricing</a></li>
+        <li><a href="../index.html#about">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="#" class="cta-button">Dashboard</a></li>
+      </ul>
+      <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
+    </nav>
+
+    <div class="settings-container">
+      <div class="settings-content">
+        <h1>Settings</h1>
+        
+        <div class="settings-section">
+          <h2>Data Storage</h2>
+          <div class="storage-options">
+            <div class="storage-option">
+              <input type="radio" id="localStorage" name="storageType" value="localStorage">
+              <label for="localStorage">
+                <i class="fas fa-window-maximize"></i>
+                Browser Storage
+                <span class="description">Store trades in your browser (data persists until browser cache is cleared)</span>
+              </label>
+            </div>
+            
+            <div class="storage-option">
+              <input type="radio" id="fileStorage" name="storageType" value="fileStorage">
+              <label for="fileStorage">
+                <i class="fas fa-file"></i>
+                Local File
+                <span class="description">Store trades in a local file on your computer</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="fileStorageOptions" class="file-storage-options" style="display: none;">
+            <div class="file-path-section">
+              <label for="filePath">Storage Location:</label>
+              <div class="file-path-input">
+                <input type="text" id="filePath" readonly>
+                <button id="selectPath" class="btn-secondary">
+                  <i class="fas fa-folder-open"></i> Select Location
+                </button>
+              </div>
+            </div>
+            
+            <div class="auto-backup">
+              <label>
+                <input type="checkbox" id="autoBackup">
+                Enable automatic backups
+              </label>
+              <select id="backupInterval" disabled>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h2>Data Management</h2>
+          <div class="data-management">
+            <button id="exportData" class="btn-primary">
+              <i class="fas fa-file-export"></i> Export Trades
+            </button>
+            <button id="importData" class="btn-primary">
+              <i class="fas fa-file-import"></i> Import Trades
+            </button>
+            <button id="clearData" class="btn-danger">
+              <i class="fas fa-trash"></i> Clear All Data
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h2>Display Settings</h2>
+          <div class="display-settings">
+            <div class="setting-item">
+              <label for="defaultView">Default View:</label>
+              <select id="defaultView">
+                <option value="list">List View</option>
+                <option value="grid">Grid View</option>
+                <option value="table">Table View</option>
+              </select>
+            </div>
+            
+            <div class="setting-item">
+              <label for="dateFormat">Date Format:</label>
+              <select id="dateFormat">
+                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-actions">
+          <button id="saveSettings" class="btn-primary">
+            <i class="fas fa-save"></i> Save Settings
+          </button>
+          <button id="resetSettings" class="btn-secondary">
+            <i class="fas fa-undo"></i> Reset to Defaults
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3><a href="../index.html">TradeLab</a></h3>
+          <p>Your personal trading journal to track and analyze your trading performance.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../index.html#features">Features</a></li>
+            <li><a href="../index.html#pricing">Pricing</a></li>
+            <li><a href="../index.html#about">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="terms-of-use.html">Terms of Service</a></li>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="risk-disclosure.html">Risk Disclosure</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Follow Us</h3>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+            <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 TradeLab. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="../scripts/global.js"></script>
+    <script src="../scripts/TradeObjectHandler.js"></script>
+    <script src="../scripts/settings.js"></script>
+  </body>
 </html>
