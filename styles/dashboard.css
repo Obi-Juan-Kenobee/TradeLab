@@ -39,8 +39,10 @@
 }
 
 .sidebar-nav {
+    margin-top: 4rem;
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
 }
 
 .sidebar-link {
@@ -67,7 +69,7 @@
 /* Sidebar Toggle */
 .sidebar-toggle {
     position: absolute;
-    top: 2.5rem;
+    top: 3.5rem;
     left: calc(100% - 15px);
     width: 30px;
     height: 30px;
@@ -149,7 +151,7 @@
     }
 
     .sidebar-toggle {
-        top: 50px;
+        top: 4rem;
         left: 240px;
     }
 

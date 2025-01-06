@@ -141,8 +141,11 @@ textarea {
     color: white;
 }
 
-.direction-btn.long:hover {
+.direction-btn.long:hover,
+.direction-btn.long:active,
+.direction-btn.long:focus {
     background-color: #27ae60;
+    border: 2px solid #000;
 }
 
 .direction-btn.short {
@@ -150,8 +153,11 @@ textarea {
     color: white;
 }
 
-.direction-btn.short:hover {
+.direction-btn.short:hover,
+.direction-btn.short:active,
+.direction-btn.short:focus {
     background-color: #c0392b;
+    border: 2px solid #000;
 }
 
 .direction-btn.selected {
