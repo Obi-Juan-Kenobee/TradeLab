@@ -8,6 +8,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const importDataBtn = document.getElementById('importData');
     const clearDataBtn = document.getElementById('clearData');
 
+      // Storage info elements
+      const availableStorageEl = document.getElementById('availableStorage');
+      const usedStorageEl = document.getElementById('usedStorage');
+      const remainingStorageEl = document.getElementById('remainingStorage');
+  
+      // Function to format bytes to human readable format
+      const formatBytes = (bytes) => {
+          if (bytes === 0) return '0 B';
+          const k = 1024;
+          const sizes = ['B', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+      };
+  
+      // Function to update storage information
+      const updateStorageInfo = async () => {
+          try {
+              if (!navigator.storage || !navigator.storage.estimate) {
+                  throw new Error('Storage API not supported');
+              }
+  
+              const estimate = await navigator.storage.estimate();
+              const quota = estimate.quota || 0;
+              const usage = estimate.usage || 0;
+              const remaining = quota - usage;
+  
+              availableStorageEl.textContent = formatBytes(quota);
+              usedStorageEl.textContent = formatBytes(usage);
+              remainingStorageEl.textContent = formatBytes(remaining);
+          } catch (error) {
+              console.error('Error getting storage info:', error);
+              availableStorageEl.textContent = 'Not available';
+              usedStorageEl.textContent = 'Not available';
+              remainingStorageEl.textContent = 'Not available';
+          }
+      };
+
+
     // Load current settings
     const loadSettings = () => {
         const storageType = localStorage.getItem('storagePreference') || 'localStorage';
@@ -51,6 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.tradeManager) {
                 // Update storage strategy
                 await window.tradeManager.setStorageStrategy(storageType);
+                // Update storage info after changing storage strategy
+                await updateStorageInfo();
                 alert('Settings saved successfully!');
             } else {
                 throw new Error('Trade manager not initialized');
@@ -140,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initialize settings
+    // Initial load
     loadSettings();
+    updateStorageInfo();
 });

@@ -29,44 +29,101 @@
     <div class="settings-container">
       <div class="settings-content">
         <h1>Settings</h1>
-        
+
         <div class="settings-section">
           <h2>Data Storage</h2>
           <div class="storage-options">
             <div class="storage-option">
-              <input type="radio" id="localStorage" name="storageType" value="localStorage">
+              <input
+                type="radio"
+                id="localStorage"
+                name="storageType"
+                value="localStorage"
+              />
               <label for="localStorage">
                 <i class="fas fa-window-maximize"></i>
                 Browser Storage (LocalStorage)
-                <span class="description">Simple storage in your browser. Good for small amounts of data. Data persists until browser cache is cleared. Limited to about 5-10MB.</span>
+                <span class="description"
+                  >Simple storage in your browser. Good for small amounts of
+                  data. Data persists until browser cache is cleared. Limited to
+                  about 5-10MB.</span
+                >
+                <span class="warning"
+                  ><i class="fas fa-exclamation-triangle"></i> Note: Data is
+                  stored locally in this browser only. Your trades will not be
+                  accessible from other devices.</span
+                >
               </label>
             </div>
-            
+
             <div class="storage-option">
-              <input type="radio" id="indexedDB" name="storageType" value="indexedDB">
+              <input
+                type="radio"
+                id="indexedDB"
+                name="storageType"
+                value="indexedDB"
+              />
               <label for="indexedDB">
                 <i class="fas fa-database"></i>
                 IndexedDB Storage
-                <span class="description">Advanced browser database with larger storage capacity (>50MB). Better performance for large datasets. Data persists until manually cleared.</span>
+                <span class="description"
+                  >Advanced browser database with larger storage capacity
+                  (>50MB). Better performance for large datasets. Data persists
+                  until manually cleared.</span
+                >
+                <span class="warning"
+                  ><i class="fas fa-exclamation-triangle"></i> Note: Data is
+                  stored locally in this browser only. Your trades will not be
+                  accessible from other devices.</span
+                >
               </label>
             </div>
           </div>
 
-          <div id="fileStorageOptions" class="file-storage-options" style="display: none;">
+          <div id="storageInfo" class="storage-info">
+            <h3>Storage Usage</h3>
+            <div class="storage-stats">
+              <div class="storage-stat-item">
+                <span class="stat-label">Available Storage:</span>
+                <span id="availableStorage" class="stat-value">Calculating...</span>
+              </div>
+              <div class="storage-stat-item">
+                <span class="stat-label">Used Storage:</span>
+                <span id="usedStorage" class="stat-value">Calculating...</span>
+              </div>
+              <div class="storage-stat-item">
+                <span class="stat-label">Remaining Storage:</span>
+                <span id="remainingStorage" class="stat-value">Calculating...</span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="fileStorageOptions"
+            class="file-storage-options"
+            style="display: none"
+          >
             <div class="file-path-section">
               <label for="filePath">Storage Location:</label>
               <div class="file-path-input">
-                <input type="text" id="filePath" readonly>
-                <input type="file" id="fileInput" style="display: none;" webkitdirectory directory multiple>
+                <input type="text" id="filePath" readonly />
+                <input
+                  type="file"
+                  id="fileInput"
+                  style="display: none"
+                  webkitdirectory
+                  directory
+                  multiple
+                />
                 <button id="selectPath" class="btn-secondary">
                   <i class="fas fa-folder-open"></i> Select Location
                 </button>
               </div>
             </div>
-            
+
             <div class="auto-backup">
               <label>
-                <input type="checkbox" id="autoBackup">
+                <input type="checkbox" id="autoBackup" />
                 Enable automatic backups
               </label>
               <select id="backupInterval" disabled>
@@ -104,7 +161,7 @@
                 <option value="table">Table View</option>
               </select>
             </div>
-            
+
             <div class="setting-item">
               <label for="dateFormat">Date Format:</label>
               <select id="dateFormat">
@@ -132,7 +189,10 @@
       <div class="footer-content">
         <div class="footer-section">
           <h3><a href="../index.html">TradeLab</a></h3>
-          <p>Your personal trading journal to track and analyze your trading performance.</p>
+          <p>
+            Your personal trading journal to track and analyze your trading
+            performance.
+          </p>
         </div>
         <div class="footer-section">
           <h3>Quick Links</h3>
@@ -156,7 +216,9 @@
           <h3>Follow Us</h3>
           <div class="social-links">
             <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
-            <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+            <a href="#"
+              ><i class="fab fa-linkedin" aria-label="LinkedIn"></i
+            ></a>
             <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
           </div>
         </div>
