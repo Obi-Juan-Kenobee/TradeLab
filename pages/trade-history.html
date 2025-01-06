@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TradeLab - All Trades</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="/styles/dashboard.css" />
+    <link rel="stylesheet" href="/styles/trade-entry.css" />
+    <link rel="stylesheet" href="/styles/trade-history.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-brand"><a href="#">TradeLab</a></div>
+      <ul class="nav-links">
+        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#" class="cta-button">Dashboard</a></li>
+      </ul>
+      <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
+    </nav>
+
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fas fa-chart-line"></i>
+          <span>Trading Tools</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="trade-entry.html" class="sidebar-link">
+            <i class="fas fa-plus-circle"></i>
+            <span>Manual Entry</span>
+          </a>
+          <a href="import.html" class="sidebar-link">
+            <i class="fas fa-file-import"></i>
+            <span>Import Trades</span>
+          </a>
+          <a href="analytics.html" class="sidebar-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="dashboard.html" class="sidebar-link">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Calendar</span>
+          </a>
+          <a href="settings.html" class="sidebar-link">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-header">
+          <h1>All Trade History</h1>
+        </div>
+
+        <!-- Trade Statistics -->
+        <div class="trade-stats">
+          <div class="stat-card">
+            <h3>Total Trades</h3>
+            <div id="totalTrades" class="stat-value">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Win Rate</h3>
+            <div id="winRate" class="stat-value">0%</div>
+          </div>
+          <div class="stat-card">
+            <h3>Total P/L</h3>
+            <div id="totalPnL" class="stat-value profit">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <h3>Average P/L</h3>
+            <div id="avgPnL" class="stat-value">$0.00</div>
+          </div>
+        </div>
+
+        <!-- Trades Filter -->
+        <div class="trades-filter">
+          <div class="filter-group">
+            <input type="text" id="symbolFilter" placeholder="Filter by symbol..." />
+            <select id="marketFilter">
+              <option value="">All Markets</option>
+              <option value="stock">Stocks</option>
+              <option value="futures">Futures</option>
+              <option value="crypto">Crypto</option>
+              <option value="options">Options</option>
+            </select>
+            <select id="directionFilter">
+              <option value="">All Directions</option>
+              <option value="long">Long</option>
+              <option value="short">Short</option>
+            </select>
+          </div>
+          <div class="date-range">
+            <input type="date" id="startDate" />
+            <span>to</span>
+            <input type="date" id="endDate" />
+          </div>
+        </div>
+
+        <!-- All Trades Table -->
+        <div class="trades-container">
+          <div id="allTradesList">
+            <!-- Trades will be dynamically added here -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3><a href="#">TradeLab</a></h3>
+          <p>Your personal trading journal to track and analyze your trading performance.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#about">About</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Follow Us</h3>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+            <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 TradeLab. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="../scripts/global.js"></script>
+    <script src="../scripts/dashboard.js"></script>
+    <script src="../scripts/TradeObjectHandler.js"></script>
+    <script src="../scripts/tradeHistory.js"></script>
+  </body>
+</html>

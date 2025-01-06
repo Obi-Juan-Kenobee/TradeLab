@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearDataBtn = document.getElementById('clearData');
     const filePathInput = document.getElementById('filePath');
     const selectPathBtn = document.getElementById('selectPath');
-
     // Load current settings
     const loadSettings = () => {
         const storageType = localStorage.getItem('storagePreference') || 'localStorage';
@@ -64,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Error selecting file path. Please try again.');
         }
     });
+    
 
     // Handle settings save
     saveSettingsBtn.addEventListener('click', async () => {

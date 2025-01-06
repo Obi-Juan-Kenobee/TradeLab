@@ -131,6 +131,16 @@ class TradeManager {
     displayTrades() {
         const tradesListElement = document.getElementById('tradesList');
         if (!tradesListElement) return;
+
+         // Create header with link to all trades
+         const headerDiv = document.createElement('div');
+         headerDiv.className = 'trades-header';
+         headerDiv.innerHTML = `
+             <h2>Recent Trades</h2>
+             <a href="trade-history.html" class="view-all-link">
+                 <i class="fas fa-table"></i> View All Trades
+             </a>
+         `;
         
         // Create table if it doesn't exist
         let tableElement = document.getElementById('tradesTable');
@@ -161,14 +171,16 @@ class TradeManager {
             tableElement.appendChild(tbody);
             
             tradesListElement.innerHTML = '';
+            tradesListElement.appendChild(headerDiv);
             tradesListElement.appendChild(tableElement);
         }
 
-        // Update table body
+        // Update table body with only the 10 most recent trades
         const tbody = tableElement.querySelector('tbody');
         tbody.innerHTML = '';
 
-        this.trades.forEach((trade) => {
+        const recentTrades = [...this.trades].reverse().slice(0, 10);
+        recentTrades.forEach((trade) => {
             const tr = document.createElement('tr');
             tr.className = `trade-row ${trade.profitLoss >= 0 ? 'profit' : 'loss'}`;
 
