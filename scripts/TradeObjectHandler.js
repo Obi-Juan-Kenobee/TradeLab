@@ -38,15 +38,57 @@ class StorageStrategy {
   }
 }
 
-// Local Storage Strategy
-class LocalStorageStrategy extends StorageStrategy {
+// Excel Storage Strategy
+class ExcelStorageStrategy extends StorageStrategy {
   async loadTrades() {
-    const trades = localStorage.getItem("trades");
-    return trades ? JSON.parse(trades) : [];
+    // This is a placeholder since actual loading will happen through file input
+    return [];
   }
 
   async saveTrades(trades) {
-    localStorage.setItem("trades", JSON.stringify(trades));
+    // Generate filename with date
+    const worksheet = XLSX.utils.json_to_sheet(trades);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Trades");
+
+    // Generate file name with current date
+    const date = new Date();
+    const filename = `trades_${date}.xlsx`;
+
+    // Trigger download
+    XLSX.writeFile(workbook, filename);
+  }
+
+  static importFromExcel(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const trades = XLSX.utils.sheet_to_json(worksheet);
+                
+                // Convert imported data to Trade objects
+                const convertedTrades = trades.map(trade => new Trade(
+                    trade.symbol,
+                    trade.market,
+                    parseFloat(trade.entryPrice),
+                    parseFloat(trade.exitPrice),
+                    parseFloat(trade.quantity),
+                    new Date(trade.date),
+                    trade.notes,
+                    trade.direction
+                ));
+                
+                resolve(convertedTrades);
+            } catch (error) {
+                reject(new Error('Failed to parse Excel file: ' + error.message));
+            }
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsArrayBuffer(file);
+    });
   }
 }
 
@@ -113,22 +155,20 @@ class TradeManager {
   }
 
   loadStoragePreference() {
-    const storageType =
-      localStorage.getItem("storagePreference") || "localStorage";
+    const storageType = localStorage.getItem('storagePreference') || 'indexedDB';
 
-    if (storageType === "localStorage") {
-      this.storageStrategy = new LocalStorageStrategy();
-    } else if (storageType === 'indexedDB') {
+    if (storageType === 'indexedDB') {
       this.storageStrategy = new IndexedDBStrategy();
+    } else if (storageType === 'excel') {
+      this.storageStrategy = new ExcelStorageStrategy();
     }
   }
 
   async setStorageStrategy(type) {
-    if (type === "localStorage") {
-      this.storageStrategy = new LocalStorageStrategy();
-    } else if (type === "indexedDB") {
+    if (type === 'indexedDB') {
       this.storageStrategy = new IndexedDBStrategy();
-      
+    } else if (type === 'excel') {
+      this.storageStrategy = new ExcelStorageStrategy();
     }
 
     localStorage.setItem("storagePreference", type);
@@ -307,6 +347,18 @@ class TradeManager {
     }
   }
 
+  async importFromExcel(file) {
+    try {
+        const newTrades = await ExcelStorageStrategy.importFromExcel(file);
+        this.trades = [...newTrades, ...this.trades];
+        await this.saveTrades();
+        this.displayTrades();
+    } catch (error) {
+        console.error('Error importing trades:', error);
+        throw new Error('Invalid trade data format');
+    }
+}
+
   async clearAllTrades() {
     this.trades = [];
     await this.saveTrades();
@@ -368,4 +420,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+   // Add file input handler for Excel import
+   const excelInput = document.getElementById('excelInput');
+   if (excelInput) {
+       excelInput.addEventListener('change', async (event) => {
+           const file = event.target.files[0];
+           await tradeManager.importFromExcel(file);
+       });
+   }
 });

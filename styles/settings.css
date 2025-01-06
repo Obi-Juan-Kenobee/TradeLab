@@ -88,6 +88,15 @@
     margin-right: 0.5rem;
 }
 
+.storage-warning {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    background-color: var(--bg-warning);
+    border-radius: 4px;
+  }
+
 /* File Storage Options */
 .file-storage-options {
     margin-top: 1rem;

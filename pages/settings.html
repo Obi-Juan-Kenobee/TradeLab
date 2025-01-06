@@ -10,6 +10,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     />
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   </head>
   <body>
     <!-- Navigation Bar -->
@@ -32,29 +33,15 @@
 
         <div class="settings-section">
           <h2>Data Storage</h2>
-          <div class="storage-options">
-            <div class="storage-option">
-              <input
-                type="radio"
-                id="localStorage"
-                name="storageType"
-                value="localStorage"
-              />
-              <label for="localStorage">
-                <i class="fas fa-window-maximize"></i>
-                Browser Storage (LocalStorage)
-                <span class="description"
-                  >Simple storage in your browser. Good for small amounts of
-                  data. Data persists until browser cache is cleared. Limited to
-                  about 5-10MB.</span
-                >
-                <span class="warning"
-                  ><i class="fas fa-exclamation-triangle"></i> Note: Data is
-                  stored locally in this browser only. Your trades will not be
-                  accessible from other devices.</span
-                >
-              </label>
-            </div>
+
+          <div class="storage-option">
+            <label for="uploadDownload">
+              <i class="fas fa-file-excel"></i>
+              Upload/Download Excel
+              <span class="description">Export your trades to Excel files that you can save anywhere. Perfect for data backup and analysis in spreadsheet software.</span>
+              <span class="warning"><i class="fas fa-info-circle"></i> Tip: Use the Data Management section below to import/export your trades as Excel files.</span>
+            </label>
+          </div>
 
             <div class="storage-option">
               <input
@@ -85,7 +72,9 @@
             <div class="storage-stats">
               <div class="storage-stat-item">
                 <span class="stat-label">Available Storage:</span>
-                <span id="availableStorage" class="stat-value">Calculating...</span>
+                <span id="availableStorage" class="stat-value"
+                  >Calculating...</span
+                >
               </div>
               <div class="storage-stat-item">
                 <span class="stat-label">Used Storage:</span>
@@ -93,9 +82,16 @@
               </div>
               <div class="storage-stat-item">
                 <span class="stat-label">Remaining Storage:</span>
-                <span id="remainingStorage" class="stat-value">Calculating...</span>
+                <span id="remainingStorage" class="stat-value"
+                  >Calculating...</span
+                >
               </div>
             </div>
+            <span class="warning storage-warning">
+              <i class="fas fa-exclamation-triangle"></i> Note: Storage values
+              are estimates and represent the total space shared by all browser
+              storage mechanisms (LocalStorage, IndexedDB, and Cache API).
+            </span>
           </div>
 
           <div
