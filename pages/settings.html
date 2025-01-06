@@ -37,17 +37,17 @@
               <input type="radio" id="localStorage" name="storageType" value="localStorage">
               <label for="localStorage">
                 <i class="fas fa-window-maximize"></i>
-                Browser Storage
-                <span class="description">Store trades in your browser (data persists until browser cache is cleared)</span>
+                Browser Storage (LocalStorage)
+                <span class="description">Simple storage in your browser. Good for small amounts of data. Data persists until browser cache is cleared. Limited to about 5-10MB.</span>
               </label>
             </div>
             
             <div class="storage-option">
-              <input type="radio" id="fileStorage" name="storageType" value="fileStorage">
-              <label for="fileStorage">
-                <i class="fas fa-file"></i>
-                Local File
-                <span class="description">Store trades in a local file on your computer</span>
+              <input type="radio" id="indexedDB" name="storageType" value="indexedDB">
+              <label for="indexedDB">
+                <i class="fas fa-database"></i>
+                IndexedDB Storage
+                <span class="description">Advanced browser database with larger storage capacity (>50MB). Better performance for large datasets. Data persists until manually cleared.</span>
               </label>
             </div>
           </div>

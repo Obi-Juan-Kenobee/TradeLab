@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const storageOptions = document.querySelectorAll('input[name="storageType"]');
-    const fileStorageOptions = document.getElementById('fileStorageOptions');
     const autoBackupCheckbox = document.getElementById('autoBackup');
     const backupIntervalSelect = document.getElementById('backupInterval');
     const saveSettingsBtn = document.getElementById('saveSettings');
@@ -8,12 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportDataBtn = document.getElementById('exportData');
     const importDataBtn = document.getElementById('importData');
     const clearDataBtn = document.getElementById('clearData');
-    const filePathInput = document.getElementById('filePath');
-    const selectPathBtn = document.getElementById('selectPath');
+
     // Load current settings
     const loadSettings = () => {
         const storageType = localStorage.getItem('storagePreference') || 'localStorage';
-        const filePath = localStorage.getItem('storageFilePath');
         const defaultView = localStorage.getItem('defaultView') || 'list';
         const dateFormat = localStorage.getItem('dateFormat') || 'MM/DD/YYYY';
         const autoBackup = localStorage.getItem('autoBackup') === 'true';
@@ -21,12 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Set storage type
         document.querySelector(`input[value="${storageType}"]`).checked = true;
-        fileStorageOptions.style.display = storageType === 'fileStorage' ? 'block' : 'none';
-
-        // Set file path
-        if (filePath) {
-            filePathInput.value = filePath;
-        }
 
         // Set other options
         document.getElementById('defaultView').value = defaultView;
@@ -36,39 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
         backupIntervalSelect.disabled = !autoBackup;
     };
 
-    // Handle storage type change
-    storageOptions.forEach(option => {
-        option.addEventListener('change', (e) => {
-            fileStorageOptions.style.display = e.target.value === 'fileStorage' ? 'block' : 'none';
-        });
-    });
-
     // Handle auto backup toggle
     autoBackupCheckbox.addEventListener('change', (e) => {
         backupIntervalSelect.disabled = !e.target.checked;
     });
 
-    // Handle file path selection
-    selectPathBtn.addEventListener('click', async () => {
-        try {
-            // Create a default path using timestamp to ensure uniqueness
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const defaultPath = `trades_${timestamp}.json`;
-            filePathInput.value = defaultPath;
-            
-            // Store the path
-            localStorage.setItem('storageFilePath', defaultPath);
-        } catch (error) {
-            console.error('Error selecting file path:', error);
-            alert('Error selecting file path. Please try again.');
-        }
-    });
-    
-
     // Handle settings save
     saveSettingsBtn.addEventListener('click', async () => {
         const storageType = document.querySelector('input[name="storageType"]:checked').value;
-        const filePath = filePathInput.value;
         const defaultView = document.getElementById('defaultView').value;
         const dateFormat = document.getElementById('dateFormat').value;
         const autoBackup = autoBackupCheckbox.checked;
@@ -84,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Get the tradeManager instance
             if (window.tradeManager) {
                 // Update storage strategy
-                await window.tradeManager.setStorageStrategy(storageType, filePath);
+                await window.tradeManager.setStorageStrategy(storageType);
                 alert('Settings saved successfully!');
             } else {
                 throw new Error('Trade manager not initialized');
@@ -99,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
     resetSettingsBtn.addEventListener('click', () => {
         if (confirm('Are you sure you want to reset all settings to default?')) {
             localStorage.removeItem('storagePreference');
-            localStorage.removeItem('storageFilePath');
             localStorage.removeItem('defaultView');
             localStorage.removeItem('dateFormat');
             localStorage.removeItem('autoBackup');
