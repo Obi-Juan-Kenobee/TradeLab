@@ -1,6 +1,6 @@
 // Trade class to handle trade data
 class Trade {
-    constructor(symbol, market, entryPrice, exitPrice, quantity, date, notes) {
+    constructor(symbol, market, entryPrice, exitPrice, quantity, date, notes, direction) {
         this.id = Date.now().toString();
         this.symbol = symbol;
         this.market = market;
@@ -9,7 +9,13 @@ class Trade {
         this.quantity = quantity;
         this.date = date;
         this.notes = notes;
-        this.profitLoss = (exitPrice - entryPrice) * quantity;
+        this.direction = direction; // 'long' or 'short'
+        this.profitLoss = this.calculateProfitLoss();
+    }
+
+    calculateProfitLoss() {
+        const rawPL = (this.exitPrice - this.entryPrice) * this.quantity;
+        return this.direction === 'long' ? rawPL : -rawPL;
     }
 }
 
@@ -126,36 +132,89 @@ class TradeManager {
         const tradesListElement = document.getElementById('tradesList');
         if (!tradesListElement) return;
         
-        tradesListElement.innerHTML = '';
+        // Create table if it doesn't exist
+        let tableElement = document.getElementById('tradesTable');
+        if (!tableElement) {
+            tableElement = document.createElement('table');
+            tableElement.id = 'tradesTable';
+            tableElement.className = 'trades-table';
+            
+            // Create table header
+            const thead = document.createElement('thead');
+            thead.innerHTML = `
+                <tr>
+                    <th>Date</th>
+                    <th>Symbol</th>
+                    <th>Direction</th>
+                    <th>Market</th>
+                    <th>Entry</th>
+                    <th>Exit</th>
+                    <th>Quantity</th>
+                    <th>P/L</th>
+                    <th>Notes</th>
+                </tr>
+            `;
+            tableElement.appendChild(thead);
+            
+            // Create table body
+            const tbody = document.createElement('tbody');
+            tableElement.appendChild(tbody);
+            
+            tradesListElement.innerHTML = '';
+            tradesListElement.appendChild(tableElement);
+        }
+
+        // Update table body
+        const tbody = tableElement.querySelector('tbody');
+        tbody.innerHTML = '';
 
         this.trades.forEach((trade) => {
-            const tradeCard = document.createElement('div');
-            tradeCard.className = `trade-card ${trade.profitLoss >= 0 ? 'profit' : 'loss'}`;
+            const tr = document.createElement('tr');
+            tr.className = `trade-row ${trade.profitLoss >= 0 ? 'profit' : 'loss'}`;
 
             const formattedDate = new Date(trade.date).toLocaleDateString('en-US', {
                 year: 'numeric',
-                month: 'long',
+                month: 'short',
                 day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
             });
-            const profitLossColor = trade.profitLoss >= 0 ? '#2ecc71' : '#e74c3c';
 
-            tradeCard.innerHTML = `
-                <div class="trade-header">
-                    <span class="trade-symbol">${trade.symbol.toUpperCase()}</span>
-                    <span class="trade-market">${trade.market}</span>
-                </div>
-                <div class="trade-details">
-                    <div>Entry Price: ${trade.entryPrice}</div>
-                    <div>Exit Price: ${trade.exitPrice}</div>
-                    <div>Profit/Loss: <span style="color: ${profitLossColor};">${trade.profitLoss.toFixed(2)}</span></div>
-                    <div>Quantity: ${trade.quantity}</div>
-                    <div>Date: ${formattedDate}</div>
-                </div>
-                ${trade.notes ? `<div class="trade-notes">${trade.notes}</div>` : ''}
+            tr.innerHTML = `
+                <td>${formattedDate}</td>
+                <td class="symbol">${trade.symbol.toUpperCase()}</td>
+                <td>
+                    <span class="direction-badge ${trade.direction}">
+                        ${trade.direction === 'long' ? '▲ LONG' : '▼ SHORT'}
+                    </span>
+                </td>
+                <td>${trade.market}</td>
+                <td>${trade.entryPrice.toFixed(2)}</td>
+                <td>${trade.exitPrice.toFixed(2)}</td>
+                <td>${trade.quantity}</td>
+                <td class="${trade.profitLoss >= 0 ? 'profit' : 'loss'}">
+                    ${trade.profitLoss >= 0 ? '+' : ''}${trade.profitLoss.toFixed(2)}
+                </td>
+                <td class="notes">${trade.notes || '-'}</td>
             `;
 
-            tradesListElement.appendChild(tradeCard);
+            tbody.appendChild(tr);
         });
+
+        // Update cumulative P/L if element exists
+        const cumPnlElement = document.querySelector('.cumulative-pnl .value');
+        const cumPnlPercentElement = document.querySelector('.cumulative-pnl .percentage');
+        
+        if (cumPnlElement && cumPnlPercentElement) {
+            const totalPnL = this.trades.reduce((sum, trade) => sum + trade.profitLoss, 0);
+            const totalInvestment = this.trades.reduce((sum, trade) => sum + (trade.entryPrice * trade.quantity), 0);
+            const pnlPercentage = (totalPnL / totalInvestment) * 100 || 0;
+            
+            cumPnlElement.textContent = `${totalPnL >= 0 ? '+' : ''}$${totalPnL.toFixed(2)}`;
+            cumPnlElement.className = `value ${totalPnL >= 0 ? 'profit' : 'loss'}`;
+            cumPnlPercentElement.textContent = `${pnlPercentage >= 0 ? '+' : ''}${pnlPercentage.toFixed(2)}%`;
+            cumPnlPercentElement.className = `percentage ${totalPnL >= 0 ? 'profit' : 'loss'}`;
+        }
     }
 
     // Data management methods
@@ -194,6 +253,7 @@ class TradeManager {
 
 // Initialize TradeManager
 const tradeManager = new TradeManager();
+window.tradeManager = tradeManager; // Expose to window object
 
 // Initialize trades on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -225,7 +285,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 parseFloat(document.getElementById('exitPrice').value),
                 parseFloat(document.getElementById('quantity').value),
                 document.getElementById('date').value,
-                document.getElementById('notes').value
+                document.getElementById('notes').value,
+                document.getElementById('direction').value
             );
 
             await tradeManager.addTrade(trade);

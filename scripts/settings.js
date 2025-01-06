@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearDataBtn = document.getElementById('clearData');
     const filePathInput = document.getElementById('filePath');
     const selectPathBtn = document.getElementById('selectPath');
-    
 
     // Load current settings
     const loadSettings = () => {
@@ -53,10 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle file path selection
     selectPathBtn.addEventListener('click', async () => {
         try {
-            // This would typically use a file dialog
-            // For now, we'll just use a default path
-            const defaultPath = `${process.env.USERPROFILE || process.env.HOME}/tradelab_trades.json`;
+            // Create a default path using timestamp to ensure uniqueness
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const defaultPath = `trades_${timestamp}.json`;
             filePathInput.value = defaultPath;
+            
+            // Store the path
+            localStorage.setItem('storageFilePath', defaultPath);
         } catch (error) {
             console.error('Error selecting file path:', error);
             alert('Error selecting file path. Please try again.');
@@ -79,10 +81,14 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('autoBackup', autoBackup);
             localStorage.setItem('backupInterval', backupInterval);
 
-            // Update storage strategy
-            await tradeManager.setStorageStrategy(storageType, filePath);
-
-            alert('Settings saved successfully!');
+            // Get the tradeManager instance
+            if (window.tradeManager) {
+                // Update storage strategy
+                await window.tradeManager.setStorageStrategy(storageType, filePath);
+                alert('Settings saved successfully!');
+            } else {
+                throw new Error('Trade manager not initialized');
+            }
         } catch (error) {
             console.error('Error saving settings:', error);
             alert('Error saving settings. Please try again.');
@@ -106,7 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle data export
     exportDataBtn.addEventListener('click', async () => {
         try {
-            await tradeManager.exportTrades();
+            if (window.tradeManager) {
+                await window.tradeManager.exportTrades();
+            } else {
+                throw new Error('Trade manager not initialized');
+            }
         } catch (error) {
             console.error('Error exporting trades:', error);
             alert('Error exporting trades. Please try again.');
@@ -126,8 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 reader.onload = async (event) => {
                     try {
-                        await tradeManager.importTrades(event.target.result);
-                        alert('Trades imported successfully!');
+                        if (window.tradeManager) {
+                            await window.tradeManager.importTrades(event.target.result);
+                            alert('Trades imported successfully!');
+                        } else {
+                            throw new Error('Trade manager not initialized');
+                        }
                     } catch (error) {
                         console.error('Error importing trades:', error);
                         alert('Error importing trades. Please make sure the file format is correct.');
@@ -148,8 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
     clearDataBtn.addEventListener('click', async () => {
         if (confirm('Are you sure you want to delete all trade data? This action cannot be undone.')) {
             try {
-                await tradeManager.clearAllTrades();
-                alert('All trade data has been cleared.');
+                if (window.tradeManager) {
+                    await window.tradeManager.clearAllTrades();
+                    alert('All trade data has been cleared.');
+                } else {
+                    throw new Error('Trade manager not initialized');
+                }
             } catch (error) {
                 console.error('Error clearing trades:', error);
                 alert('Error clearing trades. Please try again.');
