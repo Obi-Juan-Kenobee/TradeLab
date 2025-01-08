@@ -220,6 +220,7 @@ textarea {
 }
 
 .trades-table tbody tr {
+    color: #000;
     border-bottom: 1px solid var(--border-color);
     transition: background-color 0.3s ease;
 }
@@ -235,13 +236,14 @@ textarea {
 
 .trades-table td.notes {
     white-space: normal;
-    max-width: 200px;
+    min-width: 300px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .trades-table .symbol {
     font-weight: 600;
+    color: #000;
 }
 
 /* Direction Badge Styles */
@@ -255,12 +257,14 @@ textarea {
 
 .direction-badge.long {
     background-color: rgba(46, 204, 113, 0.2);
-    color: #27ae60;
+    color: #000;
+    border: 2px solid var(--text-color);
 }
 
 .direction-badge.short {
     background-color: rgba(231, 76, 60, 0.2);
-    color: #c0392b;
+    color: #000;
+    border: 2px solid var(--text-color);
 }
 
 /* Profit/Loss Colors */

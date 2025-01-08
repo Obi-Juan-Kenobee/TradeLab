@@ -198,7 +198,7 @@ class TradeManager {
       const thead = document.createElement("thead");
       thead.innerHTML = `
                 <tr>
-                    <th>Date</th>
+                    <th class="date-header">Date</th>
                     <th>Symbol</th>
                     <th>Direction</th>
                     <th>Market</th>
