@@ -27,6 +27,11 @@
 }
 
 /* Trades Filter */
+
+#symbolFilter {
+    text-transform: uppercase;
+}
+
 .trades-filter {
     background-color: var(--card-bg);
     padding: 1.5rem;
@@ -56,6 +61,22 @@
     color: var(--text-color);
 }
 
+.clear-date-range {
+    padding: 0.5rem 1rem;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: 2px solid var(--accent-color);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin: 0.5rem;
+}
+
+.clear-date-range:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
 .date-range {
     display: flex;
     align-items: center;
@@ -64,6 +85,40 @@
 
 .date-range span {
     color: var(--text-color);
+}
+
+/* Delete All Button */
+.delete-all-header {
+    text-align: right;
+    padding: 1rem !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.delete-all-btn {
+    background-color: var(--danger-color, #dc3545);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.delete-all-btn:hover {
+    background-color: var(--danger-hover-color, #c82333);
+}
+
+.delete-all-btn i {
+    font-size: 1rem;
+}
+
+/* Ensure table header rows are properly styled */
+.table-header-row th {
+    background-color: var(--card-bg);
 }
 
 /* Trades Container */
