@@ -10,21 +10,46 @@ class Trade {
     notes,
     direction
   ) {
-    this.id = Date.now().toString();
+    this.id = Date.now().toString() + Math.random().toString(36).substr(2, 9); // More unique ID
     this.symbol = symbol;
     this.market = market;
-    this.entryPrice = entryPrice;
-    this.exitPrice = exitPrice;
-    this.quantity = quantity;
-    this.date = date;
+    this.entryPrice = parseFloat(entryPrice);
+    this.exitPrice = parseFloat(exitPrice);
+    this.quantity = parseFloat(quantity);
+    this.date = new Date(date);
     this.notes = notes;
     this.direction = direction; // 'long' or 'short'
     this.profitLoss = this.calculateProfitLoss();
   }
 
   calculateProfitLoss() {
-    const rawPL = (this.exitPrice - this.entryPrice) * this.quantity;
+    const long  = document.querySelector('.long');
+    const short = document.querySelector('.short');
+    long.addEventListener('click', this.handleClick);
+    short.addEventListener('click', this.handleClick);
+    const rawPL = 0;
+    if (this.direction === "long") {
+      rawPL = (this.exitPrice - this.entryPrice) * this.quantity;
+    } else {
+      rawPL = (this.entryPrice - this.exitPrice) * this.quantity;
+    }
     return this.direction === "long" ? rawPL : -rawPL;
+  }
+
+  // Add a method to convert to a plain object for storage
+  toStorageObject() {
+    return {
+      id: this.id,
+      symbol: this.symbol,
+      market: this.market,
+      entryPrice: this.entryPrice,
+      exitPrice: this.exitPrice,
+      quantity: this.quantity,
+      date: this.date.toISOString(),
+      notes: this.notes,
+      direction: this.direction,
+      profitLoss: this.profitLoss
+    };
   }
 }
 
@@ -59,28 +84,100 @@ class ExcelStorageStrategy extends StorageStrategy {
     XLSX.writeFile(workbook, filename);
   }
 
+  static validateExcelData(trades) {
+    const requiredColumns = [
+      'symbol',
+      'market',
+      'entryPrice',
+      'exitPrice',
+      'quantity',
+      'date',
+      'notes',
+      'direction'
+    ];
+
+    // Check if we have any data
+    if (!trades || trades.length === 0) {
+      throw new Error('No data found in Excel file');
+    }
+
+    // Get the columns present in the Excel file
+    const presentColumns = Object.keys(trades[0]);
+    console.log('Columns found in Excel:', presentColumns);
+
+    // Check for missing columns
+    const missingColumns = requiredColumns.filter(
+      col => !presentColumns.includes(col)
+    );
+
+    if (missingColumns.length > 5) {
+      throw new Error(
+        `Missing required columns: ${missingColumns.join(', ')}`
+      );
+    }
+
+    return true;
+  }
+
   static importFromExcel(file) {
+    // Console logs in this method are for debugging purposes only/follow the flow of data
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const data = new Uint8Array(e.target.result);
+                console.log(data);
                 const workbook = XLSX.read(data, { type: 'array' });
+                console.log(workbook);
                 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                console.log(worksheet);
                 const trades = XLSX.utils.sheet_to_json(worksheet);
+                console.log(trades);
                 
-                // Convert imported data to Trade objects
-                const convertedTrades = trades.map(trade => new Trade(
-                    trade.symbol,
-                    trade.market,
-                    parseFloat(trade.entryPrice),
-                    parseFloat(trade.exitPrice),
-                    parseFloat(trade.quantity),
-                    new Date(trade.date),
-                    trade.notes,
-                    trade.direction
-                ));
+                // Validate the Excel data structure
+                this.validateExcelData(trades);
                 
+                console.log('Raw trades from Excel:', trades);
+
+                const convertedTrades = trades.map(trade => {
+                    // Log each raw trade object
+                    console.log('Processing trade:', trade);
+
+                    // Handle date conversion
+                    let tradeDate;
+                    if (trade.date) {
+                        tradeDate = typeof trade.date === 'string' 
+                            ? new Date(trade.date)
+                            : new Date(XLSX.SSF.parse_date_code(trade.date));
+                    } else {
+                        tradeDate = new Date();
+                    }
+
+                    // Ensure all numeric values are properly parsed
+                    const entryPrice = parseFloat(trade.entryPrice);
+                    const exitPrice = parseFloat(trade.exitPrice);
+                    const quantity = parseFloat(trade.quantity);
+
+                    // Create new Trade object with explicit type conversion
+                    const newTrade = new Trade(
+                        String(trade.symbol || ''),
+                        String(trade.market || ''),
+                        isNaN(entryPrice) ? 0 : entryPrice,
+                        isNaN(exitPrice) ? 0 : exitPrice,
+                        isNaN(quantity) ? 0 : quantity,
+                        tradeDate,
+                        String(trade.notes || ''),
+                        String(trade.direction || 'long')
+                    );
+
+                    console.log('Created Trade object:', newTrade);
+                    return newTrade;
+              });
+                console.log(convertedTrades);
+
+                if (!Array.isArray(convertedTrades)) {
+                  throw new Error('Failed to convert Excel data to Trade objects');
+                }
                 resolve(convertedTrades);
             } catch (error) {
                 reject(new Error('Failed to parse Excel file: ' + error.message));
@@ -114,36 +211,91 @@ class IndexedDBStrategy extends StorageStrategy {
           db.createObjectStore(this.storeName, { keyPath: "id" });
         }
       }
-    })
+    });
   }
 
   async loadTrades() {
-    const db = await this.openDB();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.storeName], "readonly");
-      const store = transaction.objectStore(this.storeName);
-      const request = store.getAll();
+    try {
+      const db = await this.openDB();
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([this.storeName], "readonly");
+        const store = transaction.objectStore(this.storeName);
+        const request = store.getAll();
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
-    })
+        request.onerror = () => {
+          console.error("Error loading trades:", request.error);
+          reject(request.error);
+        };
+        
+        request.onsuccess = () => {
+          console.log("Successfully loaded trades:", request.result);
+          resolve(request.result);
+        };
+      });
+    } catch (error) {
+      console.error("Error in loadTrades:", error);
+      throw error;
+    }
   }
 
   async saveTrades(trades) {
-    const db = await this.openDB();
-    return new Promise ((resolve, reject) => {
-      const transaction = db.transaction([this.storeName], "readwrite");
-      const store = transaction.objectStore(this.storeName);
+    try {
+      console.log("Attempting to save trades:", trades);
+      
+      if (!Array.isArray(trades)) {
+        throw new Error("Trades must be an array");
+      }
 
-      // clear existing data
-      store.clear();
+      const db = await this.openDB();
+      
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction([this.storeName], "readwrite");
+        const store = transaction.objectStore(this.storeName);
 
-      // Add all trades
-      trades.forEach((trade) => store.add(trade));
+        // Clear existing data
+        const clearRequest = store.clear();
+        
+        clearRequest.onsuccess = () => {
+          console.log("Cleared existing trades");
+          
+          // Ensure each trade has an ID and proper date format
+          trades.forEach(trade => {
+            // Make sure each trade is properly structured
+            const processedTrade = {
+              ...trade,
+              id: trade.id || Date.now().toString(),
+              date: new Date(trade.date).toISOString()
+            };
 
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
-    })
+            console.log("Saving trade:", processedTrade);
+            const addRequest = store.add(processedTrade);
+            
+            addRequest.onerror = (event) => {
+              console.error("Error adding trade:", addRequest.error);
+              reject(addRequest.error);
+            };
+          });
+        };
+
+        clearRequest.onerror = (event) => {
+          console.error("Error clearing trades:", clearRequest.error);
+          reject(clearRequest.error);
+        };
+
+        transaction.oncomplete = () => {
+          console.log("All trades saved successfully");
+          resolve();
+        };
+
+        transaction.onerror = (event) => {
+          console.error("Transaction error:", transaction.error);
+          reject(transaction.error);
+        };
+      });
+    } catch (error) {
+      console.error("Error in saveTrades:", error);
+      throw error;
+    }
   }
 }
 
@@ -351,13 +503,28 @@ class TradeManager {
 
   async importFromExcel(file) {
     try {
-        const newTrades = await ExcelStorageStrategy.importFromExcel(file);
-        this.trades = [...newTrades, ...this.trades];
+        console.log('Starting Excel import...');
+        const importedTrades = await ExcelStorageStrategy.importFromExcel(file);
+        console.log('Imported trades:', importedTrades);
+        
+        if (!importedTrades || !Array.isArray(importedTrades)) {
+            throw new Error('No valid trades were imported');
+        }
+
+        // Add the new trades to the existing trades
+        this.trades = [...importedTrades, ...this.trades];
+        console.log('Updated trades array:', this.trades);
+        
+        // Save the updated trades
         await this.saveTrades();
+        
+        // Update the display
         this.displayTrades();
+        
+        return importedTrades.length; // Return the number of imported trades
     } catch (error) {
         console.error('Error importing trades:', error);
-        throw new Error('Invalid trade data format');
+        throw new Error(`Failed to import trades: ${error.message}`);
     }
 }
 
@@ -432,3 +599,6 @@ document.addEventListener("DOMContentLoaded", () => {
        });
    }
 });
+
+
+// export { Trade, TradeManager, ExcelStorageStrategy };
