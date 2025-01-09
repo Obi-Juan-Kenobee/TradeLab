@@ -365,9 +365,9 @@ class TradeManager {
     headerDiv.className = "trades-header";
     headerDiv.innerHTML = `
              <h2>Recent Trades</h2>
-             <a href="trade-history.html" class="view-all-link">
-                 <i class="fas fa-table"></i> View All Trades
-             </a>
+                <a href="trade-history.html" class="view-all-link">
+                  View All <i class="fas fa-arrow-right"></i>
+                </a>
          `;
 
     // Create table if it doesn't exist

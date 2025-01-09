@@ -331,6 +331,9 @@ textarea {
 }
 
 @media (max-width: 768px) {
+    .trades-table td.notes {
+        min-width: 300px;
+    }
     .direction-buttons {
         flex-direction: column;
     }
@@ -345,5 +348,17 @@ textarea {
     
     .cumulative-pnl .percentage {
         font-size: 1rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .trades-table td.notes {
+        min-width: 100px;
+    }
+}
+
+@media (min-width: 1380px) {
+    .trades-table td.notes {
+        min-width: 300px;
     }
 }
