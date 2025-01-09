@@ -23,17 +23,13 @@ class Trade {
   }
 
   calculateProfitLoss() {
-    const long  = document.querySelector('.long');
-    const short = document.querySelector('.short');
-    long.addEventListener('click', this.handleClick);
-    short.addEventListener('click', this.handleClick);
-    const rawPL = 0;
+    let rawPL = 0;
     if (this.direction === "long") {
       rawPL = (this.exitPrice - this.entryPrice) * this.quantity;
     } else {
       rawPL = (this.entryPrice - this.exitPrice) * this.quantity;
     }
-    return this.direction === "long" ? rawPL : -rawPL;
+    return rawPL;
   }
 
   // Add a method to convert to a plain object for storage
@@ -123,6 +119,7 @@ class ExcelStorageStrategy extends StorageStrategy {
     // Console logs in this method are for debugging purposes only/follow the flow of data
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
+        console.log(reader);
         reader.onload = (e) => {
             try {
                 const data = new Uint8Array(e.target.result);
@@ -391,6 +388,7 @@ class TradeManager {
                     <th>Quantity</th>
                     <th>P/L</th>
                     <th>Notes</th>
+                    <th></th>
                 </tr>
             `;
       tableElement.appendChild(thead);
@@ -434,12 +432,24 @@ class TradeManager {
                 <td>${trade.exitPrice.toFixed(2)}</td>
                 <td>${trade.quantity}</td>
                 <td class="${trade.profitLoss >= 0 ? "profit" : "loss"}">
-                    ${
-                      trade.profitLoss >= 0 ? "+" : ""
-                    }${trade.profitLoss.toFixed(2)}
+                    ${trade.profitLoss >= 0 ? "+" : ""}${trade.profitLoss.toFixed(2)}
                 </td>
                 <td class="notes">${trade.notes || "-"}</td>
+                <td>
+                    <button class="delete-trade-btn" data-trade-id="${trade.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
             `;
+
+      const deleteBtn = tr.querySelector('.delete-trade-btn');
+      deleteBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          if (confirm('Are you sure you want to delete this trade?')) {
+              const tradeId = e.currentTarget.getAttribute('data-trade-id');
+              await this.deleteTrade(tradeId);
+          }
+      });
 
       tbody.appendChild(tr);
     });
@@ -532,6 +542,12 @@ class TradeManager {
     this.trades = [];
     await this.saveTrades();
     this.displayTrades();
+  }
+
+  async deleteTrade(tradeId) {
+      this.trades = this.trades.filter(trade => trade.id !== tradeId);
+      await this.saveTrades();
+      this.displayTrades();
   }
 }
 

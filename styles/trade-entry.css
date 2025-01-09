@@ -191,7 +191,7 @@ textarea {
 }
 
 .view-all-link:hover {
-    background-color: var(--accent-hover);
+    background-color: #2980b9;
 }
 
 .view-all-link i {
@@ -300,6 +300,26 @@ textarea {
 .cumulative-pnl .percentage {
     font-size: 1.2rem;
     opacity: 0.8;
+}
+
+/* Delete Trade Button Styles */
+.delete-trade-btn {
+    background: none;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.delete-trade-btn:hover {
+    background-color: rgba(255, 68, 68, 0.1);
+    transform: scale(1.1);
+}
+
+.delete-trade-btn i {
+    font-size: 1.1em;
 }
 
 /* Responsive Table */
