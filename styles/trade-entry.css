@@ -91,7 +91,7 @@ textarea {
 }
 
 .btn-submit {
-    background-color: var(--accent-color);
+    background-color: var(--accent-primary-light);
     color: #fff;
     padding: 12px 24px;
     border: none;
@@ -103,7 +103,7 @@ textarea {
 }
 
 .btn-submit:hover {
-    background-color: #2980b9;
+    background-color: var(--accent-primary);
 }
 
 .trades-list {
@@ -137,7 +137,7 @@ textarea {
 }
 
 .direction-btn.long {
-    background-color: #2ecc71;
+    background-color: var(--success-color);
     color: white;
 }
 
@@ -149,7 +149,7 @@ textarea {
 }
 
 .direction-btn.short {
-    background-color: #e74c3c;
+    background-color: var(--error-color);
     color: white;
 }
 
@@ -182,7 +182,7 @@ textarea {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    background-color: var(--accent-color);
+    background-color: var(--accent-primary-light);
     color: white;
     text-decoration: none;
     border-radius: 5px;
@@ -191,7 +191,7 @@ textarea {
 }
 
 .view-all-link:hover {
-    background-color: #2980b9;
+    background-color: var(--accent-primary);
 }
 
 .view-all-link i {
@@ -209,7 +209,7 @@ textarea {
 }
 
 .trades-table thead {
-    background-color: var(--accent-color);
+    background-color: var(--accent-primary-light);
     color: white;
 }
 

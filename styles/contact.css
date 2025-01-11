@@ -65,11 +65,11 @@
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: var(--accent-color);
+    border-color: var(--accent-primary);
 }
 
 .submit-button {
-    background-color: var(--accent-color);
+    background-color: var(--accent-primary-light);
     color: white;
     padding: 1rem 2rem;
     border: none;
@@ -85,7 +85,7 @@
 }
 
 .submit-button:hover {
-    background-color: #2980b9;
+    background-color: var(--accent-primary);
 }
 
 /* Contact info section */
@@ -118,7 +118,7 @@
 
 .contact-method i {
     font-size: 1.2rem;
-    color: var(--accent-color);
+    color: var(--accent-secondary-light);
 }
 
 /* Success message styles */

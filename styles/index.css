@@ -46,7 +46,7 @@
 }
 
 .btn-primary {
-    background-color: var(--accent-color);
+    background-color: var(--accent-primary-light);
     color: white;
     padding: 1rem 2rem;
     border-radius: 5px;
@@ -56,23 +56,24 @@
 }
 
 .btn-primary:hover {
-    background-color: #2980b9;
+    background-color: var(--accent-primary);
     transform: translateY(-2px);
 }
 
 .btn-secondary {
     background-color: white;
-    color: var(--accent-color);
+    color: var(--accent-primary-light);
     padding: 1rem 2rem;
     border-radius: 5px;
     text-decoration: none;
     font-weight: 600;
-    border: 2px solid var(--accent-color);
+    border: 2px solid var(--accent-primary-light);
     transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-    background-color: var(--hover-bg);
+    background-color: var(--accent-secondary-light);
+    color: white;
     transform: translateY(-2px);
     border-color: black;
 }
@@ -114,7 +115,7 @@
 
 .feature-card i {
     font-size: 2.5rem;
-    color: var(--accent-color);
+    color: var(--accent-secondary-light);
     margin-bottom: 1.5rem;
 }
 
@@ -125,7 +126,7 @@
 
 /* Pricing Section */
 .pricing {
-    padding: 6rem 2rem;
+    padding: 3rem 2rem;
 }
 
 .pricing-grid {
@@ -170,14 +171,69 @@
 }
 
 .pricing-card ul li i {
-    color: var(--accent-color);
+    color: var(--accent-primary-light);
     margin-right: 0.5rem;
+}
+
+/* About Section */
+.about {
+    padding: 6rem 2rem;
+    background-color: var(--card-bg);
+}
+
+.about-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-content h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+}
+
+.about-content > p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: var(--text-color);
+    margin-bottom: 3rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 3rem;
+    margin-top: 3rem;
+}
+
+.about-item {
+    text-align: left;
+    padding: 2rem;
+    background-color: var(--bg-color);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.about-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.about-item p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-color);
 }
 
 /* CTA Section */
 .cta {
     padding: 6rem 2rem;
-    background: linear-gradient(135deg, var(--accent-color), #2980b9 100%);
+    background: linear-gradient(135deg, var(--accent-primary), #2980b9 100%);
     text-align: center;
     color: white;
 }
@@ -199,13 +255,20 @@
 
 .cta .btn-primary {
     background-color: white;
-    color: var(--accent-color);
+    color: var(--accent-primary-light);
     transition: all 0.3s ease;
 }
 
 .cta .btn-primary:hover {
     background-color: var(--hover-bg);
     border: 2px solid #34495e;
+}
+
+.note {
+    font-size: 0.9rem;
+    margin: 2rem;
+    color: #34495e;
+    opacity: 0.7;
 }
 
 @media (max-width: 768px) {
