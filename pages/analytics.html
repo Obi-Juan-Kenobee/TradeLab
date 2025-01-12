@@ -109,14 +109,32 @@
 
           <!-- Charts -->
           <div class="chart-card wide equity-chart">
-            <h3>Equity Curve</h3>
+            <div class="chart-header">
+                <h3>Equity Curve</h3>
+                <div class="view-switch">
+                  <label>View by:</label>
+                  <div class="switch-buttons">
+                    <button class="switch-btn active" data-view="trade" data-chart="equity">Trade</button>
+                    <button class="switch-btn" data-view="date" data-chart="equity">Date</button>
+                  </div>
+                </div>
+              </div>
             <div class="chart-container">
               <canvas id="equityChart"></canvas>
             </div>
           </div>
 
           <div class="chart-card wide drawdown-chart">
-            <h3>Drawdown</h3>
+            <div class="chart-header">
+                <h3>Drawdown</h3>
+                <div class="view-switch">
+                  <label>View by:</label>
+                  <div class="switch-buttons">
+                    <button class="switch-btn active" data-view="trade" data-chart="drawdown">Trade</button>
+                    <button class="switch-btn" data-view="date" data-chart="drawdown">Date</button>
+                  </div>
+                </div>
+              </div>
             <div class="chart-container">
               <canvas id="drawdownChart"></canvas>
             </div>
