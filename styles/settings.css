@@ -224,7 +224,7 @@
 .btn-secondary {
     background-color: var(--bg-color);
     color: var(--text-color);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--accent-secondary-light);
 }
 
 .btn-secondary:hover {
@@ -271,13 +271,31 @@ input[type="text"]:focus {
 @media (max-width: 768px) {
     .settings-container {
         padding: 1rem;
+        margin: 1rem auto;
     }
 
     .settings-content {
         padding: 1.5rem;
     }
 
-    .data-management {
+    .settings-content h1 {
+        font-size: 1.75rem;
+    }
+
+    .settings-section h2 {
+        font-size: 1.3rem;
+    }
+
+    .storage-option {
+        flex-direction: column;
+        margin-bottom: inherit;
+    }
+
+    .storage-option input[type="radio"] {
+        align-self: flex-start;
+    }
+
+    .file-path-input {
         flex-direction: column;
     }
 
@@ -287,7 +305,80 @@ input[type="text"]:focus {
         gap: 0.5rem;
     }
 
-    .file-path-input {
+    .setting-item label {
+        min-width: auto;
+    }
+
+    select {
+        width: 100%;
+    }
+
+    .data-management {
         flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-container {
+        padding: 0.75rem;
+        margin: 0.75rem auto;
+    }
+
+    .settings-content {
+        padding: 1rem;
+    }
+
+    .settings-content h1 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .settings-section {
+        margin-bottom: 2rem;
+    }
+
+    .settings-section h2 {
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .settings-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .storage-option {
+        padding: 0.75rem;
+    }
+
+    .storage-option .description {
+        font-size: 0.85rem;
+    }
+
+    .storage-option .warning {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+
+    .storage-info {
+        margin-top: 1rem;
+        padding: 0.75rem;
+    }
+
+    .storage-info h3 {
+        font-size: 1rem;
+    }
+
+    .storage-stat-item {
+        padding: 0.4rem;
+        font-size: 0.9rem;
     }
 }
