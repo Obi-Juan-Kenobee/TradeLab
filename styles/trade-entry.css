@@ -277,29 +277,45 @@ textarea {
 }
 
 /* Cumulative P/L Styles */
-.cumulative-pnl {
-    background-color: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: var(--shadow);
+.pnl-container {
+    display: flex;
+    gap: 2rem;
     margin-bottom: 2rem;
-    text-align: center;
-}
+  }
 
-.cumulative-pnl h2 {
+  .pnl-container .cumulative-pnl {
+    display: flex;
+    align-items: center;
     margin-bottom: 1rem;
-    color: var(--text-color);
-}
+  }
+  
+  .cumulative-pnl,
+  .todays-pnl {
+    flex: 1;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
 
-.cumulative-pnl .value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.cumulative-pnl .percentage {
+  .cumulative-pnl h2,
+  .todays-pnl h2 {
+    margin: 0;
     font-size: 1.2rem;
-    opacity: 0.8;
+    color: var(--text-muted);
+}
+
+.cumulative-pnl .value,
+.todays-pnl .value {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+.cumulative-pnl .percentage,
+.todays-pnl .percentage {
+  font-size: 1.1rem;
+  color: var(--text-muted);
 }
 
 /* Delete Trade Button Styles */
@@ -312,6 +328,47 @@ textarea {
     border-radius: 4px;
     transition: all 0.2s ease;
 }
+
+/* Today's P/L Styles */
+.todays-pnl {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+}
+
+.todays-pnl h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.todays-pnl .value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+.todays-pnl .percentage {
+    font-size: 1rem;
+    opacity: 0.8;
+    margin-left: auto;
+}
+
+.todays-pnl .value.positive,
+.todays-pnl .percentage.positive {
+    color: #2ecc71;
+}
+
+.todays-pnl .value.negative,
+.todays-pnl .percentage.negative {
+    color: #e74c3c;
+}
+
 
 .delete-trade-btn:hover {
     background-color: rgba(255, 68, 68, 0.1);
@@ -363,6 +420,9 @@ textarea {
     }
 }
 @media (max-width: 768px) {
+    .pnl-container {
+        flex-direction: column;
+    }
     .main-content {
         padding: 1rem;
     }

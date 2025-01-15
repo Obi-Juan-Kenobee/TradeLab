@@ -62,16 +62,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 // Cumulative PnL
-function calculateCumulativePnL() {
-    const trades = JSON.parse(localStorage.getItem('trades')) || [];
+function calculatePnL(trades, isToday = false) {
     let totalPnL = 0;
     let initialValue = 0;
 
-    trades.forEach((trade) => {
-        const pnl = (trade.exitPrice - trade.entryPrice) * trade.quantity;
-        if (!initialValue && pnl !== 0) {
-            initialValue = trade.entryPrice * trade.quantity;
-        }
+  // Get today's date at midnight for comparison
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  trades.forEach(trade => {
+      const tradeDate = new Date(trade.date);
+      
+      // For today's P/L, only include trades from today
+      if (isToday && tradeDate < today) {
+          return;
+      }
+
+      const pnl = trade.direction === 'long' 
+          ? (trade.exitPrice - trade.entryPrice) * trade.quantity
+          : (trade.entryPrice - trade.exitPrice) * trade.quantity;
+          
+      totalPnL += pnl;
+      initialValue += trade.entryPrice * trade.quantity;
         totalPnL += pnl;
     });
 
@@ -79,18 +91,37 @@ function calculateCumulativePnL() {
     return { totalPnL, percentageChange };
 }
 
-function updateCumulativePnL() {
-    const { totalPnL, percentageChange } = calculateCumulativePnL();
-    const pnlElement = document.querySelector('.cumulative-pnl .value');
-    const percentageElement = document.querySelector('.cumulative-pnl .percentage');
+function updatePnL() {
+    const trades = JSON.parse(localStorage.getItem('trades') || '[]');
+    
+    // Update Cumulative P/L
+    const cumulative = calculatePnL(trades);
+    const cumulativePnlElement = document.querySelector('.cumulative-pnl .value');
+    const cumulativePercentageElement = document.querySelector('.cumulative-pnl .percentage');
 
-    if (pnlElement) {
-        pnlElement.textContent = formatCurrency(totalPnL);
-        pnlElement.className = `value ${totalPnL >= 0 ? 'positive' : 'negative'}`;
+    if (cumulativePnlElement) {
+        cumulativePnlElement.textContent = formatCurrency(cumulative.totalPnL);
+        cumulativePnlElement.className = `value ${cumulative.totalPnL >= 0 ? 'positive' : 'negative'}`;
     }
 
-    if (percentageElement) {
-        percentageElement.textContent = `${percentageChange}%`;
+    if (cumulativePercentageElement) {
+        cumulativePercentageElement.textContent = `${cumulative.percentageChange}%`;
+        cumulativePercentageElement.className = `percentage ${cumulative.totalPnL >= 0 ? 'positive' : 'negative'}`;
+    }
+
+    // Update Today's P/L
+    const today = calculatePnL(trades, true);
+    const todaysPnlElement = document.querySelector('.todays-pnl .value');
+    const todaysPercentageElement = document.querySelector('.todays-pnl .percentage');
+
+    if (todaysPnlElement) {
+        todaysPnlElement.textContent = formatCurrency(today.totalPnL);
+        todaysPnlElement.className = `value ${today.totalPnL >= 0 ? 'positive' : 'negative'}`;
+    }
+
+    if (todaysPercentageElement) {
+        todaysPercentageElement.textContent = `${today.percentageChange}%`;
+        todaysPercentageElement.className = `percentage ${today.totalPnL >= 0 ? 'positive' : 'negative'}`;
     }
 }
 
@@ -99,5 +130,6 @@ function formatCurrency(amount) {
     return amount >= 0 ? `$${formatted}` : `-$${formatted}`;
 }
 
-// Update P/L display on page load
-document.addEventListener('DOMContentLoaded', updateCumulativePnL);
+// Update P/L display on page load and when trades change
+document.addEventListener('DOMContentLoaded', updatePnL);
+window.addEventListener('storage', updatePnL);

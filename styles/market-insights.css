@@ -1,4 +1,7 @@
 /* Market Insights Page Styles */
+main {
+    width: 100%;
+}
 .widgets-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -34,10 +37,12 @@
 
 .gainers-losers {
     min-height: 350px;
+    grid-column: span 2;
 }
 
 .crypto-market {
     min-height: 350px;
+    grid-column: span 2;
 }
 
 .market-news {
@@ -73,5 +78,10 @@
 
     .widget-container {
         padding: 1rem;
+    }
+
+    .gainers-losers,
+    .crypto-market {
+        grid-column: 1 / -1;  /* Full width */
     }
 }

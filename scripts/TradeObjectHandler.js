@@ -18,16 +18,16 @@ class Trade {
     this.quantity = parseFloat(quantity);
     this.date = new Date(date);
     this.notes = notes;
-    this.direction = direction; // 'long' or 'short'
-    this.profitLoss = this.calculateProfitLoss();
+    this.direction = direction.toLowerCase(); // 'long' or 'short'
+    this.profitLoss = parseFloat(this.calculateProfitLoss().toFixed(2));
   }
 
   calculateProfitLoss() {
     let rawPL = 0;
     if (this.direction === "long") {
-      rawPL = (this.exitPrice - this.entryPrice) * this.quantity;
+      rawPL = (this.exitPrice - this.entryPrice) * Math.abs(this.quantity);
     } else {
-      rawPL = (this.entryPrice - this.exitPrice) * this.quantity;
+      rawPL = (this.entryPrice - this.exitPrice) * Math.abs(this.quantity);
     }
     return rawPL;
   }
@@ -467,6 +467,62 @@ class TradeManager {
     );
 
     if (cumPnlElement && cumPnlPercentElement) {
+      // Calculate total PnL and investment
+      const totalPnL = this.trades.reduce(
+        (sum, trade) => sum + trade.profitLoss,
+        0
+      );
+      
+      // Calculate total investment considering direction
+      const totalInvestment = this.trades.reduce((sum, trade) => {
+        const investment = trade.entryPrice * trade.quantity;
+        return sum + Math.abs(investment);
+      }, 0);
+
+      // Calculate PnL percentage using absolute investment value
+      const pnlPercentage = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
+
+      // Calculate today's PnL
+      const today = new Date();
+      const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const todayTrades = this.trades.filter(trade => new Date(trade.date) >= todayStart);
+      const todayPnL = todayTrades.reduce((sum, trade) => sum + trade.profitLoss, 0);
+      const todayInvestment = todayTrades.reduce((sum, trade) => {
+        const investment = trade.entryPrice * trade.quantity;
+        return sum + Math.abs(investment);
+      }, 0);
+      const todayPnlPercentage = todayInvestment > 0 ? (todayPnL / todayInvestment) * 100 : 0;
+
+      // Update cumulative PnL display
+      cumPnlElement.textContent = `${
+        totalPnL >= 0 ? "+" : ""
+      }$${totalPnL.toFixed(2)}`;
+      cumPnlElement.className = `value ${totalPnL >= 0 ? "profit" : "loss"}`;
+      cumPnlPercentElement.textContent = `${
+        pnlPercentage >= 0 ? "+" : ""
+      }${pnlPercentage.toFixed(2)}%`;
+      cumPnlPercentElement.className = `percentage ${
+        totalPnL >= 0 ? "profit" : "loss"
+      }`;
+
+      // Add Today's PnL display
+      const todayPnlContainer = document.querySelector(".todays-pnl") || createTodayPnlElement();
+      const todayValueElement = todayPnlContainer.querySelector(".value");
+      const todayPercentageElement = todayPnlContainer.querySelector(".percentage");
+
+      todayValueElement.textContent = `${
+        todayPnL >= 0 ? "+" : ""
+      }$${todayPnL.toFixed(2)}`;
+      todayValueElement.className = `value ${todayPnL >= 0 ? "profit" : "loss"}`;
+      todayPercentageElement.textContent = `${
+        todayPnlPercentage >= 0 ? "+" : ""
+      }${todayPnlPercentage.toFixed(2)}%`;
+      todayPercentageElement.className = `percentage ${
+        todayPnL >= 0 ? "profit" : "loss"
+      }`;
+    }
+
+    if (cumPnlElement && cumPnlPercentElement) {
       const totalPnL = this.trades.reduce(
         (sum, trade) => sum + trade.profitLoss,
         0
@@ -621,5 +677,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+function createTodayPnlElement() {
+  const todayPnlContainer = document.createElement("div");
+  todayPnlContainer.className = "today-pnl";
+  todayPnlContainer.innerHTML = `
+    <h3>Today's PnL</h3>
+    <div class="value"></div>
+    <div class="percentage"></div>
+  `;
+  document.querySelector(".cumulative-pnl").appendChild(todayPnlContainer);
+  return todayPnlContainer;
+}
 
 // export { Trade, TradeManager, ExcelStorageStrategy };
