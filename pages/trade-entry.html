@@ -29,176 +29,199 @@
     </nav>
 
     <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <div class="sidebar-header">
-            <i class="fas fa-chart-line"></i>
-            <span>Trading Tools</span>
-          </div>
-          <nav class="sidebar-nav">
-            <a href="trade-entry.html" class="sidebar-link active">
-              <i class="fas fa-plus-circle"></i>
-              <span>Manual Entry</span>
-            </a>
-            <a href="import.html" class="sidebar-link">
-              <i class="fas fa-file-import"></i>
-              <span>Import Trades</span>
-            </a>
-            <a href="analytics.html" class="sidebar-link">
-              <i class="fas fa-chart-bar"></i>
-              <span>Analytics</span>
-            </a>
-            <a href=".dashboard.html" class="sidebar-link">
-              <i class="fas fa-calendar-alt"></i>
-              <span>Calendar</span>
-            </a>
-            <a href="settings.html" class="sidebar-link">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </nav>
-        </aside>
-  
-        <!-- Main Content -->
-        <main class="main-content">
-          <div class="content-header">
-            <h1>Trade Entry</h1>
-          </div>
-  
-          <!-- Cumulative P/L -->
-          <div class="cumulative-pnl">
-            <h2>Cumulative P/L</h2>
-            <div class="value">$0.00</div>
-            <div class="percentage">0.00%</div>
-          </div>
-  
-          <!-- Trade Entry Form -->
-          <div class="content-body">
-            <div class="trade-form">
-              <h2>Add New Trade</h2>
-              <form id="tradeForm">
-                <div class="form-group">
-                  <label for="symbol">Symbol:</label>
-                  <input
-                    type="text"
-                    id="symbol"
-                    required
-                    placeholder="e.g., AAPL"
-                  />
-                </div>
-  
-                <div class="form-group">
-                  <label for="market">Market:</label>
-                  <select id="market" required>
-                    <option value="stock">Stock</option>
-                    <option value="futures">Futures</option>
-                    <!-- <option value="forex">Forex</option> -->
-                    <option value="crypto">Cryptocurrency</option>
-                    <option value="options">Options</option>
-                  </select>
-                </div>
-  
-                <div class="form-group">
-                  <label for="entryPrice">Entry Price:</label>
-                  <input type="text" id="entryPrice" required />
-                </div>
-  
-                <div class="form-group">
-                  <label for="exitPrice">Exit Price:</label>
-                  <input type="text" id="exitPrice" required />
-                </div>
-  
-                <div class="form-group">
-                  <label for="quantity">Quantity:</label>
-                  <input type="text" id="quantity" required />
-                </div>
-  
-                <div class="form-group">
-                  <label for="date">Date:</label>
-                  <input type="datetime-local" id="date" required />
-                </div>
-  
-                <div class="form-group">
-                  <label>Direction:</label>
-                  <div class="direction-buttons">
-                    <button type="button" class="direction-btn long" data-direction="long">
-                      ▲ LONG
-                    </button>
-                    <button type="button" class="direction-btn short" data-direction="short">
-                      ▼ SHORT
-                    </button>
-                  </div>
-                  <input type="hidden" id="direction" value="long" required />
-                </div>
-  
-                <div class="form-group">
-                  <label for="notes">Notes:</label>
-                  <textarea
-                    id="notes"
-                    rows="4"
-                    placeholder="Add your trade notes here..."
-                  ></textarea>
-                </div>
-  
-                <button type="submit" class="btn-submit">Add Trade</button>
-              </form>
-            </div>
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <i class="fas fa-chart-line"></i>
+          <span>Trading Tools</span>
+        </div>
+        <nav class="sidebar-nav">
+          <a href="trade-entry.html" class="sidebar-link active">
+            <i class="fas fa-plus-circle"></i>
+            <span>Manual Entry</span>
+          </a>
+          <a href="import.html" class="sidebar-link">
+            <i class="fas fa-file-import"></i>
+            <span>Import Trades</span>
+          </a>
+          <a href="analytics.html" class="sidebar-link">
+            <i class="fas fa-chart-bar"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="market-insights.html" class="sidebar-link">
+            <i class="fas fa-globe"></i>
+            <span>Market Insights</span>
+          </a>
+          <a href=".dashboard.html" class="sidebar-link">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Calendar</span>
+          </a>
+          <a href="settings.html" class="sidebar-link">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </nav>
+      </aside>
 
-            <div class="tradingView-ticker">
-            <!-- TradingView Widget BEGIN -->
-<div class="tradingview-widget-container">
-  <div class="tradingview-widget-container__widget"></div>
-  <div class="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span class="blue-text">Track all markets on TradingView</span></a></div>
-  <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-  {
-  "symbols": [
-    {
-      "proName": "FOREXCOM:SPXUSD",
-      "title": "S&P 500 Index"
-    },
-    {
-      "proName": "FOREXCOM:DJI",
-      "title": "Dow Jones Index"
-    },
-    {
-      "proName": "NASDAQ:NDX",
-      "title": "Nasdaq 100"
-    },
-    {
-      "proName": "FOREXCOM:NSXUSD",
-      "title": "US 100 Cash CFD"
-    },
-    {
-      "proName": "FX_IDC:EURUSD",
-      "title": "EUR to USD"
-    },
-    {
-      "proName": "BITSTAMP:BTCUSD",
-      "title": "Bitcoin"
-    },
-    {
-      "proName": "BITSTAMP:ETHUSD",
-      "title": "Ethereum"
-    }
-  ],
-  "showSymbolLogo": true,
-  "isTransparent": false,
-  "displayMode": "adaptive",
-  "colorTheme": "light",
-  "locale": "en"
-}
-  </script>
-</div>
-<!-- TradingView Widget END -->
-            </div>
-  
-            <div class="trades-list">
-              <div id="tradesList"></div>
-            </div>
-          </div>
-        </main>
-      </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-header">
+          <h1>Trade Entry</h1>
+        </div>
 
+        <!-- Cumulative P/L -->
+        <div class="cumulative-pnl">
+          <h2>Cumulative P/L</h2>
+          <div class="value">$0.00</div>
+          <div class="percentage">0.00%</div>
+        </div>
+
+        <div class="tradingView-ticker">
+          <!-- TradingView Widget BEGIN -->
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <div class="tradingview-widget-copyright">
+              <a
+                href="https://www.tradingview.com/"
+                rel="noopener nofollow"
+                target="_blank"
+                ><span class="blue-text"
+                  >Track all markets on TradingView</span
+                ></a
+              >
+            </div>
+            <script
+              type="text/javascript"
+              src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js"
+              async
+            >
+                {
+                "symbols": [
+                  {
+                    "proName": "FOREXCOM:SPXUSD",
+                    "title": "S&P 500 Index"
+                  },
+                  {
+                    "proName": "FOREXCOM:DJI",
+                    "title": "Dow Jones Index"
+                  },
+                  {
+                    "proName": "NASDAQ:NDX",
+                    "title": "Nasdaq 100"
+                  },
+                  {
+                    "proName": "FOREXCOM:NSXUSD",
+                    "title": "US 100 Cash CFD"
+                  },
+                  {
+                    "proName": "FX_IDC:EURUSD",
+                    "title": "EUR to USD"
+                  },
+                  {
+                    "proName": "BITSTAMP:BTCUSD",
+                    "title": "Bitcoin"
+                  },
+                  {
+                    "proName": "BITSTAMP:ETHUSD",
+                    "title": "Ethereum"
+                  }
+                ],
+                "showSymbolLogo": true,
+                "isTransparent": false,
+                "displayMode": "adaptive",
+                "colorTheme": "light",
+                "locale": "en"
+              }
+            </script>
+          </div>
+          <!-- TradingView Widget END -->
+        </div>
+
+        <!-- Trade Entry Form -->
+        <div class="content-body">
+          <div class="trade-form">
+            <h2>Add New Trade</h2>
+            <form id="tradeForm">
+              <div class="form-group">
+                <label for="symbol">Symbol:</label>
+                <input
+                  type="text"
+                  id="symbol"
+                  required
+                  placeholder="e.g., AAPL"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="market">Market:</label>
+                <select id="market" required>
+                  <option value="stock">Stock</option>
+                  <option value="futures">Futures</option>
+                  <!-- <option value="forex">Forex</option> -->
+                  <option value="crypto">Cryptocurrency</option>
+                  <option value="options">Options</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="entryPrice">Entry Price:</label>
+                <input type="text" id="entryPrice" required />
+              </div>
+
+              <div class="form-group">
+                <label for="exitPrice">Exit Price:</label>
+                <input type="text" id="exitPrice" required />
+              </div>
+
+              <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="text" id="quantity" required />
+              </div>
+
+              <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="datetime-local" id="date" required />
+              </div>
+
+              <div class="form-group">
+                <label>Direction:</label>
+                <div class="direction-buttons">
+                  <button
+                    type="button"
+                    class="direction-btn long"
+                    data-direction="long"
+                  >
+                    ▲ LONG
+                  </button>
+                  <button
+                    type="button"
+                    class="direction-btn short"
+                    data-direction="short"
+                  >
+                    ▼ SHORT
+                  </button>
+                </div>
+                <input type="hidden" id="direction" value="long" required />
+              </div>
+
+              <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea
+                  id="notes"
+                  rows="4"
+                  placeholder="Add your trade notes here..."
+                ></textarea>
+              </div>
+
+              <button type="submit" class="btn-submit">Add Trade</button>
+            </form>
+          </div>
+          <div class="trades-list">
+            <div id="tradesList"></div>
+          </div>
+        </div>
+      </main>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -232,7 +255,9 @@
           <h3>Follow Us</h3>
           <div class="social-links">
             <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
-            <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+            <a href="#"
+              ><i class="fab fa-linkedin" aria-label="LinkedIn"></i
+            ></a>
             <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
           </div>
         </div>

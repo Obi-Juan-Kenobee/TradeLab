@@ -1,0 +1,77 @@
+/* Market Insights Page Styles */
+.widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    padding: 1rem;
+    max-width: 100%;
+}
+
+.widget-container {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease-in-out;
+}
+
+.widget-container:hover {
+    transform: translateY(-2px);
+}
+
+.widget-container h2 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Specific widget layouts */
+.market-overview {
+    grid-column: 1 / -1;  /* Full width */
+    min-height: 400px;
+}
+
+.gainers-losers {
+    min-height: 350px;
+}
+
+.crypto-market {
+    min-height: 350px;
+}
+
+.market-news {
+    grid-column: 1 / -1;  /* Full width */
+    min-height: 500px;
+}
+
+.economic-calendar {
+    grid-column: 1 / -1;  /* Full width */
+    min-height: 600px;
+}
+
+/* Tradingview widget containers */
+.tradingview-widget-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .widgets-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .widgets-grid {
+        grid-template-columns: auto;
+        padding: 0.5rem;
+        gap: 1rem;
+    }
+
+    .widget-container {
+        padding: 1rem;
+    }
+}
