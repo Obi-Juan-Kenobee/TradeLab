@@ -359,7 +359,7 @@ class TradeManager {
       // Convert plain objects back to Trade instances to ensure all properties are calculated
       this.trades = loadedTrades.map(trade => Trade.fromStorageObject(trade));
       this.displayTrades();
-
+      return this.trades; // Return the trades array
     } catch (error) {
       console.error("Error loading trades:", error);
       // Handle error appropriately (show user notification, etc.)
@@ -389,7 +389,7 @@ class TradeManager {
     headerDiv.innerHTML = `
              <h2>Recent Trades</h2>
       <div class="trades-actions">
-              <a href="all-trades.html" class="view-all-link">
+              <a href="trade-history.html" class="view-all-link">
           View All <i class="fas fa-arrow-right"></i>
         </a>
       </div>
