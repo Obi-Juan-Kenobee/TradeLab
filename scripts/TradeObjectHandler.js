@@ -12,7 +12,7 @@ class Trade {
   ) {
     this.id = Date.now().toString() + Math.random().toString(36).substr(2, 9); // More unique ID
     this.symbol = symbol;
-    this.market = market;
+    this.market = market.charAt(0).toUpperCase() + market.slice(1);
     this.entryPrice = parseFloat(entryPrice);
     this.exitPrice = parseFloat(exitPrice);
     this.quantity = parseFloat(quantity);

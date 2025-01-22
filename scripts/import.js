@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const csvContent = e.target.result;
                     const workbook = XLSX.read(csvContent, { type: 'string' });
                     workbookData = workbook;
-                    console.log('Column headers:', workbook.Sheets[workbook.SheetNames[0]]);
                 } else {
                     // Handle Excel file
                     const data = new Uint8Array(e.target.result);
@@ -116,29 +115,38 @@ document.addEventListener('DOMContentLoaded', () => {
     function findMatchingColumn(headers, possibleMatches) {
         // Convert headers to normalized form for consistent matching
         const normalizedHeaders = headers.map(h => ({
-          original: h,
-          normalized: normalizeString(h)
+            original: h,
+            normalized: normalizeString(h)
         }));
-      
-        // Check for partial matches first (more relaxed approach)
+
+        // First try to find exact matches
         for (let i = 0; i < normalizedHeaders.length; i++) {
-          for (const match of possibleMatches) {
-            if (normalizedHeaders[i].normalized.includes(normalizeString(match))) {
-              return headers[i];
+            if (possibleMatches.some(match =>
+                normalizeString(match) === normalizedHeaders[i].normalized)) {
+                return headers[i];
             }
-          }
         }
-      
-        // Then try to find exact matches (stricter approach)
+
+        // Then try to find headers containing all words from any possible match
         for (let i = 0; i < normalizedHeaders.length; i++) {
-          if (possibleMatches.some(match =>
-            normalizeString(match) === normalizedHeaders[i].normalized)) {
-            return headers[i];
-          }
+            for (const match of possibleMatches) {
+                const matchWords = normalizeString(match).split(' ');
+                if (matchWords.every(word =>
+                    normalizedHeaders[i].normalized.includes(word))) {
+                    return headers[i];
+                }
+            }
         }
-      
+
+        // Finally, try to find headers containing any word from possible matches
+        for (let i = 0; i < normalizedHeaders.length; i++) {
+            if (containsAnyWord(normalizedHeaders[i].normalized, possibleMatches)) {
+                return headers[i];
+            }
+        }
+
         return null;
-      }
+    }
 
     function clearFileSelection() {
         currentFile = null;

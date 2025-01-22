@@ -8,6 +8,7 @@
 /* Sidebar Styles */
 .sidebar {
   position: relative;
+  top: 50px;
   width: 250px;
   height: calc(60vh - 60px);
   background-color: var(--sidebar-bg);
@@ -143,7 +144,7 @@
   .sidebar {
     position: fixed;
     left: 0;
-    top: 60px;
+    top: 80px;
     height: calc(70vh - 60px);
     z-index: 999;
     transform: translateX(0);
