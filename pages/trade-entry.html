@@ -74,12 +74,12 @@
                     <div class="cumulative-pnl">
                       <h2>Cumulative P/L</h2>
                       <div class="value">$0.00</div>
-                      <div class="percentage">0.00%</div>
+                      <div class="roi">ROI: 0.00%</div>
                     </div>
                     <div class="todays-pnl">
                       <h2>Today's P/L</h2>
                       <div class="value">$0.00</div>
-                      <div class="percentage">0.00%</div>
+                      <div class="roi">ROI: 0.00%</div>
                     </div>
                   </div>
 
@@ -273,6 +273,66 @@
         <p>&copy; 2024 TradeLab. All rights reserved.</p>
       </div>
     </footer>
+
+    <!-- Edit Trade Modal -->
+    <div class="modal" id="editTradeModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Trade</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="editTradeForm">
+            <input type="hidden" id="editTradeId">
+            <div class="form-group">
+              <label for="editDate">Date:</label>
+              <input type="date" id="editDate" required>
+            </div>
+            <div class="form-group">
+              <label for="editSymbol">Symbol:</label>
+              <input type="text" id="editSymbol" required>
+            </div>
+            <div class="form-group">
+              <label for="editDirection">Direction:</label>
+              <select id="editDirection" required>
+                <option value="Long">Long</option>
+                <option value="Short">Short</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editMarket">Market:</label>
+              <select id="editMarket" required>
+                <option value="Stocks">Stocks</option>
+                <option value="Crypto">Crypto</option>
+                <option value="Forex">Forex</option>
+                <option value="Options">Options</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="editEntryPrice">Entry Price:</label>
+              <input type="number" id="editEntryPrice" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label for="editExitPrice">Exit Price:</label>
+              <input type="number" id="editExitPrice" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label for="editQuantity">Quantity:</label>
+              <input type="number" id="editQuantity" required>
+            </div>
+            <div class="form-group">
+              <label for="editNotes">Notes:</label>
+              <textarea id="editNotes" rows="3"></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+              <button type="button" class="btn btn-secondary" id="cancelEdit">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
     <script src="/scripts/global.js"></script>
     <script src="/scripts/tradeEntry.js"></script>
     <script src="/scripts/dashboard.js"></script>

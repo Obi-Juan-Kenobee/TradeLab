@@ -16,6 +16,7 @@
   flex-shrink: 0;
   border-right: 1px solid var(--border-color);
   transition: width 0.3s ease, transform 0.3s ease;
+  border-radius: 0 10px 10px 0;
 }
 
 .sidebar.collapsed {

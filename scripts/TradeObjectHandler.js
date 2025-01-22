@@ -19,7 +19,10 @@ class Trade {
     this.date = new Date(date);
     this.notes = notes;
     this.direction = direction.toLowerCase(); // 'long' or 'short'
+    this.investment = parseFloat(
+      (this.entryPrice * Math.abs(this.quantity)).toFixed(2));
     this.profitLoss = parseFloat(this.calculateProfitLoss().toFixed(2));
+    this.profitLossPercentage = parseFloat(((this.profitLoss / this.investment) * 100).toFixed(2));
   }
 
   calculateProfitLoss() {
@@ -45,7 +48,24 @@ class Trade {
       notes: this.notes,
       direction: this.direction,
       profitLoss: this.profitLoss,
+      investment: this.investment,
+      profitLossPercentage: this.profitLossPercentage,
     };
+  }
+
+  static fromStorageObject(obj) {
+    const trade = new Trade(
+      obj.symbol,
+      obj.market,
+      obj.entryPrice,
+      obj.exitPrice,
+      obj.quantity,
+      obj.date,
+      obj.notes,
+      obj.direction
+    );
+    trade.id = obj.id; // Preserve the original ID
+    return trade;
   }
 }
 
@@ -335,9 +355,11 @@ class TradeManager {
 
   async loadTrades() {
     try {
-      this.trades = await this.storageStrategy.loadTrades();
+      const loadedTrades = await this.storageStrategy.loadTrades();
+      // Convert plain objects back to Trade instances to ensure all properties are calculated
+      this.trades = loadedTrades.map(trade => Trade.fromStorageObject(trade));
       this.displayTrades();
-      return this.trades || [];
+
     } catch (error) {
       console.error("Error loading trades:", error);
       // Handle error appropriately (show user notification, etc.)
@@ -361,20 +383,21 @@ class TradeManager {
     if (!tradesListElement) return;
 
     // Create header with link to all trades
+    let tableElement = tradesListElement.querySelector("table");
     const headerDiv = document.createElement("div");
     headerDiv.className = "trades-header";
     headerDiv.innerHTML = `
              <h2>Recent Trades</h2>
-                <a href="trade-history.html" class="view-all-link">
-                  View All <i class="fas fa-arrow-right"></i>
-                </a>
+      <div class="trades-actions">
+              <a href="all-trades.html" class="view-all-link">
+          View All <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
          `;
 
     // Create table if it doesn't exist
-    let tableElement = document.getElementById("tradesTable");
     if (!tableElement) {
       tableElement = document.createElement("table");
-      tableElement.id = "tradesTable";
       tableElement.className = "trades-table";
 
       // Create table header
@@ -388,9 +411,11 @@ class TradeManager {
                     <th>Entry</th>
                     <th>Exit</th>
                     <th>Quantity</th>
+                    <th>Investment</th>
                     <th>P/L</th>
+                    <th>ROI</th>
                     <th>Notes</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
             `;
       tableElement.appendChild(thead);
@@ -410,10 +435,12 @@ class TradeManager {
 
     const recentTrades = [...this.trades].reverse().slice(0, 10);
     recentTrades.forEach((trade) => {
+      // Ensure trade is an instance of Trade class
+      const tradeCopy = (trade instanceof Trade) ? trade : Trade.fromStorageObject(trade);
       const tr = document.createElement("tr");
-      tr.className = `trade-row ${trade.profitLoss >= 0 ? "profit" : "loss"}`;
+      tr.className = `trade-row ${tradeCopy.profitLoss >= 0 ? "profit" : "loss"}`;
 
-      const formattedDate = new Date(trade.date).toLocaleDateString("en-US", {
+      const formattedDate = new Date(tradeCopy.date).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
         day: "numeric",
@@ -423,26 +450,29 @@ class TradeManager {
 
       tr.innerHTML = `
                 <td>${formattedDate}</td>
-                <td class="symbol">${trade.symbol.toUpperCase()}</td>
+        <td class="symbol">${tradeCopy.symbol.toUpperCase()}</td>
                 <td>
-                    <span class="direction-badge ${trade.direction}">
-                        ${trade.direction === "long" ? "▲ LONG" : "▼ SHORT"}
+          <span class="direction-badge ${tradeCopy.direction}">
+            ${tradeCopy.direction === "long" ? "▲ LONG" : "▼ SHORT"}
                     </span>
                 </td>
-                <td>${trade.market}</td>
-                <td>${trade.entryPrice.toFixed(2)}</td>
-                <td>${trade.exitPrice.toFixed(2)}</td>
-                <td>${trade.quantity}</td>
-                <td class="${trade.profitLoss >= 0 ? "profit" : "loss"}">
-                    ${
-                      trade.profitLoss >= 0 ? "+" : ""
-                    }${trade.profitLoss.toFixed(2)}
+        <td>${tradeCopy.market}</td>
+        <td>${tradeCopy.entryPrice.toFixed(2)}</td>
+        <td>${tradeCopy.exitPrice.toFixed(2)}</td>
+        <td>${tradeCopy.quantity}</td>
+        <td>$${tradeCopy.investment.toFixed(2)}</td>
+        <td class="${tradeCopy.profitLoss >= 0 ? "profit" : "loss"}">
+          ${tradeCopy.profitLoss >= 0 ? "+" : ""}$${tradeCopy.profitLoss.toFixed(2)}
+                    </td>
+        <td class="${tradeCopy.profitLoss >= 0 ? "profit" : "loss"}">
+          ${tradeCopy.profitLoss >= 0 ? "+" : ""}${tradeCopy.profitLossPercentage.toFixed(2)}%
                 </td>
                 <td class="notes">${trade.notes || "-"}</td>
-                <td>
-                    <button class="delete-trade-btn" data-trade-id="${
-                      trade.id
-                    }">
+        <td class="actions-cell">
+          <button class="edit-trade-btn" data-trade-id="${tradeCopy.id}" title="Edit Trade">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="delete-trade-btn" data-trade-id="${tradeCopy.id}" title="Delete Trade">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -457,72 +487,95 @@ class TradeManager {
         }
       });
 
+            // Add edit button event listener
+            const editBtn = tr.querySelector(".edit-trade-btn");
+            editBtn.addEventListener("click", (e) => {
+              e.preventDefault();
+              const tradeId = e.currentTarget.getAttribute("data-trade-id");
+              const trade = this.trades.find(t => t.id === tradeId);
+              if (trade) {
+                const editModal = document.getElementById('editTradeModal');
+                const editForm = document.getElementById('editTradeForm');
+                
+                // Populate form fields
+                document.getElementById('editTradeId').value = trade.id;
+                document.getElementById('editDate').value = new Date(trade.date).toISOString().split('T')[0];
+                document.getElementById('editSymbol').value = trade.symbol;
+                document.getElementById('editDirection').value = trade.direction.charAt(0).toUpperCase() + trade.direction.slice(1);
+                document.getElementById('editMarket').value = trade.market;
+                document.getElementById('editEntryPrice').value = trade.entryPrice;
+                document.getElementById('editExitPrice').value = trade.exitPrice;
+                document.getElementById('editQuantity').value = trade.quantity;
+                document.getElementById('editNotes').value = trade.notes || '';
+                
+                // Show modal
+                editModal.style.display = 'block';
+              }
+            });
+
       tbody.appendChild(tr);
     });
 
     // Update cumulative P/L if element exists
     const cumPnlElement = document.querySelector(".cumulative-pnl .value");
-    const cumPnlPercentElement = document.querySelector(
-      ".cumulative-pnl .percentage"
-    );
+    const cumRoiElement = document.querySelector(".cumulative-pnl .roi");
+    const todayPnlElement = document.querySelector(".todays-pnl .value");
+    const todayRoiElement = document.querySelector(".todays-pnl .roi");
 
-    if (cumPnlElement && cumPnlPercentElement) {
+    if (cumPnlElement && cumRoiElement) {
       // Calculate total PnL and investment
       const totalPnL = this.trades.reduce(
         (sum, trade) => sum + trade.profitLoss,
         0
       );
-      
-      // Calculate total investment considering direction
+
+      // Calculate total investment (sum of all trade investments)
       const totalInvestment = this.trades.reduce((sum, trade) => {
-        const investment = trade.entryPrice * trade.quantity;
-        return sum + Math.abs(investment);
+        return sum + trade.investment;
       }, 0);
 
-      // Calculate PnL percentage using absolute investment value
-      const pnlPercentage = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
+            // Calculate PnL percentage based on initial investment
+            // let pnlPercentage;
+            // if (totalInvestment === 0) {
+              // For new accounts or when there's no investment
+            //   pnlPercentage = totalPnL > 0 ? 100 : 0; // Show 100% profit for any gain
+            // } else {
+              // For existing accounts, calculate based on total investment
+            //   pnlPercentage = (totalPnL / totalInvestment) * 100;
+            // }
 
-      // Calculate today's PnL
+        // Calculate ROI as (Total P/L / Total Investment) * 100
+        const roi = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
+
+      // Calculate today's Metric
       const today = new Date();
       const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
       const todayTrades = this.trades.filter(trade => new Date(trade.date) >= todayStart);
       const todayPnL = todayTrades.reduce((sum, trade) => sum + trade.profitLoss, 0);
-      const todayInvestment = todayTrades.reduce((sum, trade) => {
-        const investment = trade.entryPrice * trade.quantity;
-        return sum + Math.abs(investment);
-      }, 0);
-      const todayPnlPercentage = todayInvestment > 0 ? (todayPnL / todayInvestment) * 100 : 0;
+      // const todayInvestment = todayTrades.reduce((sum, trade) => {
+      //   const investment = trade.entryPrice * trade.quantity;
+      //   return sum + Math.abs(investment);
+      // }, 0);
+      // const todayPnlPercentage = todayInvestment > 0 ? (todayPnL / todayInvestment) * 100 : 0;
+      const todayInvestment = todayTrades.reduce((sum, trade) => sum + trade.investment, 0);
+      const todayRoi = todayInvestment > 0 ? (todayPnL / todayInvestment) * 100 : 0;
 
-      // Update cumulative PnL display
-      cumPnlElement.textContent = `${
-        totalPnL >= 0 ? "+" : ""
-      }$${totalPnL.toFixed(2)}`;
+     // Update cumulative P/L display
+     cumPnlElement.textContent = `${totalPnL >= 0 ? "+" : ""}$${totalPnL.toFixed(2)}`;
       cumPnlElement.className = `value ${totalPnL >= 0 ? "profit" : "loss"}`;
-      cumPnlPercentElement.textContent = `${
-        pnlPercentage >= 0 ? "+" : ""
-      }${pnlPercentage.toFixed(2)}%`;
-      cumPnlPercentElement.className = `percentage ${
-        totalPnL >= 0 ? "profit" : "loss"
-      }`;
+      cumRoiElement.textContent = `ROI: ${roi >= 0 ? "+" : ""}${roi.toFixed(2)}%`;
+      cumRoiElement.className = `roi ${roi >= 0 ? "profit" : "loss"}`;
 
-      // Add Today's PnL display
-      const todayPnlContainer = document.querySelector(".todays-pnl") || createTodayPnlElement();
-      const todayValueElement = todayPnlContainer.querySelector(".value");
-      const todayPercentageElement = todayPnlContainer.querySelector(".percentage");
-
-      todayValueElement.textContent = `${
-        todayPnL >= 0 ? "+" : ""
-      }$${todayPnL.toFixed(2)}`;
-      todayValueElement.className = `value ${todayPnL >= 0 ? "profit" : "loss"}`;
-      todayPercentageElement.textContent = `${
-        todayPnlPercentage >= 0 ? "+" : ""
-      }${todayPnlPercentage.toFixed(2)}%`;
-      todayPercentageElement.className = `percentage ${
-        todayPnL >= 0 ? "profit" : "loss"
-      }`;
+      // Update today's P/L display
+      if (todayPnlElement && todayRoiElement) {
+        todayPnlElement.textContent = `${todayPnL >= 0 ? "+" : ""}$${todayPnL.toFixed(2)}`;
+        todayPnlElement.className = `value ${todayPnL >= 0 ? "profit" : "loss"}`;
+        todayRoiElement.textContent = `ROI: ${todayRoi >= 0 ? "+" : ""}${todayRoi.toFixed(2)}%`;
+        todayRoiElement.className = `roi ${todayRoi >= 0 ? "profit" : "loss"}`;
+      }
     }
 
-    if (cumPnlElement && cumPnlPercentElement) {
+    if (cumPnlElement && cumRoiElement) {
       const totalPnL = this.trades.reduce(
         (sum, trade) => sum + trade.profitLoss,
         0
@@ -533,16 +586,11 @@ class TradeManager {
       );
       const pnlPercentage = (totalPnL / totalInvestment) * 100 || 0;
 
-      cumPnlElement.textContent = `${
-        totalPnL >= 0 ? "+" : ""
-      }$${totalPnL.toFixed(2)}`;
+      cumPnlElement.textContent = `${totalPnL >= 0 ? "+" : ""
+        }$${totalPnL.toFixed(2)}`;
       cumPnlElement.className = `value ${totalPnL >= 0 ? "profit" : "loss"}`;
-      cumPnlPercentElement.textContent = `${
-        pnlPercentage >= 0 ? "+" : ""
-      }${pnlPercentage.toFixed(2)}%`;
-      cumPnlPercentElement.className = `percentage ${
-        totalPnL >= 0 ? "profit" : "loss"
-      }`;
+      cumRoiElement.textContent = `ROI: ${pnlPercentage >= 0 ? "+" : ""}${pnlPercentage.toFixed(2)}%`;
+      cumRoiElement.className = `roi ${totalPnL >= 0 ? "profit" : "loss"}`;
     }
   }
 
@@ -617,6 +665,7 @@ class TradeManager {
 const tradeManager = new TradeManager();
 window.tradeManager = tradeManager; // Expose to window object
 
+
 // Initialize trades on page load
 document.addEventListener("DOMContentLoaded", () => {
   tradeManager.loadTrades();
@@ -678,16 +727,16 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function createTodayPnlElement() {
-  const todayPnlContainer = document.createElement("div");
-  todayPnlContainer.className = "today-pnl";
-  todayPnlContainer.innerHTML = `
-    <h3>Today's PnL</h3>
-    <div class="value"></div>
-    <div class="percentage"></div>
-  `;
-  document.querySelector(".cumulative-pnl").appendChild(todayPnlContainer);
-  return todayPnlContainer;
-}
+// function createTodayPnlElement() {
+//   const todayPnlContainer = document.createElement("div");
+//   todayPnlContainer.className = "today-pnl";
+//   todayPnlContainer.innerHTML = `
+//     <h3>Today's PnL</h3>
+//     <div class="value"></div>
+//     <div class="percentage"></div>
+//   `;
+//   document.querySelector(".cumulative-pnl").appendChild(todayPnlContainer);
+//   return todayPnlContainer;
+// }
 
 // export { Trade, TradeManager, ExcelStorageStrategy };
