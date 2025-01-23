@@ -84,12 +84,23 @@
   z-index: 100;
   box-shadow: var(--shadow);
   transition: transform 0.3s ease, left 0.3s ease;
+  /* border: var(--text-color); */
+}
+
+.sidebar-toggle:hover {
+  transform: scale(1.1);
+  background-color: var(--text-color);
+  border: white;
 }
 
 .sidebar-toggle i {
   color: var(--text-color);
   font-size: 0.9rem;
   transition: transform 0.3s ease;
+}
+
+.sidebar-toggle:hover i {
+  color: white;
 }
 
 .sidebar.collapsed .sidebar-toggle i {
