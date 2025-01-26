@@ -76,7 +76,6 @@
     position: relative;
     width: 100%;
     height: calc(100% - 40px);
-    z-index: 1000;
 }
 
 .stats-card {
