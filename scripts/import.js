@@ -347,25 +347,73 @@ document.addEventListener('DOMContentLoaded', () => {
     function getTradeAction(row, headers, columnMap) {
         // Check common variations of buy/sell indicators
         const actionIndicators = [
-            'action', 'type', 'side', 'buy/sell', 'transaction type', 'trade type'
+            'action', 'type', 'side', 'buy/sell', 'transaction type', 'trade type',
+            'order type', 'trade action', 'position', 'direction'
         ];
+
+        // Log the row headers and values for debugging
+        console.log('Checking trade action for row:', {
+            headers: headers,
+            values: row,
+            columnMap: columnMap
+        });
+
+        // Check each header for action indicators
 
         for (let i = 0; i < headers.length; i++) {
             const header = headers[i].toLowerCase();
             if (actionIndicators.some(indicator => header.includes(indicator))) {
                 const value = (row[i] || '').toString().toLowerCase();
-                if (value.includes('buy') || value.includes('bought')) return 'buy';
-                if (value.includes('sell') || value.includes('sold')) return 'sell';
+                console.log('Found action column:', { header, value });
+                
+                // Check for buy indicators
+                if (value.includes('buy') || value.includes('bought') || value === 'b' || value === 'long') {
+                    return 'buy';
+                }
+                // Check for sell indicators
+                if (value.includes('sell') || value.includes('sold') || value === 's' || value === 'short') {
+                    return 'sell';
+                }
             }
         }
 
-        // If no explicit action column, try to infer from other columns
-        const priceStr = row[headers.indexOf(columnMap.entryPrice)] || '';
-        if (typeof priceStr === 'string') {
-            const priceLower = priceStr.toLowerCase();
-            if (priceLower.includes('buy') || priceLower.includes('bought')) return 'buy';
-            if (priceLower.includes('sell') || priceLower.includes('sold')) return 'sell';
+        // If no explicit action column found, try to infer from price columns
+        const entryPrice = row[headers.indexOf(columnMap.entryPrice)];
+        const exitPrice = row[headers.indexOf(columnMap.exitPrice)];
+
+        console.log('Checking prices for action:', {
+            entryPrice,
+            exitPrice,
+            entryCol: columnMap.entryPrice,
+            exitCol: columnMap.exitPrice
+        });
+
+        // If only entry price is present, it's likely a buy
+        if (entryPrice && !exitPrice) {
+            return 'buy';
         }
+        // If only exit price is present, it's likely a sell
+        if (!entryPrice && exitPrice) {
+            return 'sell';
+        }
+
+        // If both prices are present, check their column names
+        const entryHeader = headers[headers.indexOf(columnMap.entryPrice)].toLowerCase();
+        const exitHeader = headers[headers.indexOf(columnMap.exitPrice)].toLowerCase();
+
+        if (entryHeader.includes('buy') || entryHeader.includes('entry')) {
+            return 'buy';
+        }
+        if (exitHeader.includes('sell') || exitHeader.includes('exit')) {
+            return 'sell';
+        }
+
+        // If we can't determine the action, log it and return null
+        console.warn('Could not determine trade action from row:', {
+            headers: headers,
+            values: row,
+            columnMap: columnMap
+        });
 
         return null;
     }
@@ -377,8 +425,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Convert to string and extract numbers
         const str = value.toString();
-        const matches = str.match(/[-]?\d[\d,]*\.?\d*/g);
-        return matches ? parseFloat(matches[0].replace(/,/g, '')) : NaN;
+        // const matches = str.match(/[-]?\d[\d,]*\.?\d*/g);
+        // return matches ? parseFloat(matches[0].replace(/,/g, '')) : NaN;
+        console.log('Extracting price from:', str);
+
+        // Remove any currency symbols and commas
+        const cleaned = str.replace(/[$,]/g, '');
+        
+        // Try to find a number pattern
+        const matches = cleaned.match(/[-]?\d*\.?\d+/);
+        if (matches) {
+            const price = parseFloat(matches[0]);
+            console.log('Extracted price:', price);
+            return price;
+        }
+
+        console.warn('Could not extract price from:', str);
+        return NaN;
     }
 
     async function importTrades() {
@@ -410,9 +473,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Keep track of open positions
         const openPositions = new Map(); // symbol -> BatchTrade
 
-        console.log('Starting import with:', { headers, columnMap });
+        // Debug logging
+        console.log('Starting import with:', {
+            headers,
+            columnMap,
+            totalRows: data.length - (headerRowIndex + 1)
+        });
 
         try {
+                        // First pass: collect all trades
             for (const row of data.slice(headerRowIndex + 1)) {
                 // if (!row || row.length === 0) continue; // Skip empty rows
                 try {
@@ -435,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dateValue = row[headers.indexOf(columnMap.date)];
 
                     if (!price || isNaN(quantity)) {
-                        console.warn('Invalid price or quantity:', { price, quantity });
+                        console.warn('Invalid price or quantity:', { symbol, price, quantity });
                         skippedCount++;
                         continue;
                     }
@@ -443,12 +512,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         parsedDate = parseDate(dateValue);
                     } catch (dateError) {
-                        console.warn(`Invalid date: ${dateValue}`);
+                        console.warn(`Invalid date for ${symbol}:`, dateValue);
                         skippedCount++;
                         continue;
                     }
 
                     const tradeAction = getTradeAction(row, headers, columnMap);
+                    console.log(`Processing ${symbol}:`, { tradeAction, price, quantity, date: parsedDate });
                     
                     // Handle the trade based on action
                     if (tradeAction === 'buy') {
@@ -459,7 +529,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             openPositions.set(symbol, batchTrade);
                         }
                         batchTrade.addEntry(price, quantity, parsedDate);
-                        console.log(`Added buy for ${symbol}:`, { price, quantity, date: parsedDate });
+                        console.log(`Added buy for ${symbol}:`, {
+                            price,
+                            quantity,
+                            date: parsedDate,
+                            totalQuantity: batchTrade.getTotalQuantity()
+                        });
                     } 
                     else if (tradeAction === 'sell') {
                         let batchTrade = openPositions.get(symbol);
@@ -471,22 +546,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // Add exit to batch trade
                         batchTrade.addExit(price, quantity, parsedDate);
-                        console.log(`Added sell for ${symbol}:`, { price, quantity, date: parsedDate });
+                        console.log(`Added sell for ${symbol}:`, {
+                            price,
+                            quantity,
+                            date: parsedDate,
+                            remainingQuantity: batchTrade.getRemainingQuantity()
+                        });
 
-                        // If the batch trade is complete, create a trade and remove from open positions
                         if (batchTrade.isComplete()) {
                             const newTrade = batchTrade.toTrade();
 
                             await window.tradeManager.addTrade(newTrade);
                             openPositions.delete(symbol);
                             successCount++;
-                            console.log('Created complete batch trade:', newTrade);
-                        }
-                        // If we've sold more than we bought, something's wrong
-                        else if (batchTrade.getRemainingQuantity() < 0) {
-                            console.warn(`Invalid trade sequence for ${symbol}: sold more than bought`);
-                            openPositions.delete(symbol);
-                            skippedCount++;
+                            console.log('Created complete trade:', newTrade);
                         }
                     }
                     else {
@@ -511,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             successCount++;
                             console.log('Created single-row trade:', newTrade);
                         } else {
-                            console.warn('Invalid prices for single-row trade:', { entryPrice, exitPrice });
+                            console.warn(`Invalid prices for ${symbol}:`, { entryPrice, exitPrice });
                             skippedCount++;
                         }
                     }
@@ -523,16 +596,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
             // Handle any remaining open positions
-            const openPositionsCount = openPositions.size;
-            if (openPositionsCount > 0) {
-                console.warn('Unmatched buy orders:', Array.from(openPositions.keys()));
+            const unmatchedSymbols = Array.from(openPositions.keys());
+            if (unmatchedSymbols.length > 0) {
+                console.warn('Found unmatched positions:', unmatchedSymbols);
+                for (const [symbol, batchTrade] of openPositions.entries()) {
+                    console.log(`Unmatched position details for ${symbol}:`, {
+                        entries: batchTrade.entries,
+                        totalQuantity: batchTrade.getTotalQuantity(),
+                        averagePrice: batchTrade.getAverageEntryPrice()
+                    });
+                }
             }
             
                     const message = `Import complete:\n` +
                         `- Successfully imported: ${successCount} trades\n` +
                         `- Skipped rows: ${skippedCount}\n` +
                         (errors.length > 0 ? `- Errors encountered: ${errors.length}\n` : '') +
-                          (openPositionsCount > 0 ? `- Unmatched buy orders: ${openPositionsCount}` : '');
+                        (unmatchedSymbols.length > 0 ? `- Unmatched positions: ${unmatchedSymbols.join(', ')}` : '');
 
                     console.log(message);
                     alert(message);

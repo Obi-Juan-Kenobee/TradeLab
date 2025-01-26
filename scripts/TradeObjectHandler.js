@@ -94,6 +94,20 @@ class BatchTrade {
     });
   }
 
+  isComplete() {
+    return this.getRemainingQuantity() === 0;
+}
+
+getRemainingQuantity() {
+  const totalEntries = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+  const totalExits = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
+  return totalEntries - totalExits;
+}
+
+getTotalQuantity() {
+  return this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+}
+
   // Calculate average entry price weighted by quantity
   getAverageEntryPrice() {
     const totalQuantity = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
@@ -115,22 +129,22 @@ class BatchTrade {
 
   // Convert batch trade to regular Trade object
   toTrade() {
+    if (this.entries.length === 0) {
+        console.warn(`Attempting to create trade for ${this.symbol} with no entries`);
+    }
+
     const entryPrice = this.getAverageEntryPrice();
     const exitPrice = this.getAverageExitPrice();
     const quantity = this.getTotalQuantity();
-    const firstDate = this.entries.length > 0 ? 
-      this.entries.reduce((earliest, entry) => entry.date < earliest ? entry.date : earliest, this.entries[0].date) :
-      new Date();
-
-    return new Trade(
-      this.symbol,
-      'Unknown', // market
-      entryPrice,
-      exitPrice,
-      quantity,
-      firstDate,
-      `Batch trade: ${this.entries.length} entries, ${this.exits.length} exits`,
-      this.direction
+    
+    // More detailed logging
+    console.log(`Creating trade for ${this.symbol}:`, {
+        entries: this.entries.length,
+        exits: this.exits.length,
+        entryPrice,
+        exitPrice,
+        quantity
+    }
     );
   }
 
@@ -148,6 +162,7 @@ class BatchTrade {
     return totalEntryQuantity - totalExitQuantity;
   }
 }
+
 
 // Storage Strategy Interface
 class StorageStrategy {
