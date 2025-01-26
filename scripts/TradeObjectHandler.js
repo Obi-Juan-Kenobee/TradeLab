@@ -69,6 +69,86 @@ class Trade {
   }
 }
 
+// BatchTrade class to handle multiple entries and exits
+class BatchTrade {
+  constructor(symbol) {
+    this.symbol = symbol;
+    this.entries = []; // Array of {price, quantity, date}
+    this.exits = [];   // Array of {price, quantity, date}
+    this.direction = 'long'; // Default to long
+  }
+
+  addEntry(price, quantity, date) {
+    this.entries.push({
+      price: parseFloat(price),
+      quantity: Math.abs(parseFloat(quantity)),
+      date: new Date(date)
+    });
+  }
+
+  addExit(price, quantity, date) {
+    this.exits.push({
+      price: parseFloat(price),
+      quantity: Math.abs(parseFloat(quantity)),
+      date: new Date(date)
+    });
+  }
+
+  // Calculate average entry price weighted by quantity
+  getAverageEntryPrice() {
+    const totalQuantity = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+    const weightedSum = this.entries.reduce((sum, entry) => sum + (entry.price * entry.quantity), 0);
+    return totalQuantity > 0 ? weightedSum / totalQuantity : 0;
+  }
+
+  // Calculate average exit price weighted by quantity
+  getAverageExitPrice() {
+    const totalQuantity = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
+    const weightedSum = this.exits.reduce((sum, exit) => sum + (exit.price * exit.quantity), 0);
+    return totalQuantity > 0 ? weightedSum / totalQuantity : 0;
+  }
+
+  // Get total quantity
+  getTotalQuantity() {
+    return this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+  }
+
+  // Convert batch trade to regular Trade object
+  toTrade() {
+    const entryPrice = this.getAverageEntryPrice();
+    const exitPrice = this.getAverageExitPrice();
+    const quantity = this.getTotalQuantity();
+    const firstDate = this.entries.length > 0 ? 
+      this.entries.reduce((earliest, entry) => entry.date < earliest ? entry.date : earliest, this.entries[0].date) :
+      new Date();
+
+    return new Trade(
+      this.symbol,
+      'Unknown', // market
+      entryPrice,
+      exitPrice,
+      quantity,
+      firstDate,
+      `Batch trade: ${this.entries.length} entries, ${this.exits.length} exits`,
+      this.direction
+    );
+  }
+
+  // Check if this batch trade is complete (total exit quantity matches total entry quantity)
+  isComplete() {
+    const totalEntryQuantity = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+    const totalExitQuantity = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
+    return totalExitQuantity > 0 && Math.abs(totalExitQuantity - totalEntryQuantity) < 0.0001; // Using small epsilon for float comparison
+  }
+
+  // Get remaining quantity that hasn't been exited
+  getRemainingQuantity() {
+    const totalEntryQuantity = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+    const totalExitQuantity = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
+    return totalEntryQuantity - totalExitQuantity;
+  }
+}
+
 // Storage Strategy Interface
 class StorageStrategy {
   async loadTrades() {

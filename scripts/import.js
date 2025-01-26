@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const firstSheet = workbookData.Sheets[workbookData.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-        // Find the header row (reuse logic from displayPreview)
+        // Find the header row
         let headerRowIndex = -1;
         for (let i = 0; i < Math.min(4, data.length); i++) {
             if (data[i] && data[i].some(cell => cell !== null && cell !== undefined && cell !== '')) {
@@ -407,8 +407,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let skippedCount = 0;
         let errors = [];
 
-        // Store incomplete trades (waiting for matching sell)
-        const pendingTrades = new Map(); // symbol -> {buyRow, quantity, price, date}
+        // Keep track of open positions
+        const openPositions = new Map(); // symbol -> BatchTrade
 
         console.log('Starting import with:', { headers, columnMap });
 
@@ -428,8 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         continue;
                     }
 
-                    // Try to determine if this is a buy or sell row
-                    const tradeAction = getTradeAction(row, headers, columnMap);
+                    // Get trade details
                     const price = extractPrice(row[headers.indexOf(columnMap.entryPrice)]) ||
                         extractPrice(row[headers.indexOf(columnMap.exitPrice)]);
                     const quantity = parseInt(row[headers.indexOf(columnMap.quantity)]);
@@ -449,39 +448,49 @@ document.addEventListener('DOMContentLoaded', () => {
                         continue;
                     }
 
-                    // Handle based on trade action
+                    const tradeAction = getTradeAction(row, headers, columnMap);
+                    
+                    // Handle the trade based on action
                     if (tradeAction === 'buy') {
-                        pendingTrades.set(symbol, {
-                            quantity,
-                            price,
-                            date: parsedDate
-                        });
-                        console.log('Stored pending buy:', symbol, pendingTrades.get(symbol));
-                    } else if (tradeAction === 'sell') {
-                        const buyInfo = pendingTrades.get(symbol);
-                        if (buyInfo) {
-                            // Create completed trade
-                            const newTrade = new Trade(
-                                symbol,
-                                'Unknown',
-                                buyInfo.price,
-                                price,
-                                buyInfo.quantity,
-                                buyInfo.date,
-                                '',
-                                'long'
-                            );
+                        // Get or create batch trade
+                        let batchTrade = openPositions.get(symbol);
+                        if (!batchTrade) {
+                            batchTrade = new BatchTrade(symbol);
+                            openPositions.set(symbol, batchTrade);
+                        }
+                        batchTrade.addEntry(price, quantity, parsedDate);
+                        console.log(`Added buy for ${symbol}:`, { price, quantity, date: parsedDate });
+                    } 
+                    else if (tradeAction === 'sell') {
+                        let batchTrade = openPositions.get(symbol);
+                        if (!batchTrade) {
+                            console.warn(`Found sell without matching buy for ${symbol}`);
+                            skippedCount++;
+                            continue;
+                        }
+
+                        // Add exit to batch trade
+                        batchTrade.addExit(price, quantity, parsedDate);
+                        console.log(`Added sell for ${symbol}:`, { price, quantity, date: parsedDate });
+
+                        // If the batch trade is complete, create a trade and remove from open positions
+                        if (batchTrade.isComplete()) {
+                            const newTrade = batchTrade.toTrade();
 
                             await window.tradeManager.addTrade(newTrade);
-                            pendingTrades.delete(symbol);
+                            openPositions.delete(symbol);
                             successCount++;
-                            console.log('Created trade from buy/sell pair:', newTrade);
-                        } else {
-                            console.warn('Found sell without matching buy:', symbol);
+                            console.log('Created complete batch trade:', newTrade);
+                        }
+                        // If we've sold more than we bought, something's wrong
+                        else if (batchTrade.getRemainingQuantity() < 0) {
+                            console.warn(`Invalid trade sequence for ${symbol}: sold more than bought`);
+                            openPositions.delete(symbol);
                             skippedCount++;
                         }
-                    } else {
-                        // Try single-row trade format
+                    }
+                    else {
+                        // Handle single-row trade format as before
                         const entryPrice = extractPrice(row[headers.indexOf(columnMap.entryPrice)]);
                         const exitPrice = extractPrice(row[headers.indexOf(columnMap.exitPrice)]);
 
@@ -513,16 +522,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                                // Report any pending trades that didn't find matching sells
-            if (pendingTrades.size > 0) {
-                console.warn('Unmatched buy orders:', Array.from(pendingTrades.keys()));
+            // Handle any remaining open positions
+            const openPositionsCount = openPositions.size;
+            if (openPositionsCount > 0) {
+                console.warn('Unmatched buy orders:', Array.from(openPositions.keys()));
             }
             
                     const message = `Import complete:\n` +
                         `- Successfully imported: ${successCount} trades\n` +
                         `- Skipped rows: ${skippedCount}\n` +
                         (errors.length > 0 ? `- Errors encountered: ${errors.length}\n` : '') +
-                        (pendingTrades.size > 0 ? `- Unmatched buy orders: ${pendingTrades.size}` : '');
+                          (openPositionsCount > 0 ? `- Unmatched buy orders: ${openPositionsCount}` : '');
 
                     console.log(message);
                     alert(message);
