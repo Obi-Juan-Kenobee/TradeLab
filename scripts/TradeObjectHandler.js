@@ -131,6 +131,7 @@ getTotalQuantity() {
   toTrade() {
     if (this.entries.length === 0) {
         console.warn(`Attempting to create trade for ${this.symbol} with no entries`);
+        return null;
     }
 
     const entryPrice = this.getAverageEntryPrice();
@@ -146,6 +147,8 @@ getTotalQuantity() {
         quantity
     }
     );
+
+    return new Trade(this.symbol, '', entryPrice, exitPrice, quantity, new Date(), '', this.direction);
   }
 
   // Check if this batch trade is complete (total exit quantity matches total entry quantity)
