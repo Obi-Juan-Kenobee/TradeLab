@@ -162,7 +162,17 @@ function createEquityChart(trades) {
     console.warn("No trades available for equity chart");
     return;
   }
-  const ctx = document.getElementById("equityChart").getContext("2d");
+
+  const canvas = document.getElementById("equityChart");
+  const ctx = canvas.getContext("2d");
+  
+  // Clear previous chart instance
+  if (equityChart) {
+    equityChart.destroy();
+    canvas.style.height = '';
+    canvas.style.width = '';
+  }
+
   let chartData;
 
   if (currentViewType.equity === "trade") {
@@ -188,9 +198,9 @@ function createEquityChart(trades) {
   const maxEquity = Math.max(0, ...chartData.data);
   const padding = (maxEquity - minEquity) * 0.1;
 
-  if (equityChart) {
-    equityChart.destroy();
-  }
+  // if (equityChart) {
+  //   equityChart.destroy();
+  // }
 
   equityChart = new Chart(ctx, {
     type: "line",
@@ -200,10 +210,10 @@ function createEquityChart(trades) {
         {
           label: "Equity Curve",
           data: chartData.data,
-          borderColor: "#3498db",
-          tension: 0.1,
+          borderColor: "#2ecc71",
+          backgroundColor: "rgba(46, 204, 113, 0.1)",
           fill: true,
-          backgroundColor: "rgba(52, 152, 219, 0.1)",
+          tension: 0.4,
         },
       ],
     },
@@ -217,17 +227,15 @@ function createEquityChart(trades) {
       },
       scales: {
         y: {
-          beginAtZero: false,
           min: minEquity - padding,
           max: maxEquity + padding,
-          grid: {
-            color: "rgba(0, 0, 0, 0.05)",
+          ticks: {
+            callback: function (value) {
+              return "$" + value.toFixed(2);
+            },
           },
         },
         x: {
-          grid: {
-            display: false,
-          },
           ticks: {
             maxTicksLimit: 10,
             callback: function (value, index) {
@@ -258,7 +266,21 @@ function createEquityChart(trades) {
 }
 
 function createDrawdownChart(trades) {
-  const ctx = document.getElementById("drawdownChart").getContext("2d");
+  if (!trades || trades.length === 0) {
+    console.warn("No trades available for drawdown chart");
+    return;
+  }
+
+  const canvas = document.getElementById("drawdownChart");
+  const ctx = canvas.getContext("2d");
+  
+  // Clear previous chart instance
+  if (drawdownChart) {
+    drawdownChart.destroy();
+    canvas.style.height = '';
+    canvas.style.width = '';
+  }
+
   let chartData;
 
   if (currentViewType.drawdown === "trade") {
@@ -286,9 +308,9 @@ function createDrawdownChart(trades) {
   const maxDrawdown = Math.max(...chartData.data);
   const chartPadding = maxDrawdown * 0.1;
 
-  if (drawdownChart) {
-    drawdownChart.destroy();
-}
+//   if (drawdownChart) {
+//     drawdownChart.destroy();
+// }
 
 drawdownChart = new Chart(ctx, {
     type: "line",
@@ -299,7 +321,7 @@ drawdownChart = new Chart(ctx, {
           label: "Drawdown %",
           data: chartData.data,
           borderColor: "#e74c3c",
-          tension: 0.1,
+          tension: 0.4,
           fill: true,
           backgroundColor: "rgba(231, 76, 60, 0.1)",
         },
@@ -312,21 +334,11 @@ drawdownChart = new Chart(ctx, {
         legend: {
           display: false,
         },
-        tooltip: {
-          callbacks: {
-            label: function (context) {
-              return `Drawdown: ${context.raw.toFixed(2)}%`;
-            },
-          },
-        },
       },
       scales: {
         y: {
-          beginAtZero: true,
+          min: 0,
           max: maxDrawdown + chartPadding,
-          grid: {
-            color: "rgba(0, 0, 0, 0.05)",
-          },
           ticks: {
             callback: function (value) {
               return value.toFixed(1) + "%";
@@ -334,9 +346,6 @@ drawdownChart = new Chart(ctx, {
           },
         },
         x: {
-          grid: {
-            display: false,
-          },
           ticks: {
             maxTicksLimit: 10,
             callback: function (value, index) {
@@ -367,18 +376,26 @@ drawdownChart = new Chart(ctx, {
 }
 
 function createWinLossChart(trades) {
-  const ctx = document.getElementById("winLossChart").getContext("2d");
-  const winningTrades = trades.filter((trade) => trade.profitLoss > 0).length;
-  const losingTrades = trades.length - winningTrades;
+  if (!trades || trades.length === 0) {
+    console.warn("No trades available for win/loss chart");
+    return;
+  }
 
-  new Chart(ctx, {
+  const canvas = document.getElementById("winLossChart");
+  const ctx = canvas.getContext("2d");
+
+  // Get win/loss counts
+  const winCount = trades.filter((trade) => trade.profitLoss > 0).length;
+  const lossCount = trades.filter((trade) => trade.profitLoss < 0).length;
+
+  const chart = new Chart(ctx, {
     type: "doughnut",
     data: {
-      labels: ["Winning Trades", "Losing Trades"],
+      labels: ["Wins", "Losses"],
       datasets: [
         {
-          data: [winningTrades, losingTrades],
-          backgroundColor: ["#27ae60", "#e74c3c"],
+          data: [winCount, lossCount],
+          backgroundColor: ["#2ecc71", "#e74c3c"],
           borderWidth: 0,
         },
       ],
@@ -405,22 +422,35 @@ function createWinLossChart(trades) {
 }
 
 function createTradeTypeChart(trades) {
-  const ctx = document.getElementById("tradeTypeChart").getContext("2d");
-  const tradeTypes = {};
+  if (!trades || trades.length === 0) {
+    console.warn("No trades available for trade type chart");
+    return;
+  }
+
+  const canvas = document.getElementById("tradeTypeChart");
+  const ctx = canvas.getContext("2d");
+
+  // Calculate performance by trade type
+  const typePerformance = {};
 
   trades.forEach((trade) => {
-    tradeTypes[trade.tradeType] = (tradeTypes[trade.tradeType] || 0) + 1;
+    if (!typePerformance[trade.type]) {
+      typePerformance[trade.type] = 0;
+    }
+    typePerformance[trade.type] += trade.profitLoss;
   });
 
-  new Chart(ctx, {
+  const chart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels: Object.keys(tradeTypes),
+      labels: Object.keys(typePerformance),
       datasets: [
         {
-          data: Object.values(tradeTypes),
-          backgroundColor: "#3498db",
-          borderRadius: 5,
+          data: Object.values(typePerformance),
+          backgroundColor: Object.values(typePerformance).map((value) =>
+            value >= 0 ? "#2ecc71" : "#e74c3c"
+          ),
+          borderWidth: 0,
         },
       ],
     },
@@ -434,17 +464,10 @@ function createTradeTypeChart(trades) {
       },
       scales: {
         y: {
-          beginAtZero: true,
-          grid: {
-            color: "rgba(0, 0, 0, 0.05)",
-          },
           ticks: {
-            stepSize: 1,
-          },
-        },
-        x: {
-          grid: {
-            display: false,
+            callback: function (value) {
+              return "$" + value.toFixed(2);
+            },
           },
         },
       },
@@ -464,6 +487,7 @@ function updateDetailedStats(trades) {
     return sum + trade.profitLoss;
   }, 0);
   document.querySelector(".value").textContent = "$" + totalPnL.toFixed(2);
+  document.getElementById("totalPnL").textContent = "$" + totalPnL.toFixed(2);
 
   if (totalPnL > 0) {
     document.querySelector(".value").style.color = "#2ecc71";

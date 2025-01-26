@@ -119,6 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
             normalized: normalizeString(h)
         }));
 
+        // Check for partial matches first (more relaxed approach)
+        for (let i = 0; i < normalizedHeaders.length; i++) {
+            for (const match of possibleMatches) {
+                if (normalizedHeaders[i].normalized.includes(normalizeString(match))) {
+                    return headers[i];
+                }
+            }
+        }
+
         // First try to find exact matches
         for (let i = 0; i < normalizedHeaders.length; i++) {
             if (possibleMatches.some(match =>
@@ -168,7 +177,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const headers = data[0];
+        // Find the first row with data (within first 4 rows)
+        let headerRowIndex = -1;
+        for (let i = 0; i < Math.min(4, data.length); i++) {
+            if (data[i] && data[i].some(cell => cell !== null && cell !== undefined && cell !== '')) {
+                headerRowIndex = i;
+                break;
+            }
+        }
+
+        if (headerRowIndex === -1) {
+            alert('No data found in the first 4 rows of the file.');
+            clearFileSelection();
+            return;
+        }
+
+        const headers = data[headerRowIndex];
 
         // Define possible column matches for each required field
         const columnMatches = {
@@ -194,30 +218,14 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(([key, _]) => key);
 
         if (missingColumns.length > 0) {
-            alert(`Could not find columns matching: ${missingColumns.join(', ')}\n\nPossible matches for each:\n` +
-                missingColumns.map(col => `${col}: ${columnMatches[col].join(', ')}`).join('\n'));
+            alert(`Could not find columns for: ${missingColumns.join(', ')}\n\nPlease make sure your file contains these columns.`);
             clearFileSelection();
             return;
         }
 
-        // Create preview table
-        let tableHTML = '<thead><tr>';
-        headers.forEach(header => {
-            const isRequired = Object.values(columnMap).includes(header);
-            tableHTML += `<th${isRequired ? ' class="required-column"' : ''}>${header}</th>`;
-        });
-        tableHTML += '</tr></thead><tbody>';
-
-        // Add up to 5 rows of data for preview
-        const previewRows = data.slice(1, 6);
-        previewRows.forEach(row => {
-            tableHTML += '<tr>';
-            headers.forEach((_, index) => {
-                tableHTML += `<td>${row[index] || ''}</td>`;
-            });
-            tableHTML += '</tr>';
-        });
-        tableHTML += '</tbody>';
+        // Preview only the first few rows after the header
+        const previewData = data.slice(headerRowIndex + 1, headerRowIndex + 6);
+        const tableHTML = generatePreviewTable(headers, previewData, columnMap);
 
         previewTable.innerHTML = tableHTML;
         previewSection.classList.remove('hidden');
@@ -226,41 +234,223 @@ document.addEventListener('DOMContentLoaded', () => {
         workbookData.columnMap = columnMap;
     }
 
+    function generatePreviewTable(headers, data, columnMap) {
+        let tableHTML = '<thead><tr>';
+        headers.forEach(header => {
+            const isRequired = Object.values(columnMap).includes(header);
+            tableHTML += `<th${isRequired ? ' class="required-column"' : ''}>${header}</th>`;
+        });
+        tableHTML += '</tr></thead><tbody>';
+
+        // Add up to 5 rows of data for preview
+        data.forEach(row => {
+            tableHTML += '<tr>';
+            headers.forEach((_, index) => {
+                tableHTML += `<td>${row[index] || ''}</td>`;
+            });
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody>';
+        return tableHTML;
+    }
+
+    // Helper function to parse dates from various formats
+    function parseDate(dateValue) {
+        if (!dateValue) return null;
+
+        // If it's already a Date object
+        if (dateValue instanceof Date) {
+            return dateValue;
+        }
+
+        // If it's an Excel serial number
+        if (typeof dateValue === 'number') {
+            // Excel's epoch starts from December 30, 1899
+            const excelEpoch = new Date(1899, 11, 30);
+            const millisecondsPerDay = 24 * 60 * 60 * 1000;
+            return new Date(excelEpoch.getTime() + dateValue * millisecondsPerDay);
+        }
+
+        // Try parsing string formats
+        const dateStr = dateValue.toString().trim();
+
+        // Try parsing with Date.parse
+        const parsedDate = new Date(dateStr);
+        if (!isNaN(parsedDate.getTime())) {
+            return parsedDate;
+        }
+
+        // Try common date formats
+        const formats = [
+            /^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})$/, // DD/MM/YYYY or MM/DD/YYYY
+            /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/, // YYYY/MM/DD
+            /^(\d{1,2})[-/](\w{3,})[-/](\d{2,4})$/, // DD/MMM/YYYY
+        ];
+
+        for (const format of formats) {
+            const match = dateStr.match(format);
+            if (match) {
+                const [_, part1, part2, part3] = match;
+
+                // Try different date combinations
+                const attempts = [
+                    new Date(part3, part2 - 1, part1), // DD/MM/YYYY
+                    new Date(part3, part1 - 1, part2), // MM/DD/YYYY
+                    new Date(part1, part2 - 1, part3), // YYYY/MM/DD
+                ];
+
+                for (const attempt of attempts) {
+                    if (!isNaN(attempt.getTime())) {
+                        return attempt;
+                    }
+                }
+            }
+        }
+
+        throw new Error(`Unable to parse date: ${dateValue}`);
+    }
+
+    // Helper function to validate if a row contains trade data
+    function isTradeDataRow(row, headers, columnMap) {
+        if (!row || row.length === 0) return false;
+
+        // Get the values we need to check
+        const symbol = row[headers.indexOf(columnMap.symbol)];
+        const entryPrice = row[headers.indexOf(columnMap.entryPrice)];
+        const exitPrice = row[headers.indexOf(columnMap.exitPrice)];
+        const quantity = row[headers.indexOf(columnMap.quantity)];
+
+        // Debug log
+        console.log('Checking row:', {
+            symbol,
+            entryPrice,
+            exitPrice,
+            quantity,
+            hasSymbol: Boolean(symbol),
+            isValidPrice: !isNaN(parseFloat(entryPrice)) || !isNaN(parseFloat(exitPrice)),
+            isValidQuantity: !isNaN(parseFloat(quantity))
+        });
+
+        // Check if we have a symbol (any non-empty string)
+        const hasSymbol = Boolean(symbol && symbol.toString().trim());
+
+        // Check if we have at least one valid numeric value in price or quantity
+        const hasValidNumber = [entryPrice, exitPrice, quantity].some(value => {
+            const num = parseFloat(value);
+            return !isNaN(num) && isFinite(num);
+        });
+
+        return hasSymbol && hasValidNumber;
+    }
+
     async function importTrades() {
         if (!workbookData || !workbookData.columnMap) return;
 
         const firstSheet = workbookData.Sheets[workbookData.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(firstSheet);
+        const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+        // Find the header row (reuse logic from displayPreview)
+        let headerRowIndex = -1;
+        for (let i = 0; i < Math.min(4, data.length); i++) {
+            if (data[i] && data[i].some(cell => cell !== null && cell !== undefined && cell !== '')) {
+                headerRowIndex = i;
+                break;
+            }
+        }
+
+        if (headerRowIndex === -1) {
+            alert('No data found in the first 4 rows of the file.');
+            return;
+        }
+
+        const headers = data[headerRowIndex];
         const columnMap = workbookData.columnMap;
+        let successCount = 0;
+        let skippedCount = 0;
+        let errors = [];
+
+        // Debug log
+        console.log('Starting import with:', {
+            headers,
+            columnMap,
+            totalRows: data.length - (headerRowIndex + 1)
+        });
 
         try {
-            for (const row of data) {
-                // Use mapped columns to get values
-                const entryPrice = parseFloat(row[columnMap.entryPrice]);
-                const exitPrice = parseFloat(row[columnMap.exitPrice]);
-                const direction = exitPrice > entryPrice ? 'long' : 'short';
+            for (const row of data.slice(headerRowIndex + 1)) {
+                // if (!row || row.length === 0) continue; // Skip empty rows
+                try {
+                    // Skip rows that don't look like trade data
+                    if (!isTradeDataRow(row, headers, columnMap)) {
+                        console.log('Skipping row:', row);
+                        skippedCount++;
+                        continue;
+                    }
 
-                // Create a new Trade instance
-                const newTrade = new Trade(
-                    row[columnMap.symbol],
-                    'Unknown', // market
-                    entryPrice,
-                    exitPrice,
-                    parseInt(row[columnMap.quantity]),
-                    new Date(row[columnMap.date]),
-                    '', // notes
-                    direction
-                );
+                    console.log('Processing row:', row);
 
-                // Use the global tradeManager instance to add the trade
-                await window.tradeManager.addTrade(newTrade);
+                    // Parse date
+                    const dateValue = row[headers.indexOf(columnMap.date)];
+                    let parsedDate;
+                    try {
+                        parsedDate = parseDate(dateValue);
+                    } catch (dateError) {
+                        console.warn(`Invalid date in row: ${dateValue}`);
+                        skippedCount++;
+                        continue;
+                    }
+
+                    // Use mapped columns to get values
+                    const entryPrice = parseFloat(row[headers.indexOf(columnMap.entryPrice)]);
+                    const exitPrice = parseFloat(row[headers.indexOf(columnMap.exitPrice)]);
+                    const quantity = parseInt(row[headers.indexOf(columnMap.quantity)]);
+                    const symbol = row[headers.indexOf(columnMap.symbol)].toString().trim();
+
+                    // Validate required fields
+                    if (!symbol || isNaN(entryPrice) || isNaN(exitPrice) || isNaN(quantity)) {
+                        console.warn('Invalid data in row:', { symbol, entryPrice, exitPrice, quantity });
+                        skippedCount++;
+                        continue;
+                    }
+                    const direction = exitPrice > entryPrice ? 'long' : 'short';
+
+                    // Create a new Trade instance
+                    const newTrade = new Trade(
+                        symbol,
+                        'Unknown', // market
+                        entryPrice,
+                        exitPrice,
+                        quantity,
+                        parsedDate,
+                        '', // notes
+                        direction
+                    );
+
+                    // Use the global tradeManager instance to add the trade
+                    await window.tradeManager.addTrade(newTrade);
+                    successCount++;
+                    console.log('Successfully imported trade:', newTrade);
+                } catch (rowError) {
+                    console.warn('Error processing row:', rowError);
+                    errors.push(rowError.message);
+                    skippedCount++;
+                }
             }
 
-            alert('Trades imported successfully!');
+            const message = `Import complete:\n` +
+                `- Successfully imported: ${successCount} trades\n` +
+                `- Skipped rows: ${skippedCount}\n` +
+                (errors.length > 0 ? `- Errors encountered: ${errors.length}` : '');
+
+            console.log(message);
+            alert(message);
+
+            if (successCount > 0) {
             window.location.href = 'trade-entry.html';
+            }
         } catch (error) {
             console.error('Error importing trades:', error);
-            alert('Error importing trades. Please check the console for details.');
+            alert('Error importing trades: ' + error.message);
         }
     }
 

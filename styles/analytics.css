@@ -76,6 +76,7 @@
     position: relative;
     width: 100%;
     height: calc(100% - 40px);
+    z-index: 1000;
 }
 
 .stats-card {
@@ -173,9 +174,13 @@
   }
   
   .view-switch {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    z-index: 0;
   }
   
   .view-switch label {
