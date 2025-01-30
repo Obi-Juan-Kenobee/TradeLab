@@ -159,6 +159,8 @@ getTotalQuantity() {
         `Batch trade: ${this.entries.length} entries, ${this.exits.length} exits`,
         exitPrice > entryPrice ? 'long' : 'short'
     );
+
+    return new Trade(this.symbol, '', entryPrice, exitPrice, quantity, new Date(), '', this.direction);
   }
 
   // Check if this batch trade is complete (total exit quantity matches total entry quantity)
