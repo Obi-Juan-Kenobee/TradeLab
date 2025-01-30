@@ -1,185 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Trade Lab - Your Personal Trading Journal</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="/styles/index.css">
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
-  </head>
-  <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-brand"><a href="/index.html">TradeLab</a></div>
-      <ul class="nav-links">
-        <li><a href="/index.html" class="active">Home</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="/pages/contact.html">Contact</a></li>
-        <li><a href="/pages/trade-entry.html" class="cta-button">Dashboard</a></li>
-      </ul>
-      <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
-    </nav>
-<!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-content">
-        <h1>Track Your Trades.<br />Improve Your Performance.</h1>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trade Lab - Your Personal Trading Journal</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="/styles/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+</head>
+
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-brand"><a href="/index.html">TradeLab</a></div>
+    <ul class="nav-links">
+      <li><a href="/index.html" class="active">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="/pages/contact.html">Contact</a></li>
+      <li><a href="/pages/trade-entry.html" class="cta-button">Dashboard</a></li>
+    </ul>
+    <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
+  </nav>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Track Your Trades.<br />Improve Your Performance.</h1>
+      <p>
+        The most intuitive trading journal for traders. Track, analyze, and
+        improve your trading performance with TradeLab.
+      </p>
+      <div class="hero-buttons">
+        <a href="#" class="btn-primary">Get Started Free</a>
+        <a href="#features" class="btn-secondary">Learn More</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="/assets/dashboard.png" alt="Trading Dashboard Preview" />
+    </div>
+  </section>
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <h2>Why Choose TradeLab?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <i class="fas fa-chart-line"></i>
+        <h3>Track Your Trades</h3>
         <p>
-          The most intuitive trading journal for traders. Track, analyze, and
-          improve your trading performance with TradeLab.
+          Stocks, Options, Futures - We've got you covered. Track all your trades in one
+          place.
         </p>
-        <div class="hero-buttons">
-          <a href="#" class="btn-primary">Get Started Free</a>
-          <a href="#features" class="btn-secondary">Learn More</a>
-        </div>
       </div>
-      <div class="hero-image">
-        <img src="/assets/dashboard.png" alt="Trading Dashboard Preview" />
+
+      <div class="feature-card">
+        <i class="fas fa-chart-simple"></i>
+        <h3>Performance Analytics</h3>
+        <p>Get detailed insights into your trading performance with our analytics tools.</p>
       </div>
+
+      <div class="feature-card">
+        <i class="fas fa-cloud"></i>
+        <h3>Cloud Storage</h3>
+        <p>Your trading journal is safely stored in the cloud, accessible from anywhere.</p>
+      </div>
+
+      <div class="feature-card">
+        <i class="fas fa-mobile-alt"></i>
+        <h3>Mobile Friendly</h3>
+        <p>Log your trades on the go with our mobile-friendly interface.</p>
+      </div>
+
+      <div class="feature-card">
+        <!-- TradingView widgets -->
+        <i class="fas fa-chart-line"></i>
+        <h3>Market Insights by TradingView</h3>
+        <p>Stay up-to-date with the latest market news and insights from TradingView.</p>
+      </div>
+
+      <div class="feature-card">
+        <!-- Free Platform -->
+        <i class="fas fa-wallet"></i>
+        <h3>Free Platform</h3>
+        <p>Don't pay premium prices for basic features. TradeLab is a free platform that covers all the essential
+          features you need.</p>
+      </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="pricing">
+    <h2>Simple, Transparent Pricing</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Free, Forever.</h3>
+        <div class="price">$0<span>/month</span></div>
+        <ul>
+          <li><i class="fas fa-check"></i> Cloud Storage (100MB)</li>
+          <li><i class="fas fa-check"></i> *Option for unlimited storage</li>
+          <li><i class="fas fa-check"></i> Basic analytics</li>
+          <li><i class="fas fa-check"></i> Market Insights by TradingView</li>
+          <li><i class="fas fa-check"></i> Mobile friendly access</li>
+        </ul>
+        <a href="#" class="btn-primary">Get Started</a>
+      </div>
+    </div>
+
+    <section>
+      <p class="note">*Option for unlimited storage using in browser local storage in your own device.</p>
     </section>
-<!-- Features Section -->
-    <section id="features" class="features">
-      <h2>Why Choose TradeLab?</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <i class="fas fa-chart-line"></i>
-          <h3>Track Your Trades</h3>
-          <p>
-            Stocks, Options, Futures - We've got you covered. Track all your trades in one
-            place.
-          </p>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="about">
+    <div class="about-content">
+      <h2>Our Mission</h2>
+      <p>At TradeLab, we believe that every trader deserves access to quality tools without breaking the bank. Born from
+        the frustration of seeing essential trading journal features locked behind expensive paywalls, we set out to
+        create a solution that puts traders first.</p>
+
+      <div class="about-grid">
+        <div class="about-item">
+          <h3>What We Do</h3>
+          <p>We provide a comprehensive trading journal that helps you log, track, and analyze your trades with ease.
+            Our platform is designed to be intuitive, efficient, and most importantly, accessible to all traders.</p>
         </div>
 
-        <div class="feature-card">
-            <i class="fas fa-chart-simple"></i>
-            <h3>Performance Analytics</h3>
-            <p>Get detailed insights into your trading performance with our analytics tools.</p>
+        <div class="about-item">
+          <h3>Why We Do It</h3>
+          <p>We understand that the biggest costs in online platforms are compute, storage, and hosting. For most
+            traders, these costs are minimal - so why should you pay premium prices? We're committed to offering a free
+            alternative that covers all the essential features you need.</p>
         </div>
-
-        <div class="feature-card">
-            <i class="fas fa-cloud"></i>
-            <h3>Cloud Storage</h3>
-            <p>Your trading journal is safely stored in the cloud, accessible from anywhere.</p>
       </div>
+    </div>
+  </section>
 
-        <div class="feature-card">
-            <i class="fas fa-mobile-alt"></i>
-            <h3>Mobile Friendly</h3>
-            <p>Log your trades on the go with our mobile-friendly interface.</p>
+  <!-- Call to Action Section -->
+  <section class="cta">
+    <div class="cta-content">
+      <h2>Ready to Improve Your Trading?</h2>
+      <p>Join other traders who are already tracking their success with TradeLab.</p>
+      <a href="#" class="btn-secondary">Sign Up Free</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3><a href="index.html">TradeLab</a></h3>
+        <p>Your personal trading journal to track and analyze your trading performance.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="/pages/contact.html">Contact</a></li>
+          <li><a href="/pages/user-guide.html">User Guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Legal</h3>
+        <ul>
+          <li><a href="/pages/terms-of-use.html">Terms of Service</a></li>
+          <li><a href="/pages/privacy.html">Privacy Policy</a></li>
+          <li><a href="/pages/risk-disclosure.html">Risk Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Follow Us</h3>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+          <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
         </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 TradeLab. All rights reserved.</p>
+    </div>
+  </footer>
+  <script src="/scripts/global.js"></script>
+  </div>
+</body>
 
-        <div class="feature-card">
-          <!-- TradingView widgets -->
-           <i class="fas fa-chart-line"></i>
-            <h3>Market Insights by TradingView</h3>
-            <p>Stay up-to-date with the latest market news and insights from TradingView.</p>
-        </div>
-
-        <div class="feature-card">
-          <!-- Free Platform -->
-            <i class="fas fa-wallet"></i>
-            <h3>Free Platform</h3>
-            <p>Don't pay premium prices for basic features. TradeLab is a free platform that covers all the essential features you need.</p>
-        </div>
-    </section>
-
-<!-- Pricing Section -->
-    <section id="pricing" class="pricing">
-        <h2>Simple, Transparent Pricing</h2>
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Free, Forever.</h3>
-                <div class="price">$0<span>/month</span></div>
-                <ul>
-                    <li><i class="fas fa-check"></i> Cloud Storage (100MB)</li>
-                    <li><i class="fas fa-check"></i> *Option for unlimited storage</li>
-                    <li><i class="fas fa-check"></i> Basic analytics</li>
-                    <li><i class="fas fa-check"></i> Market Insights by TradingView</li>
-                    <li><i class="fas fa-check"></i> Mobile friendly access</li>
-                </ul>
-                <a href="#" class="btn-primary">Get Started</a>
-            </div>
-            </div>
-
-            <section>
-              <p class="note">*Option for unlimited storage using in browser local storage in your own device.</p>
-            </section>
-            </section>
-
-            <!-- About Section -->
-            <section id="about" class="about">
-              <div class="about-content">
-                  <h2>Our Mission</h2>
-                  <p>At TradeLab, we believe that every trader deserves access to quality tools without breaking the bank. Born from the frustration of seeing essential trading journal features locked behind expensive paywalls, we set out to create a solution that puts traders first.</p>
-                  
-                  <div class="about-grid">
-                      <div class="about-item">
-                          <h3>What We Do</h3>
-                          <p>We provide a comprehensive trading journal that helps you log, track, and analyze your trades with ease. Our platform is designed to be intuitive, efficient, and most importantly, accessible to all traders.</p>
-                      </div>
-                      
-                      <div class="about-item">
-                          <h3>Why We Do It</h3>
-                          <p>We understand that the biggest costs in online platforms are compute, storage, and hosting. For most traders, these costs are minimal - so why should you pay premium prices? We're committed to offering a free platform that covers all the essential features you need.</p>
-                      </div>
-                  </div>
-              </div>
-          </section>
-
-            <!-- Call to Action Section -->
-            <section class="cta">
-                <div class="cta-content">
-                    <h2>Ready to Improve Your Trading?</h2>
-                    <p>Join other traders who are already tracking their success with TradeLab.</p>
-                    <a href="#" class="btn-secondary">Sign Up Free</a>
-                </div>
-            </section>
-
-<!-- Footer -->
-            <footer class="footer">
-                <div class="footer-content">
-                    <div class="footer-section">
-                        <h3><a href="index.html">TradeLab</a></h3>
-                        <p>Your personal trading journal to track and analyze your trading performance.</p>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Quick Links</h3>
-                        <ul>
-                            <li><a href="/index.html">Home</a></li>
-                            <li><a href="#features">Features</a></li>
-                            <li><a href="#pricing">Pricing</a></li>
-                            <li><a href="#about">About</a></li>
-                            <li><a href="/pages/contact.html">Contact</a></li>
-                            <li><a href="/pages/user-guide.html">User Guide</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Legal</h3>
-                        <ul>
-                            <li><a href="/pages/terms-of-use.html">Terms of Service</a></li>
-                            <li><a href="/pages/privacy.html">Privacy Policy</a></li>
-                            <li><a href="/pages/risk-disclosure.html">Risk Disclosure</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-section">
-                        <h3>Follow Us</h3>
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
-                            <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
-                            <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2024 TradeLab. All rights reserved.</p>
-                </div>
-            </footer>
-            <script src="/scripts/global.js"></script>
-        </div>
-  </body>
 </html>

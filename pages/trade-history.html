@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/styles/dashboard.css" />
     <link rel="stylesheet" href="/styles/trade-entry.css" />
     <link rel="stylesheet" href="/styles/trade-history.css" />
+    <link rel="stylesheet" href="/styles/modal.css">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
@@ -129,6 +130,80 @@
       </main>
     </div>
 
+      <!-- Trade Details Modal -->
+  <div id="tradeDetailsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalSymbol">AAPL</h2>
+        <span class="close">&times;</span>
+      </div>
+      <div class="modal-body">
+        <!-- Trade Details Section -->
+        <div class="trade-details-section">
+          <h3>Trade Details</h3>
+          <div class="trade-details-grid">
+            <div class="detail-item">
+              <label>Date:</label>
+              <span id="modalDate"></span>
+            </div>
+            <div class="detail-item">
+              <label>Market:</label>
+              <span id="modalMarket"></span>
+            </div>
+            <div class="detail-item">
+              <label>Direction:</label>
+              <span id="modalDirection"></span>
+            </div>
+            <div class="detail-item">
+              <label>Entry Price:</label>
+              <span id="modalEntryPrice"></span>
+            </div>
+            <div class="detail-item">
+              <label>Exit Price:</label>
+              <span id="modalExitPrice"></span>
+            </div>
+            <div class="detail-item">
+              <label>Quantity:</label>
+              <span id="modalQuantity"></span>
+            </div>
+            <div class="detail-item">
+              <label>Investment:</label>
+              <span id="modalInvestment"></span>
+            </div>
+            <div class="detail-item">
+              <label>P/L:</label>
+              <span id="modalPnL"></span>
+            </div>
+            <div class="detail-item">
+              <label>ROI:</label>
+              <span id="modalROI"></span>
+            </div>
+          </div>
+          <div class="detail-item notes">
+            <label>Notes:</label>
+            <p id="modalNotes"></p>
+          </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+          <h3>Price Chart</h3>
+          <div id="priceChart" class="chart-container">
+            <!-- TradingView Chart Widget will be inserted here -->
+          </div>
+        </div>
+
+        <!-- News Section -->
+        <div class="news-section">
+          <h3>Related News</h3>
+          <div id="newsWidget" class="news-container">
+            <!-- News Widget will be inserted here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="footer-content">
@@ -173,5 +248,6 @@
     <script src="../scripts/dashboard.js"></script>
     <script src="../scripts/TradeObjectHandler.js"></script>
     <script src="../scripts/tradeHistory.js"></script>
+    <script src="../scripts/tradeModal.js"></script>
   </body>
 </html>
