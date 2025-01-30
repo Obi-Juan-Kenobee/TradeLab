@@ -34,7 +34,7 @@ class TradeModal {
         document.getElementById('modalExitPrice').textContent = `$${trade.exitPrice.toFixed(2)}`;
         document.getElementById('modalQuantity').textContent = trade.quantity;
         document.getElementById('modalInvestment').textContent = `$${trade.investment.toFixed(2)}`;
-        
+
         const pnlElement = document.getElementById('modalPnL');
         pnlElement.textContent = `${trade.profitLoss >= 0 ? '+' : ''}$${trade.profitLoss.toFixed(2)}`;
         pnlElement.className = trade.profitLoss >= 0 ? 'profit' : 'loss';
@@ -62,10 +62,13 @@ class TradeModal {
         }
     }
 
-    loadChartWidget(symbol) {
+    async loadChartWidget(symbol) {
         // Placeholder for chart widget initialization
         const chartContainer = document.getElementById('priceChart');
         chartContainer.innerHTML = ''; // Clear previous content
+
+        // Get the correct exchange
+        const exchange = await this.getExchange(symbol);
 
         // Create widget container
         const widgetContainer = document.createElement('div');
@@ -93,7 +96,7 @@ class TradeModal {
         new TradingView.widget({
             "container_id": widget.id,
             "autosize": true,
-            "symbol": `${this.getExchange(symbol)}:${symbol}`,
+            "symbol": `${exchange}:${symbol}`,
             "interval": "D",
             "timezone": "exchange",
             "theme": "light",
@@ -113,9 +116,12 @@ class TradeModal {
         });
     }
 
-    loadTechnicalAnalysisWidget(symbol) {
+    async loadTechnicalAnalysisWidget(symbol) {
         const container = document.getElementById('technicalAnalysis');
         container.innerHTML = ''; // Clear previous content
+
+       // Get the correct exchange
+        const exchange = await this.getExchange(symbol);
 
         // Create widget container
         const widgetContainer = document.createElement('div');
@@ -147,7 +153,7 @@ class TradeModal {
             "width": "100%",
             "isTransparent": false,
             "height": "100%",
-            "symbol": `${this.getExchange(symbol)}:${symbol}`,
+            "symbol": `${exchange}:${symbol}`,
             "showIntervalTabs": true,
             "displayMode": "multiple",
             "locale": "en",
@@ -157,12 +163,94 @@ class TradeModal {
         widgetContainer.appendChild(script);
     }
 
-    getExchange(symbol) {
-        // Basic exchange detection - expand this based on your needs
+    async getExchange(symbol) {
+        // Handle crypto and forex first
         if (symbol.includes('-USD')) return 'COINBASE';
         if (symbol.includes('/USD')) return 'FX';
-        return 'NASDAQ'; // Default to NASDAQ for stocks
-}
+        // List of common exchanges to try
+        const exchanges = ['NASDAQ', 'NYSE', 'AMEX', 'TSX', 'LSE'];
+        
+        // Try to find the correct exchange
+        for (const exchange of exchanges) {
+            try {
+                const response = await fetch(`https://symbol-search.tradingview.com/symbol_search/?text=${symbol}`);
+                const data = await response.json();
+                
+                // Find exact match for the symbol
+                const match = data.find(item => 
+                    item.symbol === symbol && 
+                    item.exchange === exchange &&
+                    item.type === 'stock'
+                );
+                
+                if (match) {
+                    console.log(`Found ${symbol} on ${exchange}`);
+                    return exchange;
+                }
+            } catch (error) {
+                console.warn(`Error checking ${exchange} for ${symbol}:`, error);
+            }
+        }
+
+        // Fallback to searching without specific exchange
+        try {
+            const response = await fetch(`https://symbol-search.tradingview.com/symbol_search/?text=${symbol}`);
+            const data = await response.json();
+            
+            // Find first stock match for the symbol
+            const match = data.find(item => 
+                item.symbol === symbol && 
+                item.type === 'stock'
+            );
+            
+            if (match) {
+                console.log(`Found ${symbol} on ${match.exchange}`);
+                return match.exchange;
+            }
+        } catch (error) {
+            console.warn(`Error in fallback search for ${symbol}:`, error);
+        }
+
+        // If no match found, try common exchanges directly
+        console.log(`No exchange found for ${symbol}, trying common exchanges`);
+        return this.tryCommonExchanges(symbol);
+    }
+
+    tryCommonExchanges(symbol) {
+        // Map of common stock prefixes to their exchanges
+        const prefixToExchange = {
+            'A': 'NYSE', // A. O. Smith, Agilent, etc.
+            'AA': 'NYSE', // Alcoa
+            'BAC': 'NYSE', // Bank of America
+            'C': 'NYSE', // Citigroup
+            'F': 'NYSE', // Ford
+            'FB': 'NASDAQ', // Meta (Facebook)
+            'GOOG': 'NASDAQ', // Google
+            'IBM': 'NYSE', // IBM
+            'JPM': 'NYSE', // JPMorgan
+            'KO': 'NYSE', // Coca-Cola
+            'META': 'NASDAQ', // Meta Platforms
+            'MSFT': 'NASDAQ', // Microsoft
+            'NFLX': 'NASDAQ', // Netflix
+            'PFE': 'NYSE', // Pfizer
+            'T': 'NYSE', // AT&T
+            'TSLA': 'NASDAQ', // Tesla
+            'WMT': 'NYSE', // Walmart
+            'XOM': 'NYSE', // Exxon Mobil
+        };
+
+        // Check if the symbol starts with any known prefix
+        // for (const [prefix, exchange] of Object.entries(prefixToExchange)) {
+        //     if (symbol.startsWith(prefix)) {
+        //         console.log(`Matched ${symbol} to ${exchange} based on prefix ${prefix}`);
+        //         return exchange;
+        //     }
+        // }
+
+        // If no specific match, use only stock name
+        console.log(`No match found for ${symbol}, using only stock name`);
+        return '';
+    }
 }
 
 // Initialize modal when document is loaded
