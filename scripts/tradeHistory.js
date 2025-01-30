@@ -121,60 +121,99 @@ document.addEventListener('DOMContentLoaded', async () => {
         thead.appendChild(headerRow);
 
         // Add column headers row
+        const headers = ['Date', 'Symbol', 'Market', 'Direction', 'Entry Price', 'Exit Price', 'Quantity', 'P/L', 'ROI', 'Notes', 'Delete'];
         const columnHeadersRow = document.createElement('tr');
-        columnHeadersRow.innerHTML = `
-                    <th>Date</th>
-                    <th>Symbol</th>
-                    <th>Direction</th>
-                    <th>Market</th>
-                    <th>Entry</th>
-                    <th>Exit</th>
-                    <th>Quantity</th>
-                    <th>P/L</th>
-                    <th>Notes</th>
-                    <th></th>
-                </tr>
-            `;
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            columnHeadersRow.appendChild(th);
+        });
             thead.appendChild(columnHeadersRow);
             tableElement.appendChild(thead);
             
             // Create table body
             const tbody = document.createElement('tbody');
             trades.forEach(trade => {
-            const tr = document.createElement('tr');
+                const row = document.createElement('tr');
 
-            const date = new Date(trade.date);
-            const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-            const profitLossClass = trade.profitLoss >= 0 ? 'profit' : 'loss';
+            // Date cell
+            const dateCell = document.createElement('td');
+            dateCell.textContent = new Date(trade.date).toLocaleDateString();
+            row.appendChild(dateCell);
 
-            tr.innerHTML = `
-                <td>${formattedDate}</td>
-                <td class="symbol">${trade.symbol.toUpperCase()}</td>
-                <td>
-                    <span class="direction-badge ${trade.direction}">
-                        ${trade.direction === "long" ? "▲ LONG" : "▼ SHORT"}
-                    </span>
-                </td>
-                <td>${trade.market}</td>
-                <td>${trade.entryPrice.toFixed(2)}</td>
-                <td>${trade.exitPrice.toFixed(2)}</td>
-                <td>${trade.quantity}</td>
-                <td class="${trade.profitLoss >= 0 ? "profit" : "loss"}">
-                    ${
-                      trade.profitLoss >= 0 ? "+" : ""
-                    }${trade.profitLoss.toFixed(2)}
-                </td>
-                <td class="notes">${trade.notes || "-"}</td>
-                <td>
-                    <button class="delete-trade-btn" data-trade-id="${
-                      trade.id
-                    }">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            `;
+            // Symbol cell - make it clickable
+            const symbolCell = document.createElement('td');
+            const symbolLink = document.createElement('a');
+            symbolLink.href = '#';
+            symbolLink.textContent = trade.symbol.toUpperCase();
+            symbolLink.className = 'clickable-symbol';
+            symbolLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.tradeModal.show(trade);
+            });
+            symbolCell.appendChild(symbolLink);
+            row.appendChild(symbolCell);
 
-            tbody.appendChild(tr);
+            // Market cell
+            const marketCell = document.createElement('td');
+            marketCell.textContent = trade.market;
+            row.appendChild(marketCell);
+
+            // Direction cell
+            const directionCell = document.createElement('td');
+            directionCell.textContent = trade.direction.toUpperCase();
+            row.appendChild(directionCell);
+
+            // Entry Price cell
+            const entryPriceCell = document.createElement('td');
+            entryPriceCell.textContent = `$${trade.entryPrice.toFixed(2)}`;
+            row.appendChild(entryPriceCell);
+
+            // Exit Price cell
+            const exitPriceCell = document.createElement('td');
+            exitPriceCell.textContent = `$${trade.exitPrice.toFixed(2)}`;
+            row.appendChild(exitPriceCell);
+
+            // Quantity cell
+            const quantityCell = document.createElement('td');
+            quantityCell.textContent = trade.quantity;
+            row.appendChild(quantityCell);
+
+            // P/L cell
+            const pnlCell = document.createElement('td');
+            pnlCell.textContent = `${trade.profitLoss >= 0 ? '+' : ''}$${trade.profitLoss.toFixed(2)}`;
+            pnlCell.className = trade.profitLoss >= 0 ? 'profit' : 'loss';
+            row.appendChild(pnlCell);
+
+            // ROI cell
+            const roiCell = document.createElement('td');
+            roiCell.textContent = `${trade.profitLossPercentage >= 0 ? '+' : ''}${trade.profitLossPercentage.toFixed(2)}%`;
+            roiCell.className = trade.profitLossPercentage >= 0 ? 'profit' : 'loss';
+            row.appendChild(roiCell);
+
+            // Notes cell
+            const notesCell = document.createElement('td');
+            notesCell.textContent = trade.notes || 'No notes available';
+            row.appendChild(notesCell);
+
+            // Delete button cell
+            const deleteCell = document.createElement('td');
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-btn';
+            deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteButton.style.color = 'red';
+            deleteButton.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to delete this trade?')) {
+                    const tradeHandler = new TradeObjectHandler();
+                    await tradeHandler.deleteTrade(trade.id);
+                    allTrades = allTrades.filter(t => t.id !== trade.id);
+                    filterTrades();
+                }
+            });
+            deleteCell.appendChild(deleteButton);
+            row.appendChild(deleteCell);
+
+            tbody.appendChild(row);
         });
 
         tableElement.appendChild(tbody);
