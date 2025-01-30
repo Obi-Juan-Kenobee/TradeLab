@@ -555,11 +555,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (batchTrade.isComplete()) {
                             const newTrade = batchTrade.toTrade();
-
-                            await window.tradeManager.addTrade(newTrade);
+                            if (newTrade) {
+                                await window.tradeManager.addTrade(newTrade);
+                                successCount++;
+                                console.log('Created complete trade:', newTrade);
+                            } else {
+                                console.warn(`Failed to create trade for ${symbol} - invalid batch trade`);
+                                skippedCount++;
+                            }
                             openPositions.delete(symbol);
-                            successCount++;
-                            console.log('Created complete trade:', newTrade);
                         }
                     }
                     else {

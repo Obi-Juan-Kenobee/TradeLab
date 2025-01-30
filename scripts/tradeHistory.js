@@ -1,3 +1,6 @@
+// Initialize trade manager and other required variables
+let allTrades = [];
+
 document.addEventListener('DOMContentLoaded', async () => {
     const symbolFilter = document.getElementById('symbolFilter');
     const marketFilter = document.getElementById('marketFilter');
@@ -6,8 +9,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const endDate = document.getElementById('endDate');
     const clearDateRangeBtn = document.getElementById('clearDateRange');
     
-    let allTrades = [];
+    // Edit modal elements
+    const editModal = document.getElementById('editTradeModal');
+    const closeBtn = editModal.querySelector('.close');
+    const cancelBtn = document.getElementById('cancelEdit');
+    const editForm = document.getElementById('editTradeForm');
     
+    // Edit form fields
+    const editTradeId = document.getElementById('editTradeId');
+    const editDate = document.getElementById('editDate');
+    const editSymbol = document.getElementById('editSymbol');
+    const editDirection = document.getElementById('editDirection');
+    const editMarket = document.getElementById('editMarket');
+    const editEntryPrice = document.getElementById('editEntryPrice');
+    const editExitPrice = document.getElementById('editExitPrice');
+    const editQuantity = document.getElementById('editQuantity');
+    const editNotes = document.getElementById('editNotes');
+
     const updateStats = (trades) => {
         const totalTrades = trades.length;
         const profitableTrades = trades.filter(trade => trade.profitLoss > 0).length;
@@ -29,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Apply symbol filter
         const symbolText = symbolFilter.value.toLowerCase();
         if (symbolText) {
-            filteredTrades = filteredTrades.filter(trade => 
+            filteredTrades = filteredTrades.filter(trade =>
                 trade.symbol.toLowerCase().includes(symbolText)
             );
         }
@@ -37,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Apply market filter
         const marketText = marketFilter.value;
         if (marketText) {
-            filteredTrades = filteredTrades.filter(trade => 
+            filteredTrades = filteredTrades.filter(trade =>
                 trade.market === marketText
             );
         }
@@ -45,7 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Apply direction filter
         const directionText = directionFilter.value;
         if (directionText) {
-            filteredTrades = filteredTrades.filter(trade => 
+            filteredTrades = filteredTrades.filter(trade =>
                 trade.direction === directionText
             );
         }
@@ -53,7 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Apply date range filter
         if (startDate.value) {
             const start = new Date(startDate.value);
-            filteredTrades = filteredTrades.filter(trade => 
+            filteredTrades = filteredTrades.filter(trade =>
                 new Date(trade.date) >= start
             );
         }
@@ -72,6 +90,89 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateStats(filteredTrades);
     };
 
+    // Function to open edit modal
+    const openEditModal = (trade) => {
+        editTradeId.value = trade.id;
+        // Convert date to YYYY-MM-DD format for the input
+        const tradeDate = new Date(trade.date);
+        const year = tradeDate.getFullYear();
+        const month = String(tradeDate.getMonth() + 1).padStart(2, '0');
+        const day = String(tradeDate.getDate()).padStart(2, '0');
+        editDate.value = `${year}-${month}-${day}`;
+
+        editSymbol.value = trade.symbol;
+        editDirection.value = trade.direction.toLowerCase();
+        editMarket.value = trade.market;
+        editEntryPrice.value = trade.entryPrice;
+        editExitPrice.value = trade.exitPrice;
+        editQuantity.value = trade.quantity;
+        editNotes.value = trade.notes || '';
+        editModal.style.display = 'block';
+    };
+
+    // Function to close modal
+    const closeModal = () => {
+        editModal.style.display = 'none';
+        editForm.reset();
+    };
+
+    // Close modal when clicking close button or cancel
+    closeBtn.onclick = closeModal;
+    cancelBtn.onclick = closeModal;
+
+    // Close modal when clicking outside
+    window.onclick = (event) => {
+        if (event.target === editModal) {
+            closeModal();
+        }
+    };
+
+    // Handle edit form submission
+    editForm.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const updatedTrade = new Trade(
+            editSymbol.value.toUpperCase(),
+            editMarket.value,
+            editEntryPrice.value,
+            editExitPrice.value,
+            editQuantity.value,
+            editDate.value,
+            editNotes.value,
+            editDirection.value
+        );
+        updatedTrade.id = editTradeId.value; // Preserve the original ID
+
+        try {
+            await tradeManager.saveTrades([...allTrades.filter(t => t.id !== updatedTrade.id), updatedTrade]);
+
+            // Update allTrades array
+            const index = allTrades.findIndex(t => t.id === updatedTrade.id);
+            if (index !== -1) {
+                allTrades[index] = updatedTrade;
+            }
+
+            filterTrades();
+            closeModal();
+            showNotification('Trade updated successfully!', 'success');
+        } catch (error) {
+            console.error('Error updating trade:', error);
+            showNotification('Error updating trade. Please try again.', 'error');
+        }
+    };
+
+    // Function to show notification
+    const showNotification = (message, type) => {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    };
+
     const displayTrades = (trades) => {
         const tradesListElement = document.getElementById('allTradesList');
         if (!tradesListElement) return;
@@ -86,19 +187,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Create new table
         let tableElement = document.createElement('table');
-            tableElement.id = 'tradesTable';
-            tableElement.className = 'trades-table';
-            
-            // Create table header with delete button
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
+        tableElement.id = 'tradesTable';
+        tableElement.className = 'trades-table';
+
+        // Create table header with delete button
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
         headerRow.className = 'table-header-row';
-        
+
         // Create delete all button
         const deleteAllCell = document.createElement('th');
         deleteAllCell.colSpan = 9; // Span all columns
         deleteAllCell.className = 'delete-all-header';
-        
+
         const deleteAllButton = document.createElement('button');
         deleteAllButton.className = 'delete-all-btn';
         deleteAllButton.innerHTML = '<i class="fas fa-trash-alt"></i> Delete All Trades';
@@ -115,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
         };
-        
+
         deleteAllCell.appendChild(deleteAllButton);
         headerRow.appendChild(deleteAllCell);
         thead.appendChild(headerRow);
@@ -128,13 +229,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             th.textContent = header;
             columnHeadersRow.appendChild(th);
         });
-            thead.appendChild(columnHeadersRow);
-            tableElement.appendChild(thead);
-            
-            // Create table body
-            const tbody = document.createElement('tbody');
-            trades.forEach(trade => {
-                const row = document.createElement('tr');
+        thead.appendChild(columnHeadersRow);
+        tableElement.appendChild(thead);
+
+        // Create table body
+        const tbody = document.createElement('tbody');
+        trades.forEach(trade => {
+            const row = document.createElement('tr');
 
             // Date cell
             const dateCell = document.createElement('td');
@@ -196,8 +297,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             notesCell.textContent = trade.notes || 'No notes available';
             row.appendChild(notesCell);
 
-            // Delete button cell
-            const deleteCell = document.createElement('td');
+            // Actions cell
+            const actionsCell = document.createElement('td');
+            actionsCell.className = 'actions-cell';
+
+            // Edit button
+            const editButton = document.createElement('button');
+            editButton.className = 'edit-btn';
+            editButton.innerHTML = '<i class="fas fa-edit"></i>';
+            editButton.addEventListener('click', () => openEditModal(trade));
+            actionsCell.appendChild(editButton);
+
+            // Delete button
             const deleteButton = document.createElement('button');
             deleteButton.className = 'delete-btn';
             deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
@@ -210,8 +321,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     filterTrades();
                 }
             });
-            deleteCell.appendChild(deleteButton);
-            row.appendChild(deleteCell);
+            actionsCell.appendChild(deleteButton);
+            row.appendChild(actionsCell);
 
             tbody.appendChild(row);
         });
@@ -234,24 +345,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     endDate?.addEventListener('change', filterTrades);
     clearDateRangeBtn.addEventListener('click', clearDateRange);
 
-     // Initial load of trades
-     try {
+    // Initial load of trades
+    try {
         allTrades = await tradeManager.loadTrades();
-        const loadedTrades = await tradeManager.loadTrades();
-        if (Array.isArray(loadedTrades)) {
-            allTrades = loadedTrades;
-        } else {
-            allTrades = [];
-            console.warn('Loaded trades is not an array:', loadedTrades);
-        }
+
         filterTrades(); // This will display trades and update stats
     } catch (error) {
         console.error('Error loading trades:', error);
-        allTrades = []; // Ensure allTrades is always an array
-        // Show error message to user
-        const tradesListElement = document.getElementById('allTradesList');
-        if (tradesListElement) {
-            tradesListElement.innerHTML = `<div class="error-message">Error loading trades: ${error.message}</div>`;
-        }
+        showNotification('Error loading trades. Please try again.', 'error');
     }
 });

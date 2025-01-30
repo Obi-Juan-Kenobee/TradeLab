@@ -129,6 +129,196 @@
     box-shadow: var(--shadow);
 }
 
+/* Edit Trade Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--bg-color);
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.close {
+    color: var(--text-color);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #e74c3c;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#editTradeForm .form-group {
+    margin-bottom: 15px;
+}
+
+#editTradeForm label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+#editTradeForm input,
+#editTradeForm select,
+#editTradeForm textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: #f0f4f8;
+    color: var(--text-color);
+}
+
+#editTradeForm input:focus,
+#editTradeForm select:focus,
+#editTradeForm textarea:focus {
+    border-color: var(--accent-primary-light);
+    outline: none;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.edit-trade-btn {
+    padding: 4px 8px;
+    background-color: var(--accent-secondary-light);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.edit-trade-btn:hover {
+    background-color: var(--accent-primary);
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    z-index: 1100;
+    animation: slideIn 0.3s ease-out;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.notification.success {
+    background-color: var(--success-color, #28a745);
+}
+
+.notification.error {
+    background-color: var(--error-color, #dc3545);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Actions Cell */
+.actions-cell {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.edit-btn {
+    background-color: var(--accent-secondary-light);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.edit-btn:hover {
+    background-color: var(--accent-secondary);
+}
+
+.edit-btn i {
+    font-size: 14px;
+}
+
+.btn.primary {
+    background-color: var(--accent-primary-light);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn.primary:hover {
+    background-color: var(--accent-primary);
+}   
+
+#cancelEdit {
+    background-color: #fff;
+    color: black;
+    border: 1px solid var(--accent-primary-light);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#cancelEdit:hover {
+    background-color: #e74c3c;
+    color: white;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .trades-filter {

@@ -131,11 +131,13 @@ getTotalQuantity() {
   toTrade() {
     if (this.entries.length === 0) {
         console.warn(`Attempting to create trade for ${this.symbol} with no entries`);
+        return null;
     }
 
     const entryPrice = this.getAverageEntryPrice();
     const exitPrice = this.getAverageExitPrice();
     const quantity = this.getTotalQuantity();
+    const firstDate = this.entries[0].date;
     
     // More detailed logging
     console.log(`Creating trade for ${this.symbol}:`, {
@@ -143,8 +145,19 @@ getTotalQuantity() {
         exits: this.exits.length,
         entryPrice,
         exitPrice,
-        quantity
-    }
+        quantity,
+        date: firstDate
+    });
+
+    return new Trade(
+        this.symbol,
+        'Unknown', // market
+        entryPrice,
+        exitPrice,
+        quantity,
+        firstDate,
+        `Batch trade: ${this.entries.length} entries, ${this.exits.length} exits`,
+        exitPrice > entryPrice ? 'long' : 'short'
     );
   }
 
@@ -545,7 +558,9 @@ class TradeManager {
 
       tr.innerHTML = `
                 <td>${formattedDate}</td>
-        <td class="symbol">${tradeCopy.symbol.toUpperCase()}</td>
+        <td class="symbol">
+          <a href="#" class="symbol-link">${tradeCopy.symbol.toUpperCase()}</a>
+        </td>
                 <td>
           <span class="direction-badge ${tradeCopy.direction}">
             ${tradeCopy.direction === "long" ? "▲ LONG" : "▼ SHORT"}
@@ -605,6 +620,15 @@ class TradeManager {
                 
                 // Show modal
                 editModal.style.display = 'block';
+              }
+            });
+
+      // Add symbol click handler
+      const symbolLink = tr.querySelector('.symbol-link');
+      symbolLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.tradeModal) {
+          window.tradeModal.show(tradeCopy);
               }
             });
 
