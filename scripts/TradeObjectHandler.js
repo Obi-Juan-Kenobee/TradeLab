@@ -494,7 +494,20 @@ class TradeManager {
 
     tbody.innerHTML = '';
 
-    trades.forEach(tradeCopy => {
+    // Use provided trades or fall back to this.trades
+    const tradesToDisplay = trades || this.trades;
+    
+    if (!tradesToDisplay || !Array.isArray(tradesToDisplay)) {
+      console.log('No trades to display');
+      return;
+    }
+
+    // Sort trades by date (newest first) and take only the 10 most recent
+    const recentTrades = [...tradesToDisplay]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 10);
+
+    recentTrades.forEach(tradeCopy => {
       const formattedDate = new Date(tradeCopy.date).toLocaleDateString();
       const tr = document.createElement('tr');
 

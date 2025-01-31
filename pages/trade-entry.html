@@ -203,7 +203,31 @@
           </form>
         </div>
         <div class="trades-list">
-          <div id="tradesList"></div>
+          <div class="trades-list-header">
+            <h2>Recent Trades</h2>
+            <a href="trade-history.html" class="btn-view-all">
+              <i class="fas fa-list"></i> View All Trades
+            </a>
+          </div>
+          <table id="tradesTable" class="trades-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Symbol</th>
+                <th>Direction</th>
+                <th>Market</th>
+                <th>Entry Price</th>
+                <th>Exit Price</th>
+                <th>Quantity</th>
+                <th>Investment</th>
+                <th>P/L</th>
+                <th>P/L %</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
     </main>
@@ -385,11 +409,11 @@
     </div>
   </div>
 
-  <script src="/scripts/global.js"></script>
-  <script src="/scripts/tradeEntry.js"></script>
-  <script src="/scripts/dashboard.js"></script>
-  <script src="/scripts/TradeObjectHandler.js"></script>
-  <script src="/scripts/tradeModal.js"></script>
+  <script src="../scripts/global.js"></script>
+  <script src="../scripts/tradeEntry.js"></script>
+  <script src="../scripts/dashboard.js"></script>
+  <script src="../scripts/TradeObjectHandler.js"></script>
+  <script src="../scripts/tradeModal.js"></script>
 </body>
 
 </html>
