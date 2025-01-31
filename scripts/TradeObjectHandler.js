@@ -488,80 +488,20 @@ class TradeManager {
     }
   }
 
-  displayTrades() {
-    const tradesListElement = document.getElementById("tradesList");
-    if (!tradesListElement) return;
+  displayTrades(trades) {
+    const tbody = document.querySelector('#tradesTable tbody');
+    if (!tbody) return;
 
-    // Create header with link to all trades
-    let tableElement = tradesListElement.querySelector("table");
-    const headerDiv = document.createElement("div");
-    headerDiv.className = "trades-header";
-    headerDiv.innerHTML = `
-             <h2>Recent Trades</h2>
-      <div class="trades-actions">
-              <a href="trade-history.html" class="view-all-link">
-          View All <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
-         `;
+    tbody.innerHTML = '';
 
-    // Create table if it doesn't exist
-    if (!tableElement) {
-      tableElement = document.createElement("table");
-      tableElement.className = "trades-table";
-
-      // Create table header
-      const thead = document.createElement("thead");
-      thead.innerHTML = `
-                <tr>
-                    <th class="date-header">Date</th>
-                    <th>Symbol</th>
-                    <th>Direction</th>
-                    <th>Market</th>
-                    <th>Entry</th>
-                    <th>Exit</th>
-                    <th>Quantity</th>
-                    <th>Investment</th>
-                    <th>P/L</th>
-                    <th>ROI</th>
-                    <th>Notes</th>
-                    <th>Actions</th>
-                </tr>
-            `;
-      tableElement.appendChild(thead);
-
-      // Create table body
-      const tbody = document.createElement("tbody");
-      tableElement.appendChild(tbody);
-
-      tradesListElement.innerHTML = "";
-      tradesListElement.appendChild(headerDiv);
-      tradesListElement.appendChild(tableElement);
-    }
-
-    // Update table body with only the 10 most recent trades
-    const tbody = tableElement.querySelector("tbody");
-    tbody.innerHTML = "";
-
-    const recentTrades = [...this.trades].reverse().slice(0, 10);
-    recentTrades.forEach((trade) => {
-      // Ensure trade is an instance of Trade class
-      const tradeCopy = (trade instanceof Trade) ? trade : Trade.fromStorageObject(trade);
-      const tr = document.createElement("tr");
-      tr.className = `trade-row ${tradeCopy.profitLoss >= 0 ? "profit" : "loss"}`;
-
-      const formattedDate = new Date(tradeCopy.date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    trades.forEach(tradeCopy => {
+      const formattedDate = new Date(tradeCopy.date).toLocaleDateString();
+      const tr = document.createElement('tr');
 
       tr.innerHTML = `
                 <td>${formattedDate}</td>
         <td class="symbol">
-          <a href="#" class="symbol-link">${tradeCopy.symbol.toUpperCase()}</a>
+          <a href="#" class="symbol-link" data-symbol="${tradeCopy.symbol}">${tradeCopy.symbol.toUpperCase()}</a>
         </td>
                 <td>
           <span class="direction-badge ${tradeCopy.direction}">
@@ -579,7 +519,7 @@ class TradeManager {
         <td class="${tradeCopy.profitLoss >= 0 ? "profit" : "loss"}">
           ${tradeCopy.profitLoss >= 0 ? "+" : ""}${tradeCopy.profitLossPercentage.toFixed(2)}%
                 </td>
-                <td class="notes">${trade.notes || "-"}</td>
+        <td class="notes">${tradeCopy.notes || "-"}</td>
         <td class="actions-cell">
           <button class="edit-trade-btn" data-trade-id="${tradeCopy.id}" title="Edit Trade">
             <i class="fas fa-edit"></i>
@@ -629,6 +569,7 @@ class TradeManager {
       const symbolLink = tr.querySelector('.symbol-link');
       symbolLink.addEventListener('click', (e) => {
         e.preventDefault();
+        const symbol = e.target.dataset.symbol;
         if (window.tradeModal) {
           window.tradeModal.show(tradeCopy);
               }

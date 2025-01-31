@@ -3,18 +3,18 @@ class TradeModal {
         this.modal = document.getElementById('tradeDetailsModal');
         this.closeBtn = this.modal.querySelector('.close');
         this.setupEventListeners();
+        this.currentSymbol = null;
+        this.chartWidget = null;
+        this.technicalWidget = null;
     }
 
     setupEventListeners() {
-        // Close button click
-        this.closeBtn.addEventListener('click', () => this.hide());
-
-        // Click outside modal
-        window.addEventListener('click', (e) => {
-            if (e.target === this.modal) {
+        this.closeBtn.onclick = () => this.hide();
+        window.onclick = (event) => {
+            if (event.target === this.modal) {
                 this.hide();
             }
-        });
+        };
 
         // Escape key press
         document.addEventListener('keydown', (e) => {
@@ -24,7 +24,7 @@ class TradeModal {
         });
     }
 
-    show(trade) {
+    async show(trade) {
         // Update modal content with trade details
         document.getElementById('modalSymbol').textContent = trade.symbol.toUpperCase();
         document.getElementById('modalDate').textContent = new Date(trade.date).toLocaleDateString();
@@ -49,26 +49,41 @@ class TradeModal {
         this.modal.style.display = 'block';
 
         // Load chart and technical analysis widgets
-        this.loadChartWidget(trade.symbol);
-        this.loadTechnicalAnalysisWidget(trade.symbol);
+        // If symbol has changed, reload widgets
+        if (this.currentSymbol !== trade.symbol) {
+            this.currentSymbol = trade.symbol;
+            
+            try {
+                // Get the exchange for the symbol
+                const exchange = await this.getExchange(trade.symbol);
+                const fullSymbol = exchange ? `${exchange}:${trade.symbol}` : trade.symbol;
+
+                // Load both widgets
+                await Promise.all([
+                    this.loadChartWidget(fullSymbol),
+                    this.loadTechnicalAnalysisWidget(fullSymbol)
+                ]);
+            } catch (error) {
+                console.error('Error loading widgets:', error);
+                // Handle error gracefully - maybe show a message to the user
+            }
+        }
     }
 
     hide() {
         this.modal.style.display = 'none';
-        // Clean up widgets if needed
+        // Clean up widgets
+        const chartContainer = document.getElementById('priceChart');
         const technicalAnalysis = document.getElementById('technicalAnalysis');
-        if (technicalAnalysis) {
-            technicalAnalysis.innerHTML = '';
-        }
+        if (chartContainer) chartContainer.innerHTML = '';
+        if (technicalAnalysis) technicalAnalysis.innerHTML = '';
+        this.currentSymbol = null;
     }
 
     async loadChartWidget(symbol) {
         // Placeholder for chart widget initialization
         const chartContainer = document.getElementById('priceChart');
-        chartContainer.innerHTML = ''; // Clear previous content
-
-        // Get the correct exchange
-        const exchange = await this.getExchange(symbol);
+        chartContainer.innerHTML = '';
 
         // Create widget container
         const widgetContainer = document.createElement('div');
@@ -93,10 +108,10 @@ class TradeModal {
         chartContainer.appendChild(widgetContainer);
 
         // Create and configure TradingView widget
-        new TradingView.widget({
+        this.chartWidget = new TradingView.widget({
             "container_id": widget.id,
             "autosize": true,
-            "symbol": `${exchange}:${symbol}`,
+            "symbol": symbol,
             "interval": "D",
             "timezone": "exchange",
             "theme": "light",
@@ -110,7 +125,7 @@ class TradeModal {
             "hotlist": true,
             "calendar": false,
             "show_popup_button": true,
-            "popup_width": "1000",
+            "popup_width": "1200",
             "popup_height": "650",
             "withdateranges": true
         });
@@ -118,10 +133,7 @@ class TradeModal {
 
     async loadTechnicalAnalysisWidget(symbol) {
         const container = document.getElementById('technicalAnalysis');
-        container.innerHTML = ''; // Clear previous content
-
-       // Get the correct exchange
-        const exchange = await this.getExchange(symbol);
+        container.innerHTML = '';
 
         // Create widget container
         const widgetContainer = document.createElement('div');
@@ -153,7 +165,7 @@ class TradeModal {
             "width": "100%",
             "isTransparent": false,
             "height": "100%",
-            "symbol": `${exchange}:${symbol}`,
+            "symbol": symbol,
             "showIntervalTabs": true,
             "displayMode": "multiple",
             "locale": "en",
@@ -168,7 +180,8 @@ class TradeModal {
         if (symbol.includes('-USD')) return 'COINBASE';
         if (symbol.includes('/USD')) return 'FX';
         // List of common exchanges to try
-        const exchanges = ['NASDAQ', 'NYSE', 'AMEX', 'TSX', 'LSE'];
+        // Common US exchanges to try
+        const exchanges = ['NASDAQ', 'NYSE', 'AMEX'];
         
         // Try to find the correct exchange
         for (const exchange of exchanges) {
@@ -254,6 +267,6 @@ class TradeModal {
 }
 
 // Initialize modal when document is loaded
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', () => {
     window.tradeModal = new TradeModal();
 });
