@@ -16,7 +16,10 @@ class Trade {
     this.entryPrice = parseFloat(entryPrice);
     this.exitPrice = parseFloat(exitPrice);
     this.quantity = parseFloat(quantity);
-    this.date = new Date(date);
+    // Ensure date is stored in local timezone without time component
+    const dateObj = new Date(date);
+    dateObj.setHours(0, 0, 0, 0);
+    this.date = dateObj;
     this.notes = notes;
     this.direction = direction.toLowerCase(); // 'long' or 'short'
     this.investment = parseFloat(
@@ -44,7 +47,7 @@ class Trade {
       entryPrice: this.entryPrice,
       exitPrice: this.exitPrice,
       quantity: this.quantity,
-      date: this.date.toISOString(),
+      date: this.date.toISOString().split('T')[0], // Store date only, no time component
       notes: this.notes,
       direction: this.direction,
       profitLoss: this.profitLoss,

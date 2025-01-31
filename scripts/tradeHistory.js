@@ -71,18 +71,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Apply date range filter
         if (startDate.value) {
             const start = new Date(startDate.value);
-            filteredTrades = filteredTrades.filter(trade =>
-                new Date(trade.date) >= start
-            );
+            start.setHours(0, 0, 0, 0); // Set to start of day
+            filteredTrades = filteredTrades.filter(trade => {
+                const tradeDate = new Date(trade.date);
+                tradeDate.setHours(0, 0, 0, 0);
+                return tradeDate >= start;
+            });
         }
         if (endDate.value) {
             const end = new Date(endDate.value);
-            // Set to the end of the day in local time
-            end.setHours(23, 59, 59, 999);
-            // Add an extra millisecond to ensure we capture all trades from the end date
+            end.setHours(23, 59, 59, 999); // Set to end of day
             filteredTrades = filteredTrades.filter(trade => {
                 const tradeDate = new Date(trade.date);
-                return tradeDate.getTime() <= end.getTime();
+                tradeDate.setHours(0, 0, 0, 0);
+                return tradeDate <= end;
             });
         }
 
@@ -95,10 +97,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         editTradeId.value = trade.id;
         // Convert date to YYYY-MM-DD format for the input
         const tradeDate = new Date(trade.date);
-        const year = tradeDate.getFullYear();
-        const month = String(tradeDate.getMonth() + 1).padStart(2, '0');
-        const day = String(tradeDate.getDate()).padStart(2, '0');
-        editDate.value = `${year}-${month}-${day}`;
+        tradeDate.setHours(0, 0, 0, 0); // Ensure no time component
+        editDate.value = tradeDate.toISOString().split('T')[0];
 
         editSymbol.value = trade.symbol;
         editDirection.value = trade.direction.toLowerCase();

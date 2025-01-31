@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Helper functions
     function formatDate(dateString) {
         const date = new Date(dateString);
+        date.setHours(0, 0, 0, 0); // Ensure no time component
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: '2-digit',
@@ -42,7 +43,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Function to open modal and populate with trade data
     function openEditModal(trade) {
         editTradeId.value = trade.id;
-        editDate.value = trade.date.split('T')[0];
+        // For date input, use the date portion only
+        const tradeDate = new Date(trade.date);
+        tradeDate.setHours(0, 0, 0, 0);
+        editDate.value = tradeDate.toISOString().split('T')[0];
         editSymbol.value = trade.symbol;
         editDirection.value = trade.direction;
         editMarket.value = trade.market;
