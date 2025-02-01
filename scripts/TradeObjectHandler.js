@@ -126,9 +126,7 @@ class BatchTrade {
     console.log(`Checking if complete for ${this.symbol}:`, {
       totalEntryQuantity,
       totalExitQuantity,
-      difference: Math.abs(totalExitQuantity - totalEntryQuantity),
-      entries: this.entries,
-      exits: this.exits
+      difference: Math.abs(totalExitQuantity - totalEntryQuantity)
     });
     
     return totalExitQuantity > 0 && totalEntryQuantity > 0 && 
