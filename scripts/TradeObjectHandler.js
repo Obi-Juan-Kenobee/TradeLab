@@ -87,6 +87,12 @@ class BatchTrade {
       quantity: Math.abs(parseFloat(quantity)),
       date: new Date(date)
     });
+    console.log(`Added entry to ${this.symbol}:`, {
+      price,
+      quantity,
+      totalEntries: this.getTotalEntryQuantity(),
+      totalExits: this.getTotalExitQuantity()
+    });
   }
 
   addExit(price, quantity, date) {
@@ -95,52 +101,73 @@ class BatchTrade {
       quantity: Math.abs(parseFloat(quantity)),
       date: new Date(date)
     });
+    console.log(`Added exit to ${this.symbol}:`, {
+      price,
+      quantity,
+      totalEntries: this.getTotalEntryQuantity(),
+      totalExits: this.getTotalExitQuantity()
+    });
   }
 
+  getTotalEntryQuantity() {
+    return this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+  }
+
+  getTotalExitQuantity() {
+    return this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
+  }
+
+  // Check if this batch trade is complete (total exit quantity matches total entry quantity)
+
   isComplete() {
-    return this.getRemainingQuantity() === 0;
-}
+    const totalEntryQuantity = this.getTotalEntryQuantity();
+    const totalExitQuantity = this.getTotalExitQuantity();
+    
+    console.log(`Checking if complete for ${this.symbol}:`, {
+      totalEntryQuantity,
+      totalExitQuantity,
+      difference: Math.abs(totalExitQuantity - totalEntryQuantity),
+      entries: this.entries,
+      exits: this.exits
+    });
+    
+    return totalExitQuantity > 0 && totalEntryQuantity > 0 && 
+           Math.abs(totalExitQuantity - totalEntryQuantity) < 0.0001;
+  }
 
+  // Get remaining quantity that hasn't been exited
 getRemainingQuantity() {
-  const totalEntries = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
-  const totalExits = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
-  return totalEntries - totalExits;
-}
-
-getTotalQuantity() {
-  return this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+  return this.getTotalEntryQuantity() - this.getTotalExitQuantity();
 }
 
   // Calculate average entry price weighted by quantity
   getAverageEntryPrice() {
-    const totalQuantity = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
+    const totalQuantity = this.getTotalEntryQuantity();
     const weightedSum = this.entries.reduce((sum, entry) => sum + (entry.price * entry.quantity), 0);
     return totalQuantity > 0 ? weightedSum / totalQuantity : 0;
   }
 
   // Calculate average exit price weighted by quantity
   getAverageExitPrice() {
-    const totalQuantity = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
+    const totalQuantity = this.getTotalExitQuantity();
     const weightedSum = this.exits.reduce((sum, exit) => sum + (exit.price * exit.quantity), 0);
     return totalQuantity > 0 ? weightedSum / totalQuantity : 0;
   }
 
-  // Get total quantity
-  getTotalQuantity() {
-    return this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
-  }
-
   // Convert batch trade to regular Trade object
   toTrade() {
-    if (this.entries.length === 0) {
-        console.warn(`Attempting to create trade for ${this.symbol} with no entries`);
+    if (this.entries.length === 0 || this.exits.length === 0) {
+      console.warn(`Attempting to create trade for ${this.symbol} with missing entries or exits`);
         return null;
     }
 
     const entryPrice = this.getAverageEntryPrice();
     const exitPrice = this.getAverageExitPrice();
-    const quantity = this.getTotalQuantity();
-    const firstDate = this.entries[0].date;
+    const quantity = this.getTotalEntryQuantity(); // Use entry quantity
+    // Use the earliest date between entry and exit
+    const firstEntryDate = this.entries[0].date;
+    const firstExitDate = this.exits[0]?.date;
+    const firstDate = firstExitDate && firstExitDate < firstEntryDate ? firstExitDate : firstEntryDate;
     
     // More detailed logging
     console.log(`Creating trade for ${this.symbol}:`, {
@@ -149,7 +176,9 @@ getTotalQuantity() {
         entryPrice,
         exitPrice,
         quantity,
-        date: firstDate
+        date: firstDate,
+        totalEntryQty: this.getTotalEntryQuantity(),
+        totalExitQty: this.getTotalExitQuantity()
     });
 
     return new Trade(
@@ -163,21 +192,6 @@ getTotalQuantity() {
         exitPrice > entryPrice ? 'long' : 'short'
     );
 
-    return new Trade(this.symbol, '', entryPrice, exitPrice, quantity, new Date(), '', this.direction);
-  }
-
-  // Check if this batch trade is complete (total exit quantity matches total entry quantity)
-  isComplete() {
-    const totalEntryQuantity = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
-    const totalExitQuantity = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
-    return totalExitQuantity > 0 && Math.abs(totalExitQuantity - totalEntryQuantity) < 0.0001; // Using small epsilon for float comparison
-  }
-
-  // Get remaining quantity that hasn't been exited
-  getRemainingQuantity() {
-    const totalEntryQuantity = this.entries.reduce((sum, entry) => sum + entry.quantity, 0);
-    const totalExitQuantity = this.exits.reduce((sum, exit) => sum + exit.quantity, 0);
-    return totalEntryQuantity - totalExitQuantity;
   }
 }
 

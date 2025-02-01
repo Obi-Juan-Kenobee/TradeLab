@@ -200,7 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
             symbol: ['symbol', 'ticker', 'security', 'stock', 'instrument', 'security symbol', 'stock symbol'],
             entryPrice: ['entry price', 'entry', 'buy price', 'purchase price', 'cost', 'cost basis', 'fill price', 'execution price'],
             exitPrice: ['exit price', 'exit', 'sell price', 'sale price', 'price', 'closing price', 'settlement price'],
-            quantity: ['quantity', 'qty', 'shares', 'size', 'position size', 'contracts', 'share quantity', 'fill quantity']
+            quantity: ['quantity', 'qty', 'shares', 'size', 'position size', 'contracts', 'share quantity', 'fill quantity'],
+            amount: ['amount', 'value', 'cost', 'revenue', 'gain/loss']
         };
 
         // Find matching columns
@@ -209,7 +210,8 @@ document.addEventListener('DOMContentLoaded', () => {
             symbol: findMatchingColumn(headers, columnMatches.symbol),
             entryPrice: findMatchingColumn(headers, columnMatches.entryPrice),
             exitPrice: findMatchingColumn(headers, columnMatches.exitPrice),
-            quantity: findMatchingColumn(headers, columnMatches.quantity)
+            quantity: findMatchingColumn(headers, columnMatches.quantity),
+            amount: findMatchingColumn(headers, columnMatches.amount)
         };
 
         // Check if we found all required columns
@@ -256,19 +258,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Helper function to parse dates from various formats
     function parseDate(dateValue) {
-        if (!dateValue) return null;
+        // Default to today's date if no value provided
+        if (!dateValue) return new Date();
 
         // If it's already a Date object
         if (dateValue instanceof Date) {
-            return dateValue;
+
+            const time = dateValue.getTime();
+            return isNaN(time) ? new Date() : dateValue;
         }
 
         // If it's an Excel serial number
         if (typeof dateValue === 'number') {
-            // Excel's epoch starts from December 30, 1899
-            const excelEpoch = new Date(1899, 11, 30);
-            const millisecondsPerDay = 24 * 60 * 60 * 1000;
-            return new Date(excelEpoch.getTime() + dateValue * millisecondsPerDay);
+            try {
+                // Excel's epoch starts from January 1, 1900
+                const excelEpoch = new Date(1900, 0, 0);
+                const millisecondsPerDay = 24 * 60 * 60 * 1000;
+                const date = new Date(excelEpoch.getTime() + (dateValue - 1) * millisecondsPerDay);
+
+                // Validate the date is reasonable (between 1900 and 2100)
+                if (date.getFullYear() >= 1900 && date.getFullYear() <= 2100) {
+                    return date;
+                }
+            } catch (error) {
+                console.warn('Failed to parse Excel date:', dateValue);
+            }
+            return new Date(); // Default to today if parsing fails
         }
 
         // Try parsing string formats
@@ -307,7 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        throw new Error(`Unable to parse date: ${dateValue}`);
+        // If all parsing attempts fail, return today's date
+        console.warn('Failed to parse date:', dateValue);
+        return new Date();
     }
 
     // Helper function to validate if a row contains trade data
@@ -365,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (actionIndicators.some(indicator => header.includes(indicator))) {
                 const value = (row[i] || '').toString().toLowerCase();
                 console.log('Found action column:', { header, value });
-                
+
                 // Check for buy indicators
                 if (value.includes('buy') || value.includes('bought') || value === 'b' || value === 'long') {
                     return 'buy';
@@ -431,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove any currency symbols and commas
         const cleaned = str.replace(/[$,]/g, '');
-        
+
         // Try to find a number pattern
         const matches = cleaned.match(/[-]?\d*\.?\d+/);
         if (matches) {
@@ -481,9 +498,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         try {
-                        // First pass: collect all trades
-            for (const row of data.slice(headerRowIndex + 1)) {
+            // First pass: collect all validated trades
+            const allTransactions = [];
                 // if (!row || row.length === 0) continue; // Skip empty rows
+                for (const row of data.slice(headerRowIndex + 1)) {
                 try {
                     // Skip rows that don't look like trade data
                     if (!row || row.length === 0) {
@@ -498,106 +516,98 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Get trade details
-                    const price = extractPrice(row[headers.indexOf(columnMap.entryPrice)]) ||
-                        extractPrice(row[headers.indexOf(columnMap.exitPrice)]);
+
                     const quantity = parseInt(row[headers.indexOf(columnMap.quantity)]);
+
+                    const amount = extractPrice(row[headers.indexOf(columnMap.amount)]);
+
+                    // Calculate price from amount if available
+                    let price;
+                    if (amount) {
+                        price = Math.abs(amount / quantity);
+                    } else {
+                        price = extractPrice(row[headers.indexOf(columnMap.entryPrice)]) ||
+                            extractPrice(row[headers.indexOf(columnMap.exitPrice)]);
+                    }
+
+                    // Use import date if no date is provided
+                    let parsedDate = new Date();
                     const dateValue = row[headers.indexOf(columnMap.date)];
+                    if (dateValue) {
+                        try {
+                            parsedDate = parseDate(dateValue);
+                        } catch (dateError) {
+                            console.warn(`Invalid date for ${symbol}, using import date:`, dateValue);
+                        }
+                    }
 
                     if (!price || isNaN(quantity)) {
-                        console.warn('Invalid price or quantity:', { symbol, price, quantity });
-                        skippedCount++;
-                        continue;
-                    }
-                    let parsedDate;
-                    try {
-                        parsedDate = parseDate(dateValue);
-                    } catch (dateError) {
-                        console.warn(`Invalid date for ${symbol}:`, dateValue);
+                        console.warn('Invalid price or quantity:', { symbol, price, quantity, amount });
                         skippedCount++;
                         continue;
                     }
 
-                    const tradeAction = getTradeAction(row, headers, columnMap);
-                    console.log(`Processing ${symbol}:`, { tradeAction, price, quantity, date: parsedDate });
-                    
-                    // Handle the trade based on action
-                    if (tradeAction === 'buy') {
-                        // Get or create batch trade
-                        let batchTrade = openPositions.get(symbol);
-                        if (!batchTrade) {
-                            batchTrade = new BatchTrade(symbol);
-                            openPositions.set(symbol, batchTrade);
-                        }
-                        batchTrade.addEntry(price, quantity, parsedDate);
-                        console.log(`Added buy for ${symbol}:`, {
+                    const tradeAction = amount ? (amount < 0 ? 'buy' : 'sell') : getTradeAction(row, headers, columnMap);
+                    // Store the transaction
+                    allTransactions.push({
+                        symbol,
+                        action: tradeAction,
                             price,
                             quantity,
-                            date: parsedDate,
-                            totalQuantity: batchTrade.getTotalQuantity()
-                        });
-                    } 
-                    else if (tradeAction === 'sell') {
-                        let batchTrade = openPositions.get(symbol);
-                        if (!batchTrade) {
-                            console.warn(`Found sell without matching buy for ${symbol}`);
-                            skippedCount++;
-                            continue;
-                        }
-
-                        // Add exit to batch trade
-                        batchTrade.addExit(price, quantity, parsedDate);
-                        console.log(`Added sell for ${symbol}:`, {
-                            price,
-                            quantity,
-                            date: parsedDate,
-                            remainingQuantity: batchTrade.getRemainingQuantity()
+                            date: parsedDate
                         });
 
-                        if (batchTrade.isComplete()) {
-                            const newTrade = batchTrade.toTrade();
-                            if (newTrade) {
-                                await window.tradeManager.addTrade(newTrade);
-                                successCount++;
-                                console.log('Created complete trade:', newTrade);
-                            } else {
-                                console.warn(`Failed to create trade for ${symbol} - invalid batch trade`);
-                                skippedCount++;
+                } catch (rowError) {
+                    console.warn('Error processing row:', rowError);
+                    errors.push(rowError.message);
+                    skippedCount++;
+                }
+            }
+
+                        // Second pass: process transactions by symbol
+                        const symbolGroups = new Map();
+            
+                        // Group transactions by symbol
+                        for (const transaction of allTransactions) {
+                            if (!symbolGroups.has(transaction.symbol)) {
+                                symbolGroups.set(transaction.symbol, []);
                             }
-                            openPositions.delete(symbol);
+                            symbolGroups.get(transaction.symbol).push(transaction);
                         }
-                    }
-                    else {
-                        // Handle single-row trade format as before
-                        const entryPrice = extractPrice(row[headers.indexOf(columnMap.entryPrice)]);
-                        const exitPrice = extractPrice(row[headers.indexOf(columnMap.exitPrice)]);
-
-                        if (!isNaN(entryPrice) && !isNaN(exitPrice)) {
-                            const newTrade = new Trade(
-                                symbol,
-                                'Unknown', // market
-                                entryPrice,
-                                exitPrice,
-                                quantity,
-                                parsedDate,
-                                '',
-                                exitPrice > entryPrice ? 'long' : 'short'
-                            );
-
-                            // Use the global tradeManager instance to add the trade
-                            await window.tradeManager.addTrade(newTrade);
-                            successCount++;
-                            console.log('Created single-row trade:', newTrade);
-                        } else {
-                            console.warn(`Invalid prices for ${symbol}:`, { entryPrice, exitPrice });
-                            skippedCount++;
+            
+                        // Process each symbol's transactions
+                        for (const [symbol, transactions] of symbolGroups) {
+                            let batchTrade = new BatchTrade(symbol);
+                            
+                            // Sort transactions by date (oldest first)
+                            transactions.sort((a, b) => a.date - b.date);
+                            
+                            console.log(`Processing transactions for ${symbol}:`, transactions);
+                            
+                            // Add all transactions
+                            for (const transaction of transactions) {
+                                if (transaction.action === 'buy') {
+                                    batchTrade.addEntry(transaction.price, transaction.quantity, transaction.date);
+                                } else {
+                                    batchTrade.addExit(transaction.price, transaction.quantity, transaction.date);
+                                }
+                            }
+            
+                            // Check if we have a complete trade
+                            if (batchTrade.isComplete()) {
+                                const newTrade = batchTrade.toTrade();
+                                if (newTrade) {
+                                    await window.tradeManager.addTrade(newTrade);
+                                    successCount++;
+                                    console.log('Created complete trade:', newTrade);
+                                } else {
+                                    console.warn(`Failed to create trade for ${symbol} - invalid batch trade`);
+                                    skippedCount++;
+                                }
+                            } else {
+                                openPositions.set(symbol, batchTrade);
+                            }
                         }
-                    }
-                        } catch (rowError) {
-                            console.warn('Error processing row:', rowError);
-                            errors.push(rowError.message);
-                            skippedCount++;
-                        }
-                    }
 
             // Handle any remaining open positions
             const unmatchedSymbols = Array.from(openPositions.keys());
@@ -606,58 +616,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (const [symbol, batchTrade] of openPositions.entries()) {
                     console.log(`Unmatched position details for ${symbol}:`, {
                         entries: batchTrade.entries,
-                        totalQuantity: batchTrade.getTotalQuantity(),
-                        averagePrice: batchTrade.getAverageEntryPrice()
+                        totalEntryQty: batchTrade.getTotalEntryQuantity(),
+                        totalExitQty: batchTrade.getTotalExitQuantity(),
+                        averageEntryPrice: batchTrade.getAverageEntryPrice()
                     });
                 }
             }
-            
-                    const message = `Import complete:\n` +
-                        `- Successfully imported: ${successCount} trades\n` +
-                        `- Skipped rows: ${skippedCount}\n` +
-                        (errors.length > 0 ? `- Errors encountered: ${errors.length}\n` : '') +
-                        (unmatchedSymbols.length > 0 ? `- Unmatched positions: ${unmatchedSymbols.join(', ')}` : '');
 
-                    console.log(message);
-                    alert(message);
+            const message = `Import complete:\n` +
+                `- Successfully imported: ${successCount} trades\n` +
+                `- Skipped rows: ${skippedCount}\n` +
+                (errors.length > 0 ? `- Errors encountered: ${errors.length}\n` : '') +
+                (unmatchedSymbols.length > 0 ? `- Unmatched positions: ${unmatchedSymbols.join(', ')}` : '');
 
-                    if (successCount > 0) {
-                        window.location.href = 'trade-entry.html';
-                    }
-                } catch (error) {
-                    console.error('Error importing trades:', error);
-                    alert('Error importing trades: ' + error.message);
-                }
+            console.log(message);
+            alert(message);
+
+            if (successCount > 0) {
+                window.location.href = 'trade-entry.html';
             }
+        } catch (error) {
+            console.error('Error importing trades:', error);
+            alert('Error importing trades: ' + error.message);
+        }
+    }
 
-            function downloadExcelTemplate() {
-                const template = [
-                    ['Date', 'Symbol', 'Entry Price', 'Exit Price', 'Quantity'],
-                    ['1/20/2025', 'AAPL', '190.50', '195.75', '100'],
-                    ['1/20/2025', 'MSFT', '390.25', '385.50', '50']
-                ];
+    function downloadExcelTemplate() {
+        const template = [
+            ['Date', 'Symbol', 'Entry Price', 'Exit Price', 'Quantity'],
+            ['1/20/2025', 'AAPL', '190.50', '195.75', '100'],
+            ['1/20/2025', 'MSFT', '390.25', '385.50', '50']
+        ];
 
-                // Create both Excel and CSV templates
-                const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.aoa_to_sheet(template);
+        // Create both Excel and CSV templates
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(template);
 
-                // Auto-size columns for Excel
-                const colWidths = template[0].map((_, i) =>
-                    Math.max(...template.map(row => row[i].toString().length))
-                );
-                ws['!cols'] = colWidths.map(w => ({ wch: w + 2 }));
+        // Auto-size columns for Excel
+        const colWidths = template[0].map((_, i) =>
+            Math.max(...template.map(row => row[i].toString().length))
+        );
+        ws['!cols'] = colWidths.map(w => ({ wch: w + 2 }));
 
-                // Save as Excel
-                XLSX.utils.book_append_sheet(wb, ws, 'Trades');
-                XLSX.writeFile(wb, 'trade_import_template.xlsx');
+        // Save as Excel
+        XLSX.utils.book_append_sheet(wb, ws, 'Trades');
+        XLSX.writeFile(wb, 'trade_import_template.xlsx');
 
-                // Save as CSV
-                const csvContent = XLSX.utils.sheet_to_csv(ws);
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'trade_import_template.csv';
-                link.click();
-                URL.revokeObjectURL(link.href);
-            }
-        });
+        // Save as CSV
+        const csvContent = XLSX.utils.sheet_to_csv(ws);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'trade_import_template.csv';
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+});
