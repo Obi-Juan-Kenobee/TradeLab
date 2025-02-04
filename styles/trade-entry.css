@@ -566,9 +566,6 @@ textarea {
     color: white;
 }
 .trades-list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 1rem;
     padding: 0.5rem 0;
   }
@@ -747,11 +744,6 @@ textarea {
     padding: 0.5rem;
   }
 /* Responsive Table */
-@media (max-width: 1200px) {
-    .trades-table {
-        display: block;
-    }
-}
 
 @media (min-width: 1200px) {
     .trades-table td.notes {

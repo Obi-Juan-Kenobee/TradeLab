@@ -11,16 +11,59 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-brand">TradeTracker</div>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="index.html#features">Features</a></li>
-            <li><a href="index.html#pricing">Pricing</a></li>
-            <li><a href="index.html#about">About</a></li>
-            <li><a href="/pages/dashboard.html" class="active">Dashboard</a></li>
-        </ul>
-    </nav>
+    
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-brand"><a href="../index.html">TradeLab</a></div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#features">Features</a></li>
+      <li><a href="../index.html#pricing">Pricing</a></li>
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="trade-entry.html" class="cta-button">Dashboard</a></li>
+    </ul>
+    <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
+  </nav>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-chart-line"></i>
+        <span>Trading Tools</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="trade-entry.html" class="sidebar-link active">
+          <i class="fas fa-plus-circle"></i>
+          <span>Manual Entry</span>
+        </a>
+        <a href="import.html" class="sidebar-link">
+          <i class="fas fa-file-import"></i>
+          <span>Import Trades</span>
+        </a>
+        <a href="trade-history.html" class="sidebar-link">
+          <i class="fas fa-list"></i>
+          <span>All Trades</span>
+        </a>
+        <a href="analytics.html" class="sidebar-link">
+          <i class="fas fa-chart-bar"></i>
+          <span>Analytics</span>
+        </a>
+        <a href="market-insights.html" class="sidebar-link">
+          <i class="fas fa-globe"></i>
+          <span>Market Insights</span>
+        </a>
+        <a href="dashboard.html" class="sidebar-link">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Calendar</span>
+        </a>
+        <a href="settings.html" class="sidebar-link">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </aside>
 
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -105,9 +148,48 @@
         </main>
     </div>
 
-    <footer class="footer">
-        <!-- Footer content remains the same -->
-    </footer>
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3><a href="../index.html">TradeLab</a></h3>
+        <p>
+          Your personal trading journal to track and analyze your trading
+          performance.
+        </p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../index.html#features">Features</a></li>
+          <li><a href="../index.html#pricing">Pricing</a></li>
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="/pages/user-guide.html">User Guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Legal</h3>
+        <ul>
+          <li><a href="terms-of-use.html">Terms of Service</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="risk-disclosure.html">Risk Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Follow Us</h3>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+          <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 TradeLab. All rights reserved.</p>
+    </div>
+  </footer>
     <script src="/scripts/global.js"></script>
     <script src="/scripts/dashboard.js"></script>
     <script src="/scripts/calendar-dashboard.js"></script>
