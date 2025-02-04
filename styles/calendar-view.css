@@ -1,0 +1,148 @@
+/* Calendar View Styles */
+.calendar-container {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.year-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: 1rem;
+}
+
+.year-selector button {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+.year-selector span {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.months-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.month-card {
+    background: var(--bg-color);
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.month-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.month-card h3 {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.month-pnl {
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.month-pnl.positive {
+    color: #27ae60;
+}
+
+.month-pnl.negative {
+    color: #e74c3c;
+}
+
+.monthly-view {
+    margin-top: 1.5rem;
+}
+
+.monthly-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.btn-back {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.monthly-header h2 {
+    margin-left: 2rem;
+    color: var(--text-color);
+}
+
+.weekday-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 500;
+    color: #7f8c8d;
+    margin-bottom: 0.5rem;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+}
+
+.day-cell {
+    aspect-ratio: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.day-number {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.day-pnl {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.day-pnl.positive {
+    color: #27ae60;
+}
+
+.day-pnl.negative {
+    color: #e74c3c;
+}
+
+.day-cell.inactive {
+    background: var(--bg-color);
+    color: #bdc3c7;
+}
+
+.day-cell.today {
+    border-color: var(--accent-color);
+    background: var(--hover-bg);
+}
