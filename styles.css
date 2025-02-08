@@ -156,6 +156,11 @@ h2 {
 .nav-links a.active {
     color: var(--text-color);
     background-color: rgba(0, 47, 167, 0.2);
+    border: 1px solid;
+}
+
+.nav-links a:hover {
+    background-color: var(--accent-primary-light);
 }
 
 .nav-links .cta-button {
