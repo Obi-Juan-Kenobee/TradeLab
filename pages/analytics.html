@@ -25,7 +25,7 @@
         <li><a href="../index.html#about">About</a></li>
         <li><a href="contact.html">Contact</a></li>
         <li>
-          <a href="trade-entry.html" class="cta-button active">Dashboard</a>
+          <a href="calendar-view.html" class="cta-button active">Dashboard</a>
         </li>
       </ul>
       <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
@@ -59,7 +59,7 @@
             <i class="fas fa-globe"></i>
             <span>Market Insights</span>
           </a>
-          <a href="dashboard.html" class="sidebar-link">
+          <a href="calendar-view.html" class="sidebar-link">
             <i class="fas fa-calendar-alt"></i>
             <span>Calendar</span>
           </a>
@@ -119,13 +119,13 @@
           <div class="chart-card wide equity-chart">
             <div class="chart-header">
                 <h3>Equity Curve</h3>
-                <div class="view-switch">
+                <!-- <div class="view-switch">
                   <label>View by:</label>
                   <div class="switch-buttons">
                     <button class="switch-btn active" data-view="trade" data-chart="equity">Trade</button>
                     <button class="switch-btn" data-view="date" data-chart="equity">Date</button>
                   </div>
-                </div>
+                </div> -->
               </div>
             <div class="chart-container">
               <canvas id="equityChart"></canvas>
@@ -135,13 +135,13 @@
           <div class="chart-card wide drawdown-chart">
             <div class="chart-header">
                 <h3>Drawdown</h3>
-                <div class="view-switch">
+                <!-- <div class="view-switch">
                   <label>View by:</label>
                   <div class="switch-buttons">
                     <button class="switch-btn active" data-view="trade" data-chart="drawdown">Trade</button>
                     <button class="switch-btn" data-view="date" data-chart="drawdown">Date</button>
                   </div>
-                </div>
+                </div> -->
               </div>
             <div class="chart-container">
               <canvas id="drawdownChart"></canvas>
@@ -249,9 +249,8 @@
           </ul>
         </div>
         <div class="footer-section">
-          <h3>Follow Us</h3>
+          <h3>Social</h3>
           <div class="social-links">
-            <a href="#"><i class="fab fa-twitter" aria-label="Twitter"></i></a>
             <a href="#"
               ><i class="fab fa-linkedin" aria-label="LinkedIn"></i
             ></a>
@@ -269,5 +268,6 @@
     <script src="../scripts/dashboard.js"></script>
     <script src="../scripts/TradeObjectHandler.js"></script>
     <script src="../scripts/analytics.js"></script>
+    <script src="../scripts/theme.js"></script>
   </body>
 </html>
