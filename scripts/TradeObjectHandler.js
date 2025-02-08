@@ -829,4 +829,3 @@ document.addEventListener("DOMContentLoaded", () => {
 //   return todayPnlContainer;
 // }
 
-// export { Trade, TradeManager, ExcelStorageStrategy };

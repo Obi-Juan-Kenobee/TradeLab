@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const tradeManager = window.tradeManager;
     let currentYear = new Date().getFullYear();
     const monthNames = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -105,12 +106,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calculateMonthPnL(monthIndex) {
-        const trades = JSON.parse(localStorage.getItem('trades') || '[]');
+        const trades = tradeManager.trades;
+        const currentYear = new Date().getFullYear(); // Get current year dynamically
+    
         return trades.reduce((total, trade) => {
-            const tradeDate = new Date(trade.date);
-            if (tradeDate.getFullYear() === currentYear && tradeDate.getMonth() === monthIndex) {
-                return total + ((trade.exitPrice - trade.entryPrice) * trade.quantity);
+            // 1. Robust Date Parsing: Use a consistent date format and parse explicitly
+            try {
+                const tradeDate = new Date(trade.date); // Try direct parsing first
+    
+                if (isNaN(tradeDate) && typeof trade.date === 'string'){ //Check if the date is invalid and a string, then split and parse
+                    const dateParts = trade.date.split('-'); // Assuming YYYY-MM-DD format
+                    if(dateParts.length === 3){
+                        const year = parseInt(dateParts[0]);
+                        const month = parseInt(dateParts[1]) - 1; // Adjust for zero-based month
+                        const day = parseInt(dateParts[2]);
+                        tradeDate = new Date(year, month, day);
+                    } else {
+                        console.error("Invalid date format:", trade.date);
+                        return total; // Skip this trade if date is invalid
+                    }
+    
+                }
+    
+                if (isNaN(tradeDate)) {
+                    console.error("Invalid date:", trade.date);
+                    return total; // Skip this trade if date is invalid
+                }
+    
+    
+                // 2. Correct Month Comparison: Use zero-based index directly
+                if (tradeDate.getFullYear() === currentYear && tradeDate.getMonth() === monthIndex) {
+                    // 3. Ensure numeric values: Parse to float if necessary
+                    const profit = parseFloat(trade.exitPrice) - parseFloat(trade.entryPrice);
+                    const quantity = parseFloat(trade.quantity);
+    
+                    if (isNaN(profit) || isNaN(quantity)) {
+                        console.error("Invalid price or quantity for trade:", trade);
+                        return total; // Skip if prices or quantity are not numbers
+                    }
+                    return total + (profit * quantity);
+                }
+            } catch (error) {
+                console.error("Error processing trade:", trade, error);
             }
+    
             return total;
         }, 0);
     }
@@ -130,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function formatPnL(pnl) {
         const formatted = Math.abs(pnl).toFixed(2);
-        return pnl >= 0 ? `+$${formatted}` : `-$${formatted}`;
+        return pnl >= 0 ? `$${formatted}` : `-$${formatted}`;
     }
 
     function isCurrentDay(year, month, day) {

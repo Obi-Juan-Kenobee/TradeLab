@@ -1,3 +1,6 @@
+.main-content {
+    margin: 2rem auto;
+}
 /* Calendar View Styles */
 .calendar-container {
     background: var(--card-bg);
@@ -78,7 +81,8 @@
 
 .btn-back {
     background: none;
-    border: none;
+    border: 1px solid var(--accent-secondary-light);
+    border-radius: 8px;
     color: var(--accent-color);
     cursor: pointer;
     padding: 0.5rem 1rem;
@@ -86,10 +90,16 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: all 0.3 ease;
+}
+
+.btn-back:hover {
+    background-color: var(--accent-primary-light);
+    color: #fff;
 }
 
 .monthly-header h2 {
-    margin-left: 2rem;
+    margin: 0 2rem;
     color: var(--text-color);
 }
 
@@ -116,6 +126,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.day-cell:hover {
+    background: var(--hover-bg);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .day-number {
@@ -145,4 +160,43 @@
 .day-cell.today {
     border-color: var(--accent-color);
     background: var(--hover-bg);
+}
+
+.fa-chevron-right:hover,
+.fa-chevron-left:hover {
+    color: var(--accent-color);
+    translate: scale(2);
+}
+
+@media (min-width: 1201px) {
+    .calendar-container {
+        width: 1100px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .calendar-container {
+        width: 900px;
+    }
+}
+
+@media (max-width: 992px) {
+    .calendar-container {
+        width: 600px;
+    }
+}
+
+@media (max-width: 772px) {
+    .calendar-container {
+        width: 400px;
+    }
+
+    .months-grid {
+        grid-template-columns: auto;
+    }
+
+    .days-grid {
+        grid-template-columns: repeat(7, 50px);
+        gap: 0px;
+    }
 }

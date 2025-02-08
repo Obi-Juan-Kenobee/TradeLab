@@ -82,10 +82,12 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    transition: all 0.3s ease;
 }
 
 .submit-button:hover {
     background-color: var(--accent-primary);
+    transform: translateY(-2px);
 }
 
 /* Contact info section */

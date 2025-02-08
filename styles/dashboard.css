@@ -137,14 +137,10 @@
 .cumulative-pnl .value.negative {
   color: #e74c3c;
 }
-.cumulative-pnl .percentage {
+.cumulative-pnl .roi {
   font-size: 0.9rem;
   color: #7f8c8d;
   margin-left: auto;
-}
-
-.cumulative-pnl {
-  gap: 3rem;
 }
 
 @media (max-width: 768px) {
