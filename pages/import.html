@@ -1,200 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TradeLab - Import Trades</title>
-    <link rel="stylesheet" href="../styles.css" />
-    <link rel="stylesheet" href="/styles/dashboard.css" />
-    <link rel="stylesheet" href="/styles/import.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    />
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-  </head>
-  <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-brand"><a href="../index.html">TradeLab</a></div>
-      <ul class="nav-links">
-        <li><a href="../index.html">Home</a></li>
-        <li><a href="../index.html#features">Features</a></li>
-        <li><a href="../index.html#pricing">Pricing</a></li>
-        <li><a href="../index.html#about">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="trade-entry.html" class="cta-button">Dashboard</a></li>
-      </ul>
-      <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
-    </nav>
 
-    <div class="dashboard-container">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <i class="fas fa-chart-line"></i>
-          <span>Trading Tools</span>
-        </div>
-        <nav class="sidebar-nav">
-          <a href="trade-entry.html" class="sidebar-link">
-            <i class="fas fa-plus-circle"></i>
-            <span>Manual Entry</span>
-          </a>
-          <a href="import.html" class="sidebar-link active">
-            <i class="fas fa-file-import"></i>
-            <span>Import Trades</span>
-          </a>
-          <a href="trade-history.html" class="sidebar-link">
-            <i class="fas fa-list"></i>
-            <span>All Trades</span>
-          </a>
-          <a href="analytics.html" class="sidebar-link">
-            <i class="fas fa-chart-bar"></i>
-            <span>Analytics</span>
-          </a>
-          <a href="market-insights.html" class="sidebar-link">
-            <i class="fas fa-globe"></i>
-            <span>Market Insights</span>
-          </a>
-          <a href=".dashboard.html" class="sidebar-link">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Calendar</span>
-          </a>
-          <a href="settings.html" class="sidebar-link">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-          </a>
-        </nav>
-      </aside>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TradeLab - Import Trades</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="/styles/dashboard.css" />
+  <link rel="stylesheet" href="/styles/import.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <div class="content-header">
-          <h1>Import Trades</h1>
-        </div>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-brand"><a href="../index.html">TradeLab</a></div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#features">Features</a></li>
+      <li><a href="../index.html#pricing">Pricing</a></li>
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li><a href="calendar-view.html" class="cta-button active">Dashboard</a></li>
+    </ul>
+    <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
+  </nav>
 
-        <div class="content-body">
-          <div class="import-container">
-            <div class="import-section">
-              <h2>Import from Excel</h2>
-              <p class="import-description">
-                Upload your trades from an Excel file. The file should have the following columns:
-              </p>
-              <div class="required-columns">
-                <ul>
-                  <li><strong>Date:</strong> Trade date (MM/DD/YYYY)</li>
-                  <li><strong>Symbol:</strong> Trading symbol/ticker</li>
-                  <li><strong>Entry Price:</strong> Trade entry price</li>
-                  <li><strong>Exit Price:</strong> Trade exit price</li>
-                  <li><strong>Quantity:</strong> Number of shares/contracts</li>
-                </ul>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-chart-line"></i>
+        <span>Trading Tools</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="trade-entry.html" class="sidebar-link">
+          <i class="fas fa-plus-circle"></i>
+          <span>Manual Entry</span>
+        </a>
+        <a href="import.html" class="sidebar-link active">
+          <i class="fas fa-file-import"></i>
+          <span>Import Trades</span>
+        </a>
+        <a href="trade-history.html" class="sidebar-link">
+          <i class="fas fa-list"></i>
+          <span>All Trades</span>
+        </a>
+        <a href="analytics.html" class="sidebar-link">
+          <i class="fas fa-chart-bar"></i>
+          <span>Analytics</span>
+        </a>
+        <a href="market-insights.html" class="sidebar-link">
+          <i class="fas fa-globe"></i>
+          <span>Market Insights</span>
+        </a>
+        <a href="calendar-view.html" class="sidebar-link">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Calendar</span>
+        </a>
+        <a href="settings.html" class="sidebar-link">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-header">
+        <h1>Import Trades</h1>
+      </div>
+
+      <div class="content-body">
+        <div class="import-container">
+          <div class="import-section">
+            <h2>Import from Excel</h2>
+            <p class="import-description">
+              Upload your trades from an Excel file. We recommend using our template to make sure all trades import
+              correctly. However, if you choose to import an excel sheet not in our format we recommend making sure
+              these columns are present in your file.
+            </p>
+            <div class="required-columns">
+              <ul>
+                <li><strong>Date:</strong> Trade date (MM/DD/YYYY)</li>
+                <li><strong>Symbol:</strong> Trading symbol/ticker</li>
+                <li><strong>Entry Price:</strong> Trade entry price</li>
+                <li><strong>Exit Price:</strong> Trade exit price</li>
+                <li><strong>Quantity:</strong> Number of shares/contracts</li>
+              </ul>
+            </div>
+            <p>Note that for brokers with multi-row entries (one row for entry and one for exit, which should include
+              most brokers), you can still import your trades, however the some data might be imported incorrectly. I am
+              working hard on an algorithm that can parse excel sheets from most brokers.</p>
+
+            <div class="upload-section">
+              <div class="file-drop-zone" id="dropZone">
+                <i class="fas fa-file-excel fa-3x"></i>
+                <p>Drag and drop your Excel or CSV file here:</p>
+                <label for="fileInput" class="upload-btn">Choose File</label>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden />
               </div>
-              
-              <div class="upload-section">
-                <div class="file-drop-zone" id="dropZone">
-                  <i class="fas fa-file-excel fa-3x"></i>
-                  <p>Drag and drop your Excel or CSV file here:</p>
-                  <label for="fileInput" class="upload-btn">Choose File</label>
-                  <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden />
-                </div>
-                <div id="fileInfo" class="file-info hidden">
-                  <span id="fileName"></span>
-                  <button id="clearFile" class="clear-btn">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="preview-section hidden" id="previewSection">
-                <h3>Preview</h3>
-                <div class="preview-table-container">
-                  <table id="previewTable" class="preview-table">
-                    <!-- Preview content will be inserted here -->
-                  </table>
-                </div>
-                <div class="preview-actions">
-                  <button id="importBtn" class="import-btn">
-                    <i class="fas fa-file-import"></i> Import Trades
-                  </button>
-                  <button id="cancelBtn" class="cancel-btn">
-                    <i class="fas fa-times"></i> Cancel
-                  </button>
-                </div>
+              <div id="fileInfo" class="file-info hidden">
+                <span id="fileName"></span>
+                <button id="clearFile" class="clear-btn">
+                  <i class="fas fa-times"></i>
+                </button>
               </div>
             </div>
 
-            <div class="template-section">
-              <h2>Download Template</h2>
-              <p>
-                Download our Excel template to ensure your data is formatted correctly:
-              </p>
-              <button id="downloadTemplate" class="template-btn">
-                <i class="fas fa-download"></i> Download Template
-              </button>
-            </div>
-            <div class="import-instructions">
-              <h2>Instructions</h2>
-              <ol>
-                  <li>Download our Excel template or ensure your file matches the required format</li>
-                  <li>Fill in your trade data following the template structure</li>
-                  <li>Upload your file using the drag & drop zone or file selector</li>
-                  <li>Review the preview of your data</li>
-                  <li>Click "Import Trades" to add the trades to your account</li>
-              </ol>
-              
-              <div class="format-requirements">
-                  <h3>Required Columns</h3>
-                  <ul>
-                      <li>Symbol (e.g., AAPL, EURUSD)</li>
-                      <li>Trade Type (Stock, Futures, Forex, Crypto, Options)</li>
-                      <li>Entry Price</li>
-                      <li>Exit Price</li>
-                      <li>Quantity</li>
-                      <li>Date</li>
-                      <li>Winning Trade (Yes/No)</li>
-                      <li>Notes (Optional)</li>
-                  </ul>
+            <div class="preview-section hidden" id="previewSection">
+              <h3>Preview</h3>
+              <div class="preview-table-container">
+                <table id="previewTable" class="preview-table">
+                  <!-- Preview content will be inserted here -->
+                </table>
               </div>
+              <div class="preview-actions">
+                <button id="importBtn" class="import-btn">
+                  <i class="fas fa-file-import"></i> Import Trades
+                </button>
+                <button id="cancelBtn" class="cancel-btn">
+                  <i class="fas fa-times"></i> Cancel
+                </button>
+              </div>
+            </div>
           </div>
+
+          <div class="template-section">
+            <h2>Download Template</h2>
+            <p>
+              Download our Excel template to ensure your data is formatted correctly:
+            </p>
+            <button id="downloadTemplate" class="template-btn">
+              <i class="fas fa-download"></i> Download Template
+            </button>
+          </div>
+          <div class="import-instructions">
+            <h2>Instructions</h2>
+            <ol>
+              <li>Download our Excel template or ensure your file matches the required format</li>
+              <li>Fill in your trade data following the template structure</li>
+              <li>Upload your file using the drag & drop zone or file selector</li>
+              <li>Review the preview of your data</li>
+              <li>Click "Import Trades" to add the trades to your account</li>
+            </ol>
+
+            <div class="format-requirements">
+              <h3>Required Columns</h3>
+              <ul>
+                <li>Symbol (e.g., AAPL, EURUSD)</li>
+                <li>Trade Type (Stock, Futures, Forex, Crypto, Options)</li>
+                <li>Entry Price</li>
+                <li>Exit Price</li>
+                <li>Quantity</li>
+                <li>Date</li>
+              </ul>
+            </div>
           </div>
         </div>
-      </main>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3><a href="../index.html">TradeLab</a></h3>
+        <p>Your personal trading journal to track and analyze your trading performance.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../index.html#features">Features</a></li>
+          <li><a href="../index.html#pricing">Pricing</a></li>
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="/pages/user-guide.html">User Guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Legal</h3>
+        <ul>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="terms-of-use.html">Terms of Use</a></li>
+          <li><a href="risk-disclosure.html">Risk Disclosure</a></li>
+        </ul>
+      </div>
     </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 TradeLab. All rights reserved.</p>
+    </div>
+  </footer>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3><a href="../index.html">TradeLab</a></h3>
-          <p>Your personal trading journal to track and analyze your trading performance.</p>
-        </div>
-        <div class="footer-section">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><a href="../index.html#features">Features</a></li>
-            <li><a href="../index.html#pricing">Pricing</a></li>
-            <li><a href="../index.html#about">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li><a href="/pages/user-guide.html">User Guide</a></li>
-          </ul>
-        </div>
-        <div class="footer-section">
-          <h3>Legal</h3>
-          <ul>
-            <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Use</a></li>
-            <li><a href="risk-disclosure.html">Risk Disclosure</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2025 TradeLab. All rights reserved.</p>
-      </div>
-    </footer>
+  <script src="../scripts/TradeObjectHandler.js"></script>
+  <script src="../scripts/global.js"></script>
+  <script src="../scripts/dashboard.js"></script>
+  <script src="../scripts/import.js"></script>
+  <script src="/scripts/theme.js"></script>
+</body>
 
-    <script src="../scripts/TradeObjectHandler.js"></script>
-    <script src="../scripts/global.js"></script>
-    <script src="../scripts/dashboard.js"></script>
-    <script src="../scripts/import.js"></script>
-  </body>
 </html>

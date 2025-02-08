@@ -220,25 +220,25 @@ document.addEventListener('DOMContentLoaded', () => {
             .filter(key => !columnMap[key])
             .map(key => key);
 
-        if (missingColumns.length > 0) {
-            alert(`Could not find columns for: ${missingColumns.join(', ')}\n\nPlease make sure your file contains these columns.`);
-            clearFileSelection();
-            return;
-        }
+        // if (missingColumns.length > 0) {
+        //     alert(`Could not find columns for: ${missingColumns.join(', ')}\n\nPlease make sure your file contains these columns.`);
+        //     clearFileSelection();
+        //     return;
+        // }
 
         // If both quantity and amount are missing, we need at least one
-        if (!columnMap.quantity && !columnMap.amount) {
-            alert('Could not find a column for quantity or amount. Please make sure your file contains at least one of these columns.');
-            clearFileSelection();
-            return;
-        }
+        // if (!columnMap.quantity && !columnMap.amount) {
+        //     alert('Could not find a column for quantity or amount. Please make sure your file contains at least one of these columns.');
+        //     clearFileSelection();
+        //     return;
+        // }
 
         // If both entry and exit price are missing, we need at least one
-        if (!columnMap.entryPrice && !columnMap.exitPrice) {
-            alert('Could not find a column for price. Please make sure your file contains at least one price column.');
-            clearFileSelection();
-            return;
-        }
+        // if (!columnMap.entryPrice && !columnMap.exitPrice) {
+        //     alert('Could not find a column for price. Please make sure your file contains at least one price column.');
+        //     clearFileSelection();
+        //     return;
+        // }
 
         // Preview only the first few rows after the header
         const previewData = data.slice(headerRowIndex + 1, headerRowIndex + 6);
@@ -271,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return tableHTML;
     }
 
-    // Helper function to parse dates from various formats
     function parseDate(dateValue) {
         // Default to today's date if no value provided
         if (!dateValue) return new Date();
@@ -342,117 +341,117 @@ document.addEventListener('DOMContentLoaded', () => {
         return new Date();
     }
 
-    // Helper function to validate if a row contains trade data
-    function isTradeDataRow(row, headers, columnMap) {
-        if (!row || row.length === 0) return false;
+    // // Helper function to validate if a row contains trade data
+    // function isTradeDataRow(row, headers, columnMap) {
+    //     if (!row || row.length === 0) return false;
 
-        // Get the values we need to check
-        const symbol = row[headers.indexOf(columnMap.symbol)];
-        const entryPrice = row[headers.indexOf(columnMap.entryPrice)];
-        const exitPrice = row[headers.indexOf(columnMap.exitPrice)];
-        const quantity = row[headers.indexOf(columnMap.quantity)];
+    //     // Get the values we need to check
+    //     const symbol = row[headers.indexOf(columnMap.symbol)];
+    //     const entryPrice = row[headers.indexOf(columnMap.entryPrice)];
+    //     const exitPrice = row[headers.indexOf(columnMap.exitPrice)];
+    //     const quantity = row[headers.indexOf(columnMap.quantity)];
 
-        // Debug log
-        console.log('Checking row:', {
-            symbol,
-            entryPrice,
-            exitPrice,
-            quantity,
-            hasSymbol: Boolean(symbol),
-            isValidPrice: !isNaN(parseFloat(entryPrice)) || !isNaN(parseFloat(exitPrice)),
-            isValidQuantity: !isNaN(parseFloat(quantity))
-        });
+    //     // Debug log
+    //     console.log('Checking row:', {
+    //         symbol,
+    //         entryPrice,
+    //         exitPrice,
+    //         quantity,
+    //         hasSymbol: Boolean(symbol),
+    //         isValidPrice: !isNaN(parseFloat(entryPrice)) || !isNaN(parseFloat(exitPrice)),
+    //         isValidQuantity: !isNaN(parseFloat(quantity))
+    //     });
 
-        // Check if we have a symbol (any non-empty string)
-        const hasSymbol = Boolean(symbol && symbol.toString().trim());
+    //     // Check if we have a symbol (any non-empty string)
+    //     const hasSymbol = Boolean(symbol && symbol.toString().trim());
 
-        // Check if we have at least one valid numeric value in price or quantity
-        const hasValidNumber = [entryPrice, exitPrice, quantity].some(value => {
-            const num = parseFloat(value);
-            return !isNaN(num) && isFinite(num);
-        });
+    //     // Check if we have at least one valid numeric value in price or quantity
+    //     const hasValidNumber = [entryPrice, exitPrice, quantity].some(value => {
+    //         const num = parseFloat(value);
+    //         return !isNaN(num) && isFinite(num);
+    //     });
 
-        return hasSymbol && hasValidNumber;
-    }
+    //     return hasSymbol && hasValidNumber;
+    // }
 
-    // Helper function to determine if a row is a buy or sell
-    function getTradeAction(row, headers, columnMap) {
-        // Check common variations of buy/sell indicators
-        const actionIndicators = [
-            'action', 'type', 'side', 'buy/sell', 'transaction type', 'trade type',
-            'order type', 'trade action', 'position', 'direction'
-        ];
+    // // Helper function to determine if a row is a buy or sell
+    // function getTradeAction(row, headers, columnMap) {
+    //     // Check common variations of buy/sell indicators
+    //     const actionIndicators = [
+    //         'action', 'type', 'side', 'buy/sell', 'transaction type', 'trade type',
+    //         'order type', 'trade action', 'position', 'direction'
+    //     ];
 
-        // Log the row headers and values for debugging
-        console.log('Checking trade action for row:', {
-            headers: headers,
-            values: row,
-            columnMap: columnMap
-        });
+    //     // Log the row headers and values for debugging
+    //     console.log('Checking trade action for row:', {
+    //         headers: headers,
+    //         values: row,
+    //         columnMap: columnMap
+    //     });
 
-        // Check each header for action indicators
+    //     // Check each header for action indicators
 
-        for (let i = 0; i < headers.length; i++) {
-            const header = headers[i].toLowerCase();
-            if (actionIndicators.some(indicator => header.includes(indicator))) {
-                const value = (row[i] || '').toString().toLowerCase();
-                console.log('Found action column:', { header, value });
+    //     for (let i = 0; i < headers.length; i++) {
+    //         const header = headers[i].toLowerCase();
+    //         if (actionIndicators.some(indicator => header.includes(indicator))) {
+    //             const value = (row[i] || '').toString().toLowerCase();
+    //             console.log('Found action column:', { header, value });
 
-                // Check for buy indicators
-                if (value.includes('buy') || value.includes('bought') || value === 'b' || value === 'long') {
-                    return 'buy';
-                }
-                // Check for sell indicators
-                if (value.includes('sell') || value.includes('sold') || value === 's' || value === 'short') {
-                    return 'sell';
-                }
-            }
-        }
+    //             // Check for buy indicators
+    //             if (value.includes('buy') || value.includes('bought') || value === 'b' || value === 'long') {
+    //                 return 'buy';
+    //             }
+    //             // Check for sell indicators
+    //             if (value.includes('sell') || value.includes('sold') || value === 's' || value === 'short') {
+    //                 return 'sell';
+    //             }
+    //         }
+    //     }
 
-        // If no explicit action column found, try to infer from price columns
-        const entryPrice = row[headers.indexOf(columnMap.entryPrice)];
-        const exitPrice = row[headers.indexOf(columnMap.exitPrice)];
+    //     // If no explicit action column found, try to infer from price columns
+    //     const entryPrice = row[headers.indexOf(columnMap.entryPrice)];
+    //     const exitPrice = row[headers.indexOf(columnMap.exitPrice)];
 
-        console.log('Checking prices for action:', {
-            entryPrice,
-            exitPrice,
-            entryCol: columnMap.entryPrice,
-            exitCol: columnMap.exitPrice
-        });
+    //     console.log('Checking prices for action:', {
+    //         entryPrice,
+    //         exitPrice,
+    //         entryCol: columnMap.entryPrice,
+    //         exitCol: columnMap.exitPrice
+    //     });
 
-        // If only entry price is present, it's likely a buy
-        if (entryPrice && !exitPrice) {
-            return 'buy';
-        }
-        // If only exit price is present, it's likely a sell
-        if (!entryPrice && exitPrice) {
-            return 'sell';
-        }
+    //     // If only entry price is present, it's likely a buy
+    //     if (entryPrice && !exitPrice) {
+    //         return 'buy';
+    //     }
+    //     // If only exit price is present, it's likely a sell
+    //     if (!entryPrice && exitPrice) {
+    //         return 'sell';
+    //     }
 
-        // If both prices are present, check their column names
-        const entryHeader = headers[headers.indexOf(columnMap.entryPrice)].toLowerCase();
-        const exitHeader = headers[headers.indexOf(columnMap.exitPrice)].toLowerCase();
+    //     // If both prices are present, check their column names
+    //     const entryHeader = headers[headers.indexOf(columnMap.entryPrice)].toLowerCase();
+    //     const exitHeader = headers[headers.indexOf(columnMap.exitPrice)].toLowerCase();
 
-        if (entryHeader.includes('buy') || entryHeader.includes('entry')) {
-            return 'buy';
-        }
-        if (exitHeader.includes('sell') || exitHeader.includes('exit')) {
-            return 'sell';
-        }
+    //     if (entryHeader.includes('buy') || entryHeader.includes('entry')) {
+    //         return 'buy';
+    //     }
+    //     if (exitHeader.includes('sell') || exitHeader.includes('exit')) {
+    //         return 'sell';
+    //     }
 
-        // If we can't determine the action, log it and return null
-        console.warn('Could not determine trade action from row:', {
-            headers: headers,
-            values: row,
-            columnMap: columnMap
-        });
+    //     // If we can't determine the action, log it and return null
+    //     console.warn('Could not determine trade action from row:', {
+    //         headers: headers,
+    //         values: row,
+    //         columnMap: columnMap
+    //     });
 
-        return null;
-    }
+    //     return null;
+    // }
 
     // Helper function to extract price from a cell that might contain text
     function extractPrice(value) {
-        if (typeof value === 'number') return value;
+        if (typeof value === 'number') return parseFloat(value.toFixed(2));
         if (!value) return NaN;
 
         // Convert to string and extract numbers
@@ -468,13 +467,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const matches = cleaned.match(/[-]?\d*\.?\d+/);
         if (matches) {
             const price = parseFloat(matches[0]);
+            const formattedPrice = price.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
             console.log('Extracted price:', price);
-            return price;
+            return parseFloat(formattedPrice);
         }
 
         console.warn('Could not extract price from:', str);
         return NaN;
     }
+ // Helper function to parse dates from various formats
 
     async function importTrades() {
         if (!workbookData || !workbookData.columnMap) return;

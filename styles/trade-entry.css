@@ -326,7 +326,7 @@ textarea {
 
 .cumulative-pnl .value,
 .todays-pnl .value {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     margin: 0.5rem 0;
 }
@@ -335,10 +335,6 @@ textarea {
 .todays-pnl .percentage {
   font-size: 1.1rem;
   color: var(--text-muted);
-}
-
-.roi {
-    
 }
 
 /* Delete Trade Button Styles */
@@ -374,12 +370,6 @@ textarea {
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0.5rem 0;
-}
-
-.todays-pnl .percentage {
-    font-size: 1rem;
-    opacity: 0.8;
-    margin-left: auto;
 }
 
 .todays-pnl .value.positive,
@@ -476,7 +466,6 @@ textarea {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background-color: #f0f4f8;
-    color: var(--text-color);
 }
 
 #editTradeForm input:focus,
@@ -565,16 +554,6 @@ textarea {
     background-color: #e74c3c;
     color: white;
 }
-.trades-list-header {
-    margin-bottom: 1rem;
-    padding: 0.5rem 0;
-  }
-  
-  .trades-list-header h2 {
-    margin: 0;
-    color: #2c3e50;
-    font-size: 1.5rem;
-  }
   
   .btn-view-all {
     display: inline-flex;
@@ -611,11 +590,6 @@ textarea {
     text-align: left;
     padding: 1rem;
     border-bottom: 2px solid #e9ecef;
-  }
-  
-  .trades-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
   }
   
   .trades-table tbody tr:hover {
@@ -691,13 +665,6 @@ textarea {
     margin-bottom: 1rem;
     /* Prevent horizontal scrollbar when not needed */
     scrollbar-width: thin;
-    /* Add shadow to indicate scrollable content */
-    background:
-      linear-gradient(to right, white 30%, rgba(255, 255, 255, 0)),
-      linear-gradient(to right, rgba(255, 255, 255, 0), white 70%) 100% 0,
-      radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)),
-      radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)) 100% 0;
-    background-repeat: no-repeat;
     background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
     background-attachment: local, local, scroll, scroll;
   }

@@ -129,6 +129,10 @@
     box-shadow: var(--shadow);
 }
 
+#allTradesList {
+    overflow: auto;
+}
+
 /* Edit Trade Modal */
 .modal {
     display: none;
@@ -285,7 +289,6 @@
   
   .trades-table td {
     padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
   }
   
   .trades-table tbody tr:hover {

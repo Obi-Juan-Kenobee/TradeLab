@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Create delete all button
         const deleteAllCell = document.createElement('th');
-        deleteAllCell.colSpan = 9; // Span all columns
+        deleteAllCell.colSpan = 12; // Span all columns
         deleteAllCell.className = 'delete-all-header';
 
         const deleteAllButton = document.createElement('button');
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         thead.appendChild(headerRow);
 
         // Add column headers row
-        const headers = ['Date', 'Symbol', 'Market', 'Direction', 'Entry Price', 'Exit Price', 'Quantity', 'P/L', 'ROI', 'Notes', 'Delete'];
+        const headers = ['Date', 'Symbol', 'Market', 'Direction', 'Entry Price', 'Exit Price', 'Quantity', 'P/L', 'ROI', 'Notes', 'Actions'];
         const columnHeadersRow = document.createElement('tr');
         headers.forEach(header => {
             const th = document.createElement('th');
@@ -262,7 +262,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Direction cell
             const directionCell = document.createElement('td');
-            directionCell.textContent = trade.direction.toUpperCase();
+            const span = document.createElement('span');
+            directionCell.appendChild(span);
+            span.textContent = trade.direction === "long" ? "▲ LONG" : "▼ SHORT"
+            span.classList.add("direction-badge");
+            span.classList.add(trade.direction === "long" ? 'profit' : 'loss');
+            span.classList.add(trade.direction === "long" ? "long" : "short")
             row.appendChild(directionCell);
 
             // Entry Price cell

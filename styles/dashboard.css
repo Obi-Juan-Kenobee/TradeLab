@@ -115,6 +115,7 @@
   border-radius: 10px;
   display: flex;
   align-items: center;
+  justify-content: space-around;
   gap: 6rem;
   margin-bottom: 1.5rem;
 }

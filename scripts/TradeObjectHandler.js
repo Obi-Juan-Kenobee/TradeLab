@@ -159,8 +159,8 @@ getRemainingQuantity() {
         return null;
     }
 
-    const entryPrice = this.getAverageEntryPrice();
-    const exitPrice = this.getAverageExitPrice();
+    const entryPrice = this.getAverageEntryPrice().toFixed(2);
+    const exitPrice = this.getAverageExitPrice().toFixed(2);
     const quantity = this.getTotalEntryQuantity(); // Use entry quantity
     // Use the earliest date between entry and exit
     const firstEntryDate = this.entries[0].date;

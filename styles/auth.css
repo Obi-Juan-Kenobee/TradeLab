@@ -36,8 +36,8 @@
 }
 
 .auth-tab.active {
-    color: var(--accent-color);
-    border-bottom: 2px solid var(--accent-color);
+    color: var(--accent-secondary-light);
+    border-bottom: 2px solid var(--accent-primary-light);
     margin-bottom: -2px;
 }
 
@@ -77,7 +77,7 @@
 .auth-form .form-group input[type="email"]:focus,
 .auth-form .form-group input[type="password"]:focus {
     outline: none;
-    border-color: var(--accent-color);
+    border-color: var(--accent-primary-light);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
@@ -118,7 +118,7 @@
 }
 
 .forgot-password {
-    color: var(--accent-color);
+    color: var(--accent-secondary-light);
     text-decoration: none;
     font-size: 0.9rem;
 }
@@ -191,7 +191,7 @@
 }
 
 .btn-primary {
-    width: 100px;
+    width: 200px;
     background-color: var(--accent-primary-light);
     color: #fff;
     border: 1px solid var(--accent-primary);
