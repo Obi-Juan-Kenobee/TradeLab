@@ -45,7 +45,7 @@
       margin-bottom: 20px;
     }
 
-    .close-modal {
+    .close-modal, .close-details {
       background: none;
       border: none;
       font-size: 24px;
@@ -74,20 +74,62 @@
     }
 
     .trades-table th,
-    .trades-table td {
+    .trades-table td,
+      .details-table th,
+      .details-table td {
       padding: 12px;
       text-align: left;
       border-bottom: 1px solid #ddd;
     }
 
-    .trades-table th {
+    .trades-table th,
+    .details-table th {
       background-color: #f8f9fa;
       font-weight: 600;
     }
+    
+    .trades-table tbody tr {
+        cursor: pointer;
+      }
 
     .trades-table tbody tr:hover {
       background-color: #f5f5f5;
     }
+    
+    .trade-details {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fff;
+      }
+
+      .trade-details.hidden {
+        display: none;
+      }
+
+      .trade-details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .trade-entries,
+      .trade-exits {
+        margin-bottom: 20px;
+      }
+
+      .details-table {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
+      .trade-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
 
     .verification-controls {
       display: flex;
@@ -96,12 +138,20 @@
       margin-top: 20px;
     }
 
-    .selected-trade {
-      background-color: #e3f2fd;
+    .selected-row {
+      background-color: #e3f2fd !important;
     }
 
-    .paired-trade {
-      background-color: #e8f5e9;
+    .incomplete-trade {
+        color: #f57c00;
+      }
+
+      .complete-trade {
+        color: #388e3c;
+      }
+
+      .warning {
+        color: #d32f2f;
     }
     .btn-primary {
     background-color: var(--accent-primary-light);
@@ -302,25 +352,66 @@
           </div>
           <div class="modal-body">
             <div class="verification-instructions">
-              <p>Check that your data is being imported correctly. If not, select trades to pair. Once everything looks correct, click 'Data is Correct' button.</p>
+              <p>Review your imported trades. Click on any trade to see its details. If trades are not paired correctly, you can unpair them or pair additional trades together.</p>
             </div>
             <div class="trades-table-container">
-              <table id="tradesVerificationTable" class="trades-table">
+              <table id="batchTradesTable" class="trades-table">
                 <thead>
                   <tr>
-                    <th>Select</th>
-                    <th>Date</th>
                     <th>Symbol</th>
-                    <th>Action</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
+                    <th>Entry Date</th>
+                    <th>Exit Date</th>
+                    <th>Total Quantity</th>
+                    <th>Avg Entry</th>
+                    <th>Avg Exit</th>
+                    <th>P/L</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
-                <tbody id="tradesVerificationBody"></tbody>
+                <tbody id="batchTradesBody"></tbody>
               </table>
             </div>
+            <div id="tradeDetails" class="trade-details hidden">
+              <div class="trade-details-header">
+                <h3>Trade Details</h3>
+                <button class="close-details">&times;</button>
+              </div>
+              <div class="trade-details-content">
+                <div class="trade-entries">
+                  <h4>Entries</h4>
+                  <table class="details-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="entriesTableBody"></tbody>
+                  </table>
+                </div>
+                <div class="trade-exits">
+                  <h4>Exits</h4>
+                  <table class="details-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="exitsTableBody"></tbody>
+                  </table>
+                </div>
+                <div class="trade-actions">
+                  <button id="unpairSelectedBtn" class="btn-secondary" disabled>Unpair Selected</button>
+                  <button id="addTradesBtn" class="btn-secondary">Add Trades to This Batch</button>
+                </div>
+              </div>
+            </div>
             <div class="verification-controls">
-              <button id="pairTradesBtn" class="btn-secondary" disabled>Pair Selected Trades</button>
               <button id="confirmTradesBtn" class="btn-primary">Data is Correct</button>
               <button id="cancelImportBtn" class="btn-secondary">Cancel</button>
             </div>

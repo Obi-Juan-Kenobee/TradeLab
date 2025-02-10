@@ -480,202 +480,412 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let allTransactions = [];
-    let selectedTrades = new Set();
-    let pairedTrades = new Map(); // Maps trade IDs to their paired trade IDs
+    // let selectedTrades = new Set();
+    // let pairedTrades = new Map(); // Maps trade IDs to their paired trade IDs
+    let batchTrades = new Map(); // symbol -> BatchTrade
+    let selectedBatchTrade = null;
+    let unpairedTrades = [];
 
     // Modal elements
     const verificationModal = document.getElementById('tradeVerificationModal');
     const closeModalBtn = document.querySelector('.close-modal');
-    const pairTradesBtn = document.getElementById('pairTradesBtn');
+    // const pairTradesBtn = document.getElementById('pairTradesBtn');
+    const closeDetailsBtn = document.querySelector('.close-details');
     const confirmTradesBtn = document.getElementById('confirmTradesBtn');
     const cancelImportBtn = document.getElementById('cancelImportBtn');
-    const tradesVerificationBody = document.getElementById('tradesVerificationBody');
+    // const tradesVerificationBody = document.getElementById('tradesVerificationBody');
+    const batchTradesBody = document.getElementById('batchTradesBody');
+    const tradeDetails = document.getElementById('tradeDetails');
+    const entriesTableBody = document.getElementById('entriesTableBody');
+    const exitsTableBody = document.getElementById('exitsTableBody');
+    const unpairSelectedBtn = document.getElementById('unpairSelectedBtn');
+    const addTradesBtn = document.getElementById('addTradesBtn');
 
     // Modal event listeners
     closeModalBtn.addEventListener('click', () => {
         verificationModal.classList.remove('show');
     });
 
-    pairTradesBtn.addEventListener('click', pairSelectedTrades);
+    // pairTradesBtn.addEventListener('click', pairSelectedTrades);
+    closeDetailsBtn.addEventListener('click', () => {
+        tradeDetails.classList.add('hidden');
+        selectedBatchTrade = null;
+        document.querySelectorAll('.selected-row').forEach(row => {
+            row.classList.remove('selected-row');
+        });
+    });
+
     confirmTradesBtn.addEventListener('click', processVerifiedTrades);
     cancelImportBtn.addEventListener('click', () => {
         verificationModal.classList.remove('show');
         clearFileSelection();
     });
 
+    unpairSelectedBtn.addEventListener('click', unpairSelectedTrades);
+    addTradesBtn.addEventListener('click', showUnpairedTradesModal);
+
     function showVerificationModal(transactions) {
         allTransactions = transactions;
-        selectedTrades.clear();
-        pairedTrades.clear();
-        
-        // Populate the verification table
-        tradesVerificationBody.innerHTML = '';
-        transactions.forEach((trade, index) => {
-            const row = document.createElement('tr');
-            row.dataset.tradeId = index;
-            
-            row.innerHTML = `
-                <td><input type="checkbox" class="trade-selector" data-trade-id="${index}"></td>
-                <td>${trade.date.toLocaleDateString()}</td>
-                <td>${trade.symbol}</td>
-                <td>${trade.action}</td>
-                <td>${trade.price.toFixed(2)}</td>
-                <td>${trade.quantity}</td>
-            `;
-            
-            if (pairedTrades.has(index)) {
-                row.classList.add('paired-trade');
-            }
-            
-            tradesVerificationBody.appendChild(row);
-        });
+        // selectedTrades.clear();
+        // pairedTrades.clear();
+        batchTrades.clear();
+        unpairedTrades = [];
+        selectedBatchTrade = null;
 
-        // Add click handlers for trade selection
-        document.querySelectorAll('.trade-selector').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                const tradeId = parseInt(e.target.dataset.tradeId);
-                if (e.target.checked) {
-                    selectedTrades.add(tradeId);
-                } else {
-                    selectedTrades.delete(tradeId);
-                }
-                updatePairTradesButton();
-            });
-        });
+        // // Populate the verification table
+        // tradesVerificationBody.innerHTML = '';
+        // transactions.forEach((trade, index) => {
+        //     const row = document.createElement('tr');
+        //     row.dataset.tradeId = index;
 
-        verificationModal.classList.add('show');
-    }
+        //     row.innerHTML = `
+        //         <td><input type="checkbox" class="trade-selector" data-trade-id="${index}"></td>
+        //         <td>${trade.date.toLocaleDateString()}</td>
+        //         <td>${trade.symbol}</td>
+        //         <td>${trade.action}</td>
+        //         <td>${trade.price.toFixed(2)}</td>
+        //         <td>${trade.quantity}</td>
+        //     `;
 
-    function updatePairTradesButton() {
-        pairTradesBtn.disabled = selectedTrades.size !== 2;
-    }
+        //     if (pairedTrades.has(index)) {
+        //         row.classList.add('paired-trade');
+        //     }
 
-    function pairSelectedTrades() {
-        if (selectedTrades.size !== 2) return;
+        //     tradesVerificationBody.appendChild(row);
+        // });
 
-        const [trade1Id, trade2Id] = Array.from(selectedTrades);
-        const trade1 = allTransactions[trade1Id];
-        const trade2 = allTransactions[trade2Id];
-
-        // Only pair trades of the same symbol
-        if (trade1.symbol !== trade2.symbol) {
-            alert('Can only pair trades of the same symbol');
-            return;
-        }
-
-        // Store the pairing
-        pairedTrades.set(trade1Id, trade2Id);
-        pairedTrades.set(trade2Id, trade1Id);
-
-        // Update UI
-        document.querySelectorAll(`[data-trade-id="${trade1Id}"], [data-trade-id="${trade2Id}"]`)
-            .forEach(row => row.classList.add('paired-trade'));
-
-        // Clear selections
-        selectedTrades.clear();
-        document.querySelectorAll('.trade-selector').forEach(checkbox => checkbox.checked = false);
-        updatePairTradesButton();
-    }
-
-    function processVerifiedTrades() {
-        const processedSymbols = new Set();
+        // // Add click handlers for trade selection
+        // document.querySelectorAll('.trade-selector').forEach(checkbox => {
+        //     checkbox.addEventListener('change', (e) => {
+        //         const tradeId = parseInt(e.target.dataset.tradeId);
+        //         if (e.target.checked) {
+        //             selectedTrades.add(tradeId);
+        // First pass: group transactions by symbol and create batch trades
         const symbolGroups = new Map();
-
-        // First, group all transactions by symbol
-        allTransactions.forEach((transaction, index) => {
+        transactions.forEach((transaction, index) => {
             if (!symbolGroups.has(transaction.symbol)) {
                 symbolGroups.set(transaction.symbol, []);
             }
             symbolGroups.get(transaction.symbol).push({ ...transaction, index });
         });
 
-        // Process each symbol's transactions
-        for (const [symbol, transactions] of symbolGroups) {
-            let batchTrade = new BatchTrade(symbol);
-            
-            // Sort transactions by date (oldest first)
-            transactions.sort((a, b) => a.date - b.date);
-            
-            // Process paired trades first
-            const pairedTransactions = transactions.filter(t => pairedTrades.has(t.index));
-            const unpairedTransactions = transactions.filter(t => !pairedTrades.has(t.index));
-            
-            // Add paired transactions
-            for (let i = 0; i < pairedTransactions.length; i += 2) {
-                const trade1 = pairedTransactions[i];
-                const trade2 = pairedTransactions[i + 1];
-                
-                if (trade1 && trade2) {
-                    if (trade1.action === 'buy') {
-                        batchTrade.addEntry(trade1.price, trade1.quantity, trade1.date);
-                        batchTrade.addExit(trade2.price, trade2.quantity, trade2.date);
-                    } else {
-                        batchTrade.addEntry(trade2.price, trade2.quantity, trade2.date);
-                        batchTrade.addExit(trade1.price, trade1.quantity, trade1.date);
-                    }
-                }
-            }
-            
-            // Add unpaired transactions
-            for (const transaction of unpairedTransactions) {
-                if (transaction.action === 'buy') {
-                    batchTrade.addEntry(transaction.price, transaction.quantity, transaction.date);
+        // Create batch trades
+        for (const [symbol, trades] of symbolGroups) {
+            const batchTrade = new BatchTrade(symbol);
+            trades.sort((a, b) => a.date - b.date);
+
+            // Try to match trades
+            const entries = trades.filter(t => t.action === 'buy');
+            const exits = trades.filter(t => t.action === 'sell');
+
+            // Add matched trades to batch
+            let entryIndex = 0;
+            let exitIndex = 0;
+            while (entryIndex < entries.length && exitIndex < exits.length) {
+                const entry = entries[entryIndex];
+                const exit = exits[exitIndex];
+
+                if (entry.quantity === exit.quantity) {
+                    batchTrade.addEntry(entry.price, entry.quantity, entry.date);
+                    batchTrade.addExit(exit.price, exit.quantity, exit.date);
+                    entryIndex++;
+                    exitIndex++;
+                } else if (entry.quantity < exit.quantity) {
+                    // Split the exit trade
+                    batchTrade.addEntry(entry.price, entry.quantity, entry.date);
+                    batchTrade.addExit(exit.price, entry.quantity, exit.date);
+                    exit.quantity -= entry.quantity;
+                    entryIndex++;
                 } else {
-                    batchTrade.addExit(transaction.price, transaction.quantity, transaction.date);
+                    // selectedTrades.delete(tradeId);
+                    // Split the entry trade
+                    batchTrade.addEntry(entry.price, exit.quantity, entry.date);
+                    batchTrade.addExit(exit.price, exit.quantity, exit.date);
+                    entry.quantity -= exit.quantity;
+                    exitIndex++;
                 }
+                //             updatePairTradesButton();
+                //         });
+                //     });
+
+                //     verificationModal.classList.add('show');
+                // }
+
+                // function updatePairTradesButton() {
+                //     pairTradesBtn.disabled = selectedTrades.size !== 2;
+                // }
             }
 
-            // Store the batch trade if it's complete
-            if (batchTrade.isComplete()) {
-                processedSymbols.add(symbol);
+            // Store remaining trades as unpaired
+            while (entryIndex < entries.length) {
+                unpairedTrades.push(entries[entryIndex]);
+                entryIndex++;
+            }
+            while (exitIndex < exits.length) {
+                unpairedTrades.push(exits[exitIndex]);
+                exitIndex++;
+            }
+
+            if (batchTrade.entries.length > 0 || batchTrade.exits.length > 0) {
+                batchTrades.set(symbol, batchTrade);
             }
         }
 
-        // Hide modal and proceed with import
-        verificationModal.classList.remove('show');
-        finalizeImport(symbolGroups, processedSymbols);
+        // Display batch trades
+        displayBatchTrades();
+        verificationModal.classList.add('show');
+    }
+    // function pairSelectedTrades() {
+    //     if (selectedTrades.size !== 2) return;
+
+    //     const [trade1Id, trade2Id] = Array.from(selectedTrades);
+    //     const trade1 = allTransactions[trade1Id];
+    //     const trade2 = allTransactions[trade2Id];
+
+    //     // Only pair trades of the same symbol
+    //     if (trade1.symbol !== trade2.symbol) {
+    //         alert('Can only pair trades of the same symbol');
+    //         return;
+    //     }
+
+    //     // Store the pairing
+    //     pairedTrades.set(trade1Id, trade2Id);
+    //     pairedTrades.set(trade2Id, trade1Id);
+
+    //     // Update UI
+    //     document.querySelectorAll(`[data-trade-id="${trade1Id}"], [data-trade-id="${trade2Id}"]`)
+    //         .forEach(row => row.classList.add('paired-trade'));
+
+    //     // Clear selections
+    //     selectedTrades.clear();
+    //     document.querySelectorAll('.trade-selector').forEach(checkbox => checkbox.checked = false);
+    //     updatePairTradesButton();
+    // }
+
+    // function processVerifiedTrades() {
+    //     const processedSymbols = new Set();
+    //     const symbolGroups = new Map();
+
+    function displayBatchTrades() {
+        batchTradesBody.innerHTML = '';
+
+        for (const [symbol, batchTrade] of batchTrades) {
+            const row = document.createElement('tr');
+            const isComplete = batchTrade.isComplete();
+            const totalQty = batchTrade.getTotalEntryQuantity();
+            const avgEntry = batchTrade.getAverageEntryPrice();
+            const avgExit = batchTrade.getAverageExitPrice();
+            const pnl = isComplete ? ((avgExit - avgEntry) * totalQty).toFixed(2) : 'N/A';
+
+            row.innerHTML = `
+                <td>${symbol}</td>
+                <td>${batchTrade.entries[0]?.date.toLocaleDateString() || 'N/A'}</td>
+                <td>${batchTrade.exits[batchTrade.exits.length - 1]?.date.toLocaleDateString() || 'N/A'}</td>
+                <td>${totalQty}</td>
+                <td>${avgEntry.toFixed(2)}</td>
+                <td>${avgExit ? avgExit.toFixed(2) : 'N/A'}</td>
+                <td>${pnl}</td>
+                <td class="${isComplete ? 'complete-trade' : 'incomplete-trade'}">${isComplete ? 'Complete' : 'Incomplete'}</td>
+            `;
+
+            row.addEventListener('click', () => showTradeDetails(symbol));
+            batchTradesBody.appendChild(row);
+        }
     }
 
-    async function finalizeImport(symbolGroups, processedSymbols) {
+    function showTradeDetails(symbol) {
+        const batchTrade = batchTrades.get(symbol);
+        if (!batchTrade) return;
+
+        selectedBatchTrade = symbol;
+
+        // Highlight selected row
+        document.querySelectorAll('tr').forEach(row => row.classList.remove('selected-row'));
+        const rows = batchTradesBody.querySelectorAll('tr');
+        for (const row of rows) {
+            if (row.cells[0].textContent === symbol) {
+                row.classList.add('selected-row');
+                break;
+            }
+        }
+        // // First, group all transactions by symbol
+        // allTransactions.forEach((transaction, index) => {
+        //     if (!symbolGroups.has(transaction.symbol)) {
+        //         symbolGroups.set(transaction.symbol, []);
+        //     }
+        //     symbolGroups.get(transaction.symbol).push({ ...transaction, index });
+
+        // Display entries
+        entriesTableBody.innerHTML = '';
+        batchTrade.entries.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                        <td>${entry.date.toLocaleDateString()}</td>
+                        <td>${entry.price.toFixed(2)}</td>
+                        <td>${entry.quantity}</td>
+                        <td><button class="unpair-btn" data-type="entry" data-index="${index}">Unpair</button></td>
+                    `;
+            entriesTableBody.appendChild(row);
+        });
+
+        // // Process each symbol's transactions
+        // for (const [symbol, transactions] of symbolGroups) {
+        //     let batchTrade = new BatchTrade(symbol);
+
+        //     // Sort transactions by date (oldest first)
+        //     transactions.sort((a, b) => a.date - b.date);
+
+        // Display exits
+        exitsTableBody.innerHTML = '';
+        batchTrade.exits.forEach((exit, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                        <td>${exit.date.toLocaleDateString()}</td>
+                        <td>${exit.price.toFixed(2)}</td>
+                        <td>${exit.quantity}</td>
+                        <td><button class="unpair-btn" data-type="exit" data-index="${index}">Unpair</button></td>
+                    `;
+            exitsTableBody.appendChild(row);
+        });
+
+        // // Process paired trades first
+        // const pairedTransactions = transactions.filter(t => pairedTrades.has(t.index));
+        // const unpairedTransactions = transactions.filter(t => !pairedTrades.has(t.index));
+
+        // // Add paired transactions
+        // for (let i = 0; i < pairedTransactions.length; i += 2) {
+        //     const trade1 = pairedTransactions[i];
+        //     const trade2 = pairedTransactions[i + 1];
+
+        //     if (trade1 && trade2) {
+        //         if (trade1.action === 'buy') {
+        //             batchTrade.addEntry(trade1.price, trade1.quantity, trade1.date);
+        //             batchTrade.addExit(trade2.price, trade2.quantity, trade2.date);
+        //         } else {
+        //             batchTrade.addEntry(trade2.price, trade2.quantity, trade2.date);
+        //             batchTrade.addExit(trade1.price, trade1.quantity, trade1.date);
+        //         }
+        //     }
+
+        // Add event listeners for unpair buttons
+        document.querySelectorAll('.unpair-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = e.target.dataset.type;
+                const index = parseInt(e.target.dataset.index);
+                unpairTrade(symbol, type, index);
+            });
+        });
+
+        tradeDetails.classList.remove('hidden');
+    }
+
+    function unpairTrade(symbol, type, index) {
+        const batchTrade = batchTrades.get(symbol);
+        if (!batchTrade) return;
+
+        const trade = type === 'entry' ?
+            batchTrade.entries.splice(index, 1)[0] :
+            batchTrade.exits.splice(index, 1)[0];
+
+        if (trade) {
+            unpairedTrades.push({
+                symbol,
+                action: type === 'entry' ? 'buy' : 'sell',
+                price: trade.price,
+                quantity: trade.quantity,
+                date: trade.date
+            });
+        }
+
+        // Remove batch trade if empty
+        if (batchTrade.entries.length === 0 && batchTrade.exits.length === 0) {
+            batchTrades.delete(symbol);
+        }
+
+        //     // Add unpaired transactions
+        //     for (const transaction of unpairedTransactions) {
+        //         if (transaction.action === 'buy') {
+        //             batchTrade.addEntry(transaction.price, transaction.quantity, transaction.date);
+        //         } else {
+        //             batchTrade.addExit(transaction.price, transaction.quantity, transaction.date);
+        //         }
+        //     }
+
+        //     // Store the batch trade if it's complete
+        //     if (batchTrade.isComplete()) {
+        //         processedSymbols.add(symbol);
+        //     }
+        // }
+
+        // // Hide modal and proceed with import
+        // verificationModal.classList.remove('show');
+        // finalizeImport(symbolGroups, processedSymbols);
+
+        // Update display
+        displayBatchTrades();
+        showTradeDetails(symbol);
+    }
+
+    function unpairSelectedTrades() {
+        const selectedTrades = document.querySelectorAll('.trade-checkbox:checked');
+        selectedTrades.forEach(checkbox => {
+            const type = checkbox.dataset.type;
+            const index = parseInt(checkbox.dataset.index);
+            unpairTrade(selectedBatchTrade, type, index);
+        });
+    }
+
+    function showUnpairedTradesModal() {
+        // Implementation for showing unpaired trades modal
+        // This would show a new modal with unpaired trades that can be added to the current batch
+        console.log('Unpaired trades:', unpairedTrades);
+    }
+
+    // async function finalizeImport(symbolGroups, processedSymbols) {
+    async function processVerifiedTrades() {
         let successCount = 0;
         let skippedCount = 0;
         let errors = [];
 
         try {
-            for (const [symbol, transactions] of symbolGroups) {
-                if (processedSymbols.has(symbol)) {
-                    let batchTrade = new BatchTrade(symbol);
-                    
-                    // Process paired trades first
-                    const pairedTransactions = transactions.filter(t => pairedTrades.has(t.index));
-                    const unpairedTransactions = transactions.filter(t => !pairedTrades.has(t.index));
-                    
-                    // Add paired transactions
-                    for (let i = 0; i < pairedTransactions.length; i += 2) {
-                        const trade1 = pairedTransactions[i];
-                        const trade2 = pairedTransactions[i + 1];
-                        
-                        if (trade1 && trade2) {
-                            if (trade1.action === 'buy') {
-                                batchTrade.addEntry(trade1.price, trade1.quantity, trade1.date);
-                                batchTrade.addExit(trade2.price, trade2.quantity, trade2.date);
-                            } else {
-                                batchTrade.addEntry(trade2.price, trade2.quantity, trade2.date);
-                                batchTrade.addExit(trade1.price, trade1.quantity, trade1.date);
-                            }
-                        }
-                    }
-                    
-                    // Add unpaired transactions
-                    for (const transaction of unpairedTransactions) {
-                        if (transaction.action === 'buy') {
-                            batchTrade.addEntry(transaction.price, transaction.quantity, transaction.date);
-                        } else {
-                            batchTrade.addExit(transaction.price, transaction.quantity, transaction.date);
-                        }
-                    }
+            // for (const [symbol, transactions] of symbolGroups) {
+            //     if (processedSymbols.has(symbol)) {
+            //         let batchTrade = new BatchTrade(symbol);
 
-                    // Create and save the trade
+            //         // Process paired trades first
+            //         const pairedTransactions = transactions.filter(t => pairedTrades.has(t.index));
+            //         const unpairedTransactions = transactions.filter(t => !pairedTrades.has(t.index));
+
+            //         // Add paired transactions
+            //         for (let i = 0; i < pairedTransactions.length; i += 2) {
+            //             const trade1 = pairedTransactions[i];
+            //             const trade2 = pairedTransactions[i + 1];
+
+            //             if (trade1 && trade2) {
+            //                 if (trade1.action === 'buy') {
+            //                     batchTrade.addEntry(trade1.price, trade1.quantity, trade1.date);
+            //                     batchTrade.addExit(trade2.price, trade2.quantity, trade2.date);
+            //                 } else {
+            //                     batchTrade.addEntry(trade2.price, trade2.quantity, trade2.date);
+            //                     batchTrade.addExit(trade1.price, trade1.quantity, trade1.date);
+            //                 }
+            //             }
+            //         }
+
+            //         // Add unpaired transactions
+            //         for (const transaction of unpairedTransactions) {
+            //             if (transaction.action === 'buy') {
+            //                 batchTrade.addEntry(transaction.price, transaction.quantity, transaction.date);
+            //             } else {
+            //                 batchTrade.addExit(transaction.price, transaction.quantity, transaction.date);
+            //             }
+            //         }
+
+            //         // Create and save the trade
+
+            // Process complete batch trades
+            for (const [symbol, batchTrade] of batchTrades) {
+                if (batchTrade.isComplete()) {
                     const newTrade = batchTrade.toTrade();
                     if (newTrade) {
                         await window.tradeManager.addTrade(newTrade);
@@ -693,9 +903,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 `- Successfully imported: ${successCount} trades\n` +
                 `- Skipped: ${skippedCount}\n` +
                 (errors.length > 0 ? `- Errors: ${errors.length}\n` : '') +
-                (Array.from(processedSymbols).length > 0 ? `- Unmatched positions: ${Array.from(processedSymbols).join(', ')}` : '');
+                // (Array.from(processedSymbols).length > 0 ? `- Unmatched positions: ${Array.from(processedSymbols).join(', ')}` : '');
+
+                (unpairedTrades.length > 0 ? `- Unpaired trades: ${unpairedTrades.length}` : '');
 
             alert(message);
+            verificationModal.classList.remove('show');
 
             if (successCount > 0) {
                 window.location.href = 'trade-entry.html';
@@ -706,7 +919,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
- // Helper function to parse dates from various formats
+    // Helper function to parse dates from various formats
 
     async function importTrades() {
         if (!workbookData || !workbookData.columnMap) return;
@@ -816,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const tradeAction = amount ? (amount < 0 ? 'buy' : 'sell') : getTradeAction(row, headers, columnMap);
                     // Store the transaction
                     // allTransactions.push({
-                        transactions.push({
+                    transactions.push({
                         symbol,
                         action: tradeAction,
                         price,
