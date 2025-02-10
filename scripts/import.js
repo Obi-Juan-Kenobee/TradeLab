@@ -500,6 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const exitsTableBody = document.getElementById('exitsTableBody');
     const unpairSelectedBtn = document.getElementById('unpairSelectedBtn');
     const addTradesBtn = document.getElementById('addTradesBtn');
+    const unpairedTradesModal = document.getElementById('unpairedTradesModal');
+    const unpairedTradesBody = document.getElementById('unpairedTradesBody');
+    const addSelectedTradesBtn = document.getElementById('addSelectedTradesBtn');
 
     // Modal event listeners
     closeModalBtn.addEventListener('click', () => {
@@ -523,6 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     unpairSelectedBtn.addEventListener('click', unpairSelectedTrades);
     addTradesBtn.addEventListener('click', showUnpairedTradesModal);
+    addSelectedTradesBtn.addEventListener('click', addSelectedTradesToBatch);
 
     function showVerificationModal(transactions) {
         allTransactions = transactions;
@@ -836,9 +840,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showUnpairedTradesModal() {
-        // Implementation for showing unpaired trades modal
-        // This would show a new modal with unpaired trades that can be added to the current batch
-        console.log('Unpaired trades:', unpairedTrades);
+        if (!selectedBatchTrade) return;
+        const currentBatch = batchTrades.get(selectedBatchTrade);
+        if (!currentBatch) return;
+
+        unpairedTradesBody.innerHTML = '';
+        unpairedTrades.forEach((trade, index) => {
+            const row = document.createElement('tr');
+            const isMatchingSymbol = trade.symbol === selectedBatchTrade;
+            if (!isMatchingSymbol) row.classList.add('disabled');
+            
+            row.innerHTML = `
+                <td><input type="checkbox" class="trade-checkbox" data-trade-index="${index}" ${!isMatchingSymbol ? 'disabled' : ''}></td>
+                <td>${trade.date.toLocaleDateString()}</td>
+                <td>${trade.symbol}</td>
+                <td>${trade.action}</td>
+                <td>${trade.price.toFixed(2)}</td>
+                <td>${trade.quantity}</td>
+            `;
+            unpairedTradesBody.appendChild(row);
+        });
+
+        unpairedTradesModal.classList.add('show', 'stacked');
+    }
+
+    function addSelectedTradesToBatch() {
+        if (!selectedBatchTrade) return;
+        const currentBatch = batchTrades.get(selectedBatchTrade);
+        if (!currentBatch) return;
+
+        const selectedCheckboxes = document.querySelectorAll('#unpairedTradesBody .trade-checkbox:checked');
+        const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.tradeIndex));
+        
+        selectedIndices.sort((a, b) => b - a).forEach(index => {
+            const trade = unpairedTrades[index];
+            if (trade.action === 'buy') {
+                currentBatch.addEntry(trade.price, trade.quantity, trade.date);
+            } else {
+                currentBatch.addExit(trade.price, trade.quantity, trade.date);
+            }
+            unpairedTrades.splice(index, 1);
+        });
+
+        displayBatchTrades();
+        showTradeDetails(selectedBatchTrade);
+        unpairedTradesModal.classList.remove('show', 'stacked');
     }
 
     // async function finalizeImport(symbolGroups, processedSymbols) {
