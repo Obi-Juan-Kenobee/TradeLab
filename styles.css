@@ -161,6 +161,7 @@ h2 {
 
 .nav-links a:hover {
     background-color: var(--accent-primary-light);
+    color: #fff;
 }
 
 .nav-links .cta-button {
