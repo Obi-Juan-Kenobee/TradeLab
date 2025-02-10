@@ -61,7 +61,7 @@ function updateMetrics(trades) {
     trades.length > 0 ? ((winningTrades / trades.length) * 100).toFixed(1) : 0;
   document.getElementById("winRate").textContent = winRate + "%";
 
-  // Calculate profit factor
+  // Calculate profit factor using the following formula: Profit Factor = Total Gross Profit / Total Gross Loss
   const grossProfit = trades.reduce((sum, trade) => {
     if (trade.profitLoss > 0) {
       return sum + trade.profitLoss;
@@ -175,24 +175,25 @@ function createEquityChart(trades) {
 
   let chartData;
 
-  if (currentViewType.equity === "trade") {
-    // Calculate trade-by-trade equity
-    let equity = 0;
-    chartData = {
-      labels: trades.map((_, index) => `Trade ${index + 1}`),
-      data: trades.map((trade) => {
-        equity += trade.profitLoss;
-        return equity;
-      }),
-    };
-  } else {
+  // if (currentViewType.equity === "trade") {
+  //   // Calculate trade-by-trade equity
+  //   let equity = 0;
+  //   chartData = {
+  //     labels: trades.map((_, index) => `Trade ${index + 1}`),
+  //     data: trades.map((trade) => {
+  //       equity += trade.profitLoss;
+  //       return equity;
+  //     }),
+  //   };
+  // } else {
     // Calculate daily equity
     const dailyAgg = aggregateTradesByDate(trades);
     chartData = {
       labels: dailyAgg.dates,
       data: dailyAgg.dates.map((date) => dailyAgg.data[date].equity),
     };
-  }
+    console.log(chartData.labels);
+  // }
 
   const minEquity = Math.min(0, ...chartData.data);
   const maxEquity = Math.max(0, ...chartData.data);
@@ -205,7 +206,7 @@ function createEquityChart(trades) {
   equityChart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: chartData.labels,
+      labels: [chartData.labels],
       datasets: [
         {
           label: "Equity Curve",
@@ -239,14 +240,14 @@ function createEquityChart(trades) {
           ticks: {
             maxTicksLimit: 10,
             callback: function (value, index) {
-              if (currentViewType.equity === "trade") {
-                if (trades.length <= 10) return `Trade ${index + 1}`;
-                if (index === 0) return "Start";
-                if (index === trades.length - 1) return "End";
-                if (index % Math.ceil(trades.length / 10) === 0) {
-                  return `Trade ${index + 1}`;
-                }
-              } else {
+              // if (currentViewType.equity === "trade") {
+              //   if (trades.length <= 10) return `Trade ${index + 1}`;
+              //   if (index === 0) return "Start";
+              //   if (index === trades.length - 1) return "End";
+              //   if (index % Math.ceil(trades.length / 10) === 0) {
+              //     return `Trade ${index + 1}`;
+              //   }
+              // } else {
                 // For date view, show fewer dates
                 const dates = chartData.labels;
                 if (dates.length <= 10) return dates[index];
@@ -255,7 +256,7 @@ function createEquityChart(trades) {
                 if (index % Math.ceil(dates.length / 10) === 0) {
                   return dates[index];
                 }
-              }
+              // }
               return "";
             },
           },
