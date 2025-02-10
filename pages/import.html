@@ -10,6 +10,136 @@
   <link rel="stylesheet" href="/styles/import.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background-color: white;
+      color:rgba(0, 0, 0, 0.6);
+      margin: auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 1200px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .close-modal:hover {
+      color: #e74c3c;
+    }
+
+    .verification-instructions {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+    }
+
+    .trades-table-container {
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .trades-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .trades-table th,
+    .trades-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .trades-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+
+    .trades-table tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    .verification-controls {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .selected-trade {
+      background-color: #e3f2fd;
+    }
+
+    .paired-trade {
+      background-color: #e8f5e9;
+    }
+    .btn-primary {
+    background-color: var(--accent-primary-light);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-primary);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: white;
+    color: var(--accent-primary-light);
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    border: 2px solid var(--accent-primary-light);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--accent-secondary-light);
+    color: white;
+    transform: translateY(-2px);
+    border-color: black;
+}
+
+#cancelImportBtn:hover {
+  background-color: #e74c3c;
+}
+  </style>
 </head>
 
 <body>
@@ -162,6 +292,41 @@
       </div>
     </main>
   </div>
+
+      <!-- Confirmation Modal -->
+      <div id="tradeVerificationModal" class="modal hidden">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Verify Your Trades</h2>
+            <button class="close-modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="verification-instructions">
+              <p>Check that your data is being imported correctly. If not, select trades to pair. Once everything looks correct, click 'Data is Correct' button.</p>
+            </div>
+            <div class="trades-table-container">
+              <table id="tradesVerificationTable" class="trades-table">
+                <thead>
+                  <tr>
+                    <th>Select</th>
+                    <th>Date</th>
+                    <th>Symbol</th>
+                    <th>Action</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                  </tr>
+                </thead>
+                <tbody id="tradesVerificationBody"></tbody>
+              </table>
+            </div>
+            <div class="verification-controls">
+              <button id="pairTradesBtn" class="btn-secondary" disabled>Pair Selected Trades</button>
+              <button id="confirmTradesBtn" class="btn-primary">Data is Correct</button>
+              <button id="cancelImportBtn" class="btn-secondary">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
   <!-- Footer -->
   <footer class="footer">
