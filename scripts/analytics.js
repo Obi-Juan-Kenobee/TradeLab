@@ -199,17 +199,13 @@ function createEquityChart(trades) {
   const maxEquity = Math.max(0, ...chartData.data);
   const padding = (maxEquity - minEquity) * 0.1;
 
-  // if (equityChart) {
-  //   equityChart.destroy();
-  // }
-
   equityChart = new Chart(ctx, {
     type: "line",
     data: {
-      labels: [chartData.labels],
+      labels: chartData.labels,
       datasets: [
         {
-          label: "Equity Curve",
+          label: "Cumulative PnL",
           data: chartData.data,
           borderColor: "#2ecc71",
           backgroundColor: "rgba(46, 204, 113, 0.1)",
@@ -225,6 +221,16 @@ function createEquityChart(trades) {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              return new Date(context[0].label).toLocaleDateString();
+            },
+            label: function(context) {
+              return 'Cumulative PnL: $' + context.raw.toFixed(2);
+            }
+          }
+        }
       },
       scales: {
         y: {
@@ -240,24 +246,8 @@ function createEquityChart(trades) {
           ticks: {
             maxTicksLimit: 10,
             callback: function (value, index) {
-              // if (currentViewType.equity === "trade") {
-              //   if (trades.length <= 10) return `Trade ${index + 1}`;
-              //   if (index === 0) return "Start";
-              //   if (index === trades.length - 1) return "End";
-              //   if (index % Math.ceil(trades.length / 10) === 0) {
-              //     return `Trade ${index + 1}`;
-              //   }
-              // } else {
-                // For date view, show fewer dates
-                const dates = chartData.labels;
-                if (dates.length <= 10) return dates[index];
-                if (index === 0) return dates[0];
-                if (index === dates.length - 1) return dates[dates.length - 1];
-                if (index % Math.ceil(dates.length / 10) === 0) {
-                  return dates[index];
-                }
-              // }
-              return "";
+              const date = new Date(chartData.labels[index]);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             },
           },
         },
@@ -274,8 +264,7 @@ function createDrawdownChart(trades) {
 
   const canvas = document.getElementById("drawdownChart");
   const ctx = canvas.getContext("2d");
-  
-  // Clear previous chart instance
+
   if (drawdownChart) {
     drawdownChart.destroy();
     canvas.style.height = '';
@@ -283,48 +272,30 @@ function createDrawdownChart(trades) {
   }
 
   let chartData;
-
-  if (currentViewType.drawdown === "trade") {
-    // Calculate trade-by-trade drawdown
-    let equity = 0;
-    let peak = 0;
-    chartData = {
-      labels: trades.map((_, index) => `Trade ${index + 1}`),
-      data: trades.map((trade) => {
-        const pnl = trade.profitLoss;
-        equity += pnl;
-        peak = Math.max(peak, equity);
-        return peak > 0 ? ((peak - equity) / peak) * 100 : 0;
-      }),
-    };
-  } else {
-    // Calculate daily drawdown
-    const dailyAgg = aggregateTradesByDate(trades);
-    chartData = {
-      labels: dailyAgg.dates,
-      data: dailyAgg.dates.map((date) => dailyAgg.data[date].drawdown),
-    };
-  }
+  const dailyAgg = aggregateTradesByDate(trades);
+  chartData = {
+    labels: dailyAgg.dates,
+    data: dailyAgg.dates.map((date) => {
+      const dayData = dailyAgg.data[date];
+      return dayData.drawdown;
+    }),
+  };
 
   const maxDrawdown = Math.max(...chartData.data);
   const chartPadding = maxDrawdown * 0.1;
 
-//   if (drawdownChart) {
-//     drawdownChart.destroy();
-// }
-
-drawdownChart = new Chart(ctx, {
+  drawdownChart = new Chart(ctx, {
     type: "line",
     data: {
-        labels: chartData.labels,
+      labels: chartData.labels,
       datasets: [
         {
           label: "Drawdown %",
           data: chartData.data,
           borderColor: "#e74c3c",
-          tension: 0.4,
-          fill: true,
           backgroundColor: "rgba(231, 76, 60, 0.1)",
+          fill: true,
+          tension: 0.4,
         },
       ],
     },
@@ -335,6 +306,16 @@ drawdownChart = new Chart(ctx, {
         legend: {
           display: false,
         },
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              return new Date(context[0].label).toLocaleDateString();
+            },
+            label: function(context) {
+              return 'Drawdown: ' + context.raw.toFixed(2) + '%';
+            }
+          }
+        }
       },
       scales: {
         y: {
@@ -342,7 +323,7 @@ drawdownChart = new Chart(ctx, {
           max: maxDrawdown + chartPadding,
           ticks: {
             callback: function (value) {
-              return value.toFixed(1) + "%";
+              return value.toFixed(2) + "%";
             },
           },
         },
@@ -350,24 +331,8 @@ drawdownChart = new Chart(ctx, {
           ticks: {
             maxTicksLimit: 10,
             callback: function (value, index) {
-                if (currentViewType.drawdown === 'trade') {
-              if (trades.length <= 10) return `Trade ${index + 1}`;
-              if (index === 0) return "Start";
-              if (index === trades.length - 1) return "End";
-              if (index % Math.ceil(trades.length / 10) === 0) {
-                return `Trade ${index + 1}`;
-            }
-        } else {
-            // For date view, show fewer dates
-            const dates = chartData.labels;
-            if (dates.length <= 10) return dates[index];
-            if (index === 0) return dates[0];
-            if (index === dates.length - 1) return dates[dates.length - 1];
-            if (index % Math.ceil(dates.length / 10) === 0) {
-                return dates[index];
-            }
-              }
-              return "";
+              const date = new Date(chartData.labels[index]);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             },
           },
         },
@@ -488,20 +453,20 @@ function updateDetailedStats(trades) {
     return sum + trade.profitLoss;
   }, 0);
 
-    // Calculate total initial investment (sum of entry prices)
-    const totalInvestment = trades.reduce((sum, trade) => {
-      return sum + (trade.entryPrice * trade.quantity);
-    }, 0);
-  
-    // Calculate ROI
-    const roi = totalInvestment > 0 ? ((totalPnL / totalInvestment) * 100).toFixed(2) : "0.00";
-  
-    // Update both P&L displays and ROI
+  // Calculate total initial investment (sum of entry prices)
+  const totalInvestment = trades.reduce((sum, trade) => {
+    return sum + (trade.entryPrice * trade.quantity);
+  }, 0);
+
+  // Calculate ROI
+  const roi = totalInvestment > 0 ? ((totalPnL / totalInvestment) * 100).toFixed(2) : "0.00";
+
+  // Update both P&L displays and ROI
   document.querySelector(".value").textContent = "$" + totalPnL.toFixed(2);
   document.getElementById("totalPnL").textContent = "$" + totalPnL.toFixed(2);
-  document.querySelector(".percentage").textContent ="ROI: " + roi + "%";
+  document.querySelector(".percentage").textContent = "ROI: " + roi + "%";
 
-    // Update P&L color
+  // Update P&L color
   if (totalPnL > 0) {
     document.querySelector(".value").style.color = "#2ecc71";
     document.querySelector(".percentage").style.color = "#2ecc71";
@@ -562,46 +527,46 @@ function updateDetailedStats(trades) {
   const riskReward = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : 0;
   document.getElementById("riskReward").textContent = `${riskReward}:1`;
 
-    // Calculate excursion metrics
-    const excursionMetrics = calculateExcursionMetrics(trades);
-    updateExcursionDisplay(excursionMetrics);
-  }
+  // Calculate excursion metrics
+  const excursionMetrics = calculateExcursionMetrics(trades);
+  updateExcursionDisplay(excursionMetrics);
+}
+
+function calculateExcursionMetrics(trades) {
+  let metrics = {
+    positionMFE: 0,
+    positionMAE: 0,
+    priceMFE: 0,
+    priceMAE: 0
+  };
+
+  trades.forEach(trade => {
+    // Position metrics (considering quantity)
+    metrics.positionMFE = Math.max(metrics.positionMFE, trade.maxRunup || 0);
+    metrics.positionMAE = Math.min(metrics.positionMAE, trade.maxDrawdown || 0);
+
+    // Price metrics (independent of quantity)
+    const priceRunup = trade.maxRunup ? trade.maxRunup / Math.abs(trade.quantity) : 0;
+    const priceDrawdown = trade.maxDrawdown ? trade.maxDrawdown / Math.abs(trade.quantity) : 0;
+
+    metrics.priceMFE = Math.max(metrics.priceMFE, priceRunup);
+    metrics.priceMAE = Math.min(metrics.priceMAE, priceDrawdown);
+  });
   
-  function calculateExcursionMetrics(trades) {
-    let metrics = {
-      positionMFE: 0,
-      positionMAE: 0,
-      priceMFE: 0,
-      priceMAE: 0
-    };
-  
-    trades.forEach(trade => {
-      // Position metrics (considering quantity)
-      metrics.positionMFE = Math.max(metrics.positionMFE, trade.maxRunup || 0);
-      metrics.positionMAE = Math.min(metrics.positionMAE, trade.maxDrawdown || 0);
-  
-      // Price metrics (independent of quantity)
-      const priceRunup = trade.maxRunup ? trade.maxRunup / Math.abs(trade.quantity) : 0;
-      const priceDrawdown = trade.maxDrawdown ? trade.maxDrawdown / Math.abs(trade.quantity) : 0;
-  
-      metrics.priceMFE = Math.max(metrics.priceMFE, priceRunup);
-      metrics.priceMAE = Math.min(metrics.priceMAE, priceDrawdown);
-    });
-    
   // For debugging
   console.log('Excursion Metrics:', metrics);
-  
-    return metrics;
-  }
-  
-  function updateExcursionDisplay(metrics) {
-    // Get the maximum absolute value for scaling
-    const maxValue = Math.max(
-      Math.abs(metrics.positionMFE),
-      Math.abs(metrics.positionMAE),
-      Math.abs(metrics.priceMFE),
-      Math.abs(metrics.priceMAE)
-    );
+
+  return metrics;
+}
+
+function updateExcursionDisplay(metrics) {
+  // Get the maximum absolute value for scaling
+  const maxValue = Math.max(
+    Math.abs(metrics.positionMFE),
+    Math.abs(metrics.positionMAE),
+    Math.abs(metrics.priceMFE),
+    Math.abs(metrics.priceMAE)
+  );
   // For debugging
   console.log('Max Value for scaling:', maxValue);
 
