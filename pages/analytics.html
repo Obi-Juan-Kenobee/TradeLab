@@ -1,273 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Analytics - TradeLab</title>
-    <link rel="stylesheet" href="../styles.css" />
-    <link rel="stylesheet" href="../styles/dashboard.css" />
-    <link rel="stylesheet" href="../styles/analytics.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <!-- Chart.js for visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  </head>
-  <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-brand"><a href="../index.html">TradeLab</a></div>
-      <ul class="nav-links">
-        <li><a href="../index.html">Home</a></li>
-        <li><a href="../index.html#features">Features</a></li>
-        <li><a href="../index.html#pricing">Pricing</a></li>
-        <li><a href="../index.html#about">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li>
-          <a href="calendar-view.html" class="cta-button active">Dashboard</a>
-        </li>
-      </ul>
-      <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
-    </nav>
 
-    <div class="dashboard-container">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <i class="fas fa-chart-line"></i>
-          <span>Trading Tools</span>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics - TradeLab</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles/dashboard.css" />
+  <link rel="stylesheet" href="../styles/analytics.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <!-- Chart.js for visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-brand"><a href="../index.html">TradeLab</a></div>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../index.html#features">Features</a></li>
+      <li><a href="../index.html#pricing">Pricing</a></li>
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+      <li>
+        <a href="calendar-view.html" class="cta-button active">Dashboard</a>
+      </li>
+    </ul>
+    <i id="hamburger" class="fa-solid fa-bars fa-xl fa-icon"></i>
+  </nav>
+
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-chart-line"></i>
+        <span>Trading Tools</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="trade-entry.html" class="sidebar-link">
+          <i class="fas fa-plus-circle"></i>
+          <span>Manual Entry</span>
+        </a>
+        <a href="import.html" class="sidebar-link">
+          <i class="fas fa-file-import"></i>
+          <span>Import Trades</span>
+        </a>
+        <a href="trade-history.html" class="sidebar-link">
+          <i class="fas fa-list"></i>
+          <span>All Trades</span>
+        </a>
+        <a href="analytics.html" class="sidebar-link active">
+          <i class="fas fa-chart-bar"></i>
+          <span>Analytics</span>
+        </a>
+        <a href="market-insights.html" class="sidebar-link">
+          <i class="fas fa-globe"></i>
+          <span>Market Insights</span>
+        </a>
+        <a href="calendar-view.html" class="sidebar-link">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Calendar</span>
+        </a>
+        <a href="settings.html" class="sidebar-link">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-header">
+        <h1>Analytics</h1>
+        <div class="date-filter">
+          <select id="timeRange">
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last Year</option>
+            <option value="all">All Time</option>
+          </select>
         </div>
-        <nav class="sidebar-nav">
-          <a href="trade-entry.html" class="sidebar-link">
-            <i class="fas fa-plus-circle"></i>
-            <span>Manual Entry</span>
-          </a>
-          <a href="import.html" class="sidebar-link">
-            <i class="fas fa-file-import"></i>
-            <span>Import Trades</span>
-          </a>
-          <a href="trade-history.html" class="sidebar-link">
-            <i class="fas fa-list"></i>
-            <span>All Trades</span>
-          </a>
-          <a href="analytics.html" class="sidebar-link active">
-            <i class="fas fa-chart-bar"></i>
-            <span>Analytics</span>
-          </a>
-          <a href="market-insights.html" class="sidebar-link">
-            <i class="fas fa-globe"></i>
-            <span>Market Insights</span>
-          </a>
-          <a href="calendar-view.html" class="sidebar-link">
-            <i class="fas fa-calendar-alt"></i>
-            <span>Calendar</span>
-          </a>
-          <a href="settings.html" class="sidebar-link">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-          </a>
-        </nav>
-      </aside>
+      </div>
 
-      <!-- Main Content -->
-      <main class="main-content">
-        <div class="content-header">
-          <h1>Analytics</h1>
-          <div class="date-filter">
-            <select id="timeRange">
-              <option value="7">Last 7 Days</option>
-              <option value="30">Last 30 Days</option>
-              <option value="90">Last 90 Days</option>
-              <option value="365">Last Year</option>
-              <option value="all">All Time</option>
-            </select>
-          </div>
+      <!-- Cumulative P/L -->
+      <div class="cumulative-pnl">
+        <h2>Cumulative P/L</h2>
+        <div class="value">$0.00</div>
+        <div class="percentage">0.00%</div>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- Key Metrics -->
+        <div class="metric-card">
+          <h3>Win Rate</h3>
+          <div class="metric-value" id="winRate">--</div>
+          <div class="metric-change"></div>
+        </div>
+        <div class="metric-card">
+          <h3>Profit Factor</h3>
+          <div class="metric-value" id="profitFactor">--</div>
+          <div class="metric-change"></div>
+        </div>
+        <div class="metric-card">
+          <h3>Total Trades</h3>
+          <div class="metric-value" id="totalTrades">--</div>
+          <div class="metric-change"></div>
+        </div>
+        <div class="metric-card">
+          <h3>Average Trade</h3>
+          <div class="metric-value" id="avgTrade">--</div>
+          <div class="metric-change positive"></div>
         </div>
 
-        <!-- Cumulative P/L -->
-        <div class="cumulative-pnl">
-          <h2>Cumulative P/L</h2>
-          <div class="value">$0.00</div>
-          <div class="percentage">0.00%</div>
-        </div>
-
-        <div class="analytics-grid">
-          <!-- Key Metrics -->
-          <div class="metric-card">
-            <h3>Win Rate</h3>
-            <div class="metric-value" id="winRate">--</div>
-            <div class="metric-change"></div>
-          </div>
-          <div class="metric-card">
-            <h3>Profit Factor</h3>
-            <div class="metric-value" id="profitFactor">--</div>
-            <div class="metric-change"></div>
-          </div>
-          <div class="metric-card">
-            <h3>Total Trades</h3>
-            <div class="metric-value" id="totalTrades">--</div>
-            <div class="metric-change"></div>
-          </div>
-          <div class="metric-card">
-            <h3>Average Trade</h3>
-            <div class="metric-value" id="avgTrade">--</div>
-            <div class="metric-change positive"></div>
-          </div>
-
-          <!-- Charts -->
-          <div class="chart-card wide equity-chart">
-            <div class="chart-header">
-                <h3>Equity Curve</h3>
-                <!-- <div class="view-switch">
+        <!-- Charts -->
+        <div class="chart-card wide equity-chart">
+          <div class="chart-header">
+            <h3>Equity Curve</h3>
+            <!-- <div class="view-switch">
                   <label>View by:</label>
                   <div class="switch-buttons">
                     <button class="switch-btn active" data-view="trade" data-chart="equity">Trade</button>
                     <button class="switch-btn" data-view="date" data-chart="equity">Date</button>
                   </div>
                 </div> -->
-              </div>
-            <div class="chart-container">
-              <canvas id="equityChart"></canvas>
-            </div>
           </div>
+          <div class="chart-container">
+            <canvas id="equityChart"></canvas>
+          </div>
+        </div>
 
-          <div class="chart-card wide drawdown-chart">
-            <div class="chart-header">
-                <h3>Drawdown</h3>
-                <!-- <div class="view-switch">
+        <div class="chart-card wide drawdown-chart">
+          <div class="chart-header">
+            <h3>Drawdown</h3>
+            <!-- <div class="view-switch">
                   <label>View by:</label>
                   <div class="switch-buttons">
                     <button class="switch-btn active" data-view="trade" data-chart="drawdown">Trade</button>
                     <button class="switch-btn" data-view="date" data-chart="drawdown">Date</button>
                   </div>
                 </div> -->
+          </div>
+          <div class="chart-container">
+            <canvas id="drawdownChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card win-loss-chart">
+          <h3>Win/Loss Distribution</h3>
+          <div class="chart-container">
+            <canvas id="winLossChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card trade-type-chart">
+          <h3>Trade Type Performance</h3>
+          <div class="chart-container">
+            <canvas id="tradeTypeChart"></canvas>
+          </div>
+        </div>
+
+
+          <!-- Trade Excursion Metrics -->
+          <div class="excursion-metrics">
+            <h3>Trade Excursion Analysis</h3>
+            <div class="excursion-grid">
+              <div class="excursion-item">
+                <label>Position MFE (Maximum Favorable Excursion)</label>
+                <div class="bar-container">
+                  <div class="bar positive" id="positionMFEBar"></div>
+                  <span class="value" id="positionMFE">$0.00</span>
+                </div>
               </div>
-            <div class="chart-container">
-              <canvas id="drawdownChart"></canvas>
+              <div class="excursion-item">
+                <label>Position MAE (Maximum Adverse Excursion)</label>
+                <div class="bar-container">
+                  <div class="bar negative" id="positionMAEBar"></div>
+                  <span class="value" id="positionMAE">$0.00</span>
+                </div>
+              </div>
+              <div class="excursion-item">
+                <label>Price MFE (Per Share/Contract)</label>
+                <div class="bar-container">
+                  <div class="bar positive" id="priceMFEBar"></div>
+                  <span class="value" id="priceMFE">$0.00</span>
+                </div>
+              </div>
+              <div class="excursion-item">
+                <label>Price MAE (Per Share/Contract)</label>
+                <div class="bar-container">
+                  <div class="bar negative" id="priceMAEBar"></div>
+                  <span class="value" id="priceMAE">$0.00</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="chart-card win-loss-chart">
-            <h3>Win/Loss Distribution</h3>
-            <div class="chart-container">
-              <canvas id="winLossChart"></canvas>
+        <!-- Detailed Stats -->
+        <div class="stats-card wide">
+          <h3>Detailed Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <label>Total Profit/Loss</label>
+              <span id="totalPnL">$0.00</span>
             </div>
-          </div>
-
-          <div class="chart-card trade-type-chart">
-            <h3>Trade Type Performance</h3>
-            <div class="chart-container">
-              <canvas id="tradeTypeChart"></canvas>
+            <div class="stat-item">
+              <label>Largest Win</label>
+              <span id="largestWin">$0.00</span>
             </div>
-          </div>
-
-          <!-- Detailed Stats -->
-          <div class="stats-card wide">
-            <h3>Detailed Statistics</h3>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <label>Total Profit/Loss</label>
-                <span id="totalPnL">$0.00</span>
-              </div>
-              <div class="stat-item">
-                <label>Largest Win</label>
-                <span id="largestWin">$0.00</span>
-              </div>
-              <div class="stat-item">
-                <label>Largest Loss</label>
-                <span id="largestLoss">$0.00</span>
-              </div>
-              <div class="stat-item">
-                <label>Average Win</label>
-                <span id="avgWin">$0.00</span>
-              </div>
-              <div class="stat-item">
-                <label>Average Loss</label>
-                <span id="avgLoss">$0.00</span>
-              </div>
-              <div class="stat-item">
-                <label>Win Streak</label>
-                <span id="winStreak">0</span>
-              </div>
-              <div class="stat-item">
-                <label>Loss Streak</label>
-                <span id="lossStreak">0</span>
-              </div>
-              <div class="stat-item">
-                <label>Risk/Reward</label>
-                <span id="riskReward">0:0</span>
-              </div>
+            <div class="stat-item">
+              <label>Largest Loss</label>
+              <span id="largestLoss">$0.00</span>
             </div>
-          </div>
-
-          <!-- Best/Worst Trades -->
-          <div class="trades-card">
-            <h3>Best Trades</h3>
-            <div class="trades-list" id="bestTrades">
-              <!-- Will be populated by JavaScript -->
+            <div class="stat-item">
+              <label>Average Win</label>
+              <span id="avgWin">$0.00</span>
             </div>
-          </div>
-
-          <div class="trades-card">
-            <h3>Worst Trades</h3>
-            <div class="trades-list" id="worstTrades">
-              <!-- Will be populated by JavaScript -->
+            <div class="stat-item">
+              <label>Average Loss</label>
+              <span id="avgLoss">$0.00</span>
+            </div>
+            <div class="stat-item">
+              <label>Win Streak</label>
+              <span id="winStreak">0</span>
+            </div>
+            <div class="stat-item">
+              <label>Loss Streak</label>
+              <span id="lossStreak">0</span>
+            </div>
+            <div class="stat-item">
+              <label>Risk/Reward</label>
+              <span id="riskReward">0:0</span>
             </div>
           </div>
         </div>
-      </main>
+
+        <!-- Best/Worst Trades -->
+        <div class="trades-card">
+          <h3>Best Trades</h3>
+          <div class="trades-list" id="bestTrades">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <div class="trades-card">
+          <h3>Worst Trades</h3>
+          <div class="trades-list" id="worstTrades">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3><a href="../index.html">TradeLab</a></h3>
+        <p>
+          Your personal trading journal to track and analyze your trading
+          performance.
+        </p>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../index.html#features">Features</a></li>
+          <li><a href="../index.html#pricing">Pricing</a></li>
+          <li><a href="../index.html#about">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="/pages/user-guide.html">User Guide</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Legal</h3>
+        <ul>
+          <li><a href="terms-of-use.html">Terms of Service</a></li>
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li><a href="risk-disclosure.html">Risk Disclosure</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Social</h3>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+          <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
+        </div>
+      </div>
     </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 TradeLab. All rights reserved.</p>
+    </div>
+  </footer>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-content">
-        <div class="footer-section">
-          <h3><a href="../index.html">TradeLab</a></h3>
-          <p>
-            Your personal trading journal to track and analyze your trading
-            performance.
-          </p>
-        </div>
-        <div class="footer-section">
-          <h3>Quick Links</h3>
-          <ul>
-            <li><a href="../index.html">Home</a></li>
-            <li><a href="../index.html#features">Features</a></li>
-            <li><a href="../index.html#pricing">Pricing</a></li>
-            <li><a href="../index.html#about">About</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li><a href="/pages/user-guide.html">User Guide</a></li>
-          </ul>
-        </div>
-        <div class="footer-section">
-          <h3>Legal</h3>
-          <ul>
-            <li><a href="terms-of-use.html">Terms of Service</a></li>
-            <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="risk-disclosure.html">Risk Disclosure</a></li>
-          </ul>
-        </div>
-        <div class="footer-section">
-          <h3>Social</h3>
-          <div class="social-links">
-            <a href="#"
-              ><i class="fab fa-linkedin" aria-label="LinkedIn"></i
-            ></a>
-            <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2024 TradeLab. All rights reserved.</p>
-      </div>
-    </footer>
+  <!-- Scripts -->
+  <script src="../scripts/global.js"></script>
+  <script src="../scripts/dashboard.js"></script>
+  <script src="../scripts/TradeObjectHandler.js"></script>
+  <script src="../scripts/analytics.js"></script>
+  <script src="../scripts/theme.js"></script>
+</body>
 
-    <!-- Scripts -->
-    <script src="../scripts/global.js"></script>
-    <script src="../scripts/dashboard.js"></script>
-    <script src="../scripts/TradeObjectHandler.js"></script>
-    <script src="../scripts/analytics.js"></script>
-    <script src="../scripts/theme.js"></script>
-  </body>
 </html>

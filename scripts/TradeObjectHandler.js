@@ -26,6 +26,11 @@ class Trade {
       (this.entryPrice * Math.abs(this.quantity)).toFixed(2));
     this.profitLoss = parseFloat(this.calculateProfitLoss().toFixed(2));
     this.profitLossPercentage = parseFloat(((this.profitLoss / this.investment) * 100).toFixed(2));
+        
+    // Calculate MFE and MAE
+    const excursion = this.calculateExcursion();
+    this.maxRunup = excursion.maxRunup;
+    this.maxDrawdown = excursion.maxDrawdown;
   }
 
   calculateProfitLoss() {
@@ -36,6 +41,35 @@ class Trade {
       rawPL = (this.entryPrice - this.exitPrice) * Math.abs(this.quantity);
     }
     return rawPL;
+  }
+  
+  calculateExcursion() {
+    let maxRunup = 0;
+    let maxDrawdown = 0;
+    const priceDiff = this.exitPrice - this.entryPrice;
+    
+    if (this.direction === "long") {
+      if (priceDiff > 0) {
+        maxRunup = priceDiff * Math.abs(this.quantity);
+        maxDrawdown = 0;
+      } else {
+        maxRunup = 0;
+        maxDrawdown = priceDiff * Math.abs(this.quantity);
+      }
+    } else { // short
+      if (priceDiff < 0) {
+        maxRunup = Math.abs(priceDiff) * Math.abs(this.quantity);
+        maxDrawdown = 0;
+      } else {
+        maxRunup = 0;
+        maxDrawdown = -priceDiff * Math.abs(this.quantity);
+      }
+    }
+
+    return {
+      maxRunup: parseFloat(maxRunup.toFixed(2)),
+      maxDrawdown: parseFloat(maxDrawdown.toFixed(2))
+    };
   }
 
   // Add a method to convert to a plain object for storage
@@ -53,6 +87,8 @@ class Trade {
       profitLoss: this.profitLoss,
       investment: this.investment,
       profitLossPercentage: this.profitLossPercentage,
+      maxRunup: this.maxRunup,
+      maxDrawdown: this.maxDrawdown,
     };
   }
 
@@ -68,6 +104,8 @@ class Trade {
       obj.direction
     );
     trade.id = obj.id; // Preserve the original ID
+    // trade.maxRunup = obj.maxRunup;
+    // trade.maxDrawdown = obj.maxDrawdown;
     return trade;
   }
 }

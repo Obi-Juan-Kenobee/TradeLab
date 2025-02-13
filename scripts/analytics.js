@@ -561,6 +561,76 @@ function updateDetailedStats(trades) {
   // Calculate risk/reward ratio
   const riskReward = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : 0;
   document.getElementById("riskReward").textContent = `${riskReward}:1`;
+
+    // Calculate excursion metrics
+    const excursionMetrics = calculateExcursionMetrics(trades);
+    updateExcursionDisplay(excursionMetrics);
+  }
+  
+  function calculateExcursionMetrics(trades) {
+    let metrics = {
+      positionMFE: 0,
+      positionMAE: 0,
+      priceMFE: 0,
+      priceMAE: 0
+    };
+  
+    trades.forEach(trade => {
+      // Position metrics (considering quantity)
+      metrics.positionMFE = Math.max(metrics.positionMFE, trade.maxRunup || 0);
+      metrics.positionMAE = Math.min(metrics.positionMAE, trade.maxDrawdown || 0);
+  
+      // Price metrics (independent of quantity)
+      const priceRunup = trade.maxRunup ? trade.maxRunup / Math.abs(trade.quantity) : 0;
+      const priceDrawdown = trade.maxDrawdown ? trade.maxDrawdown / Math.abs(trade.quantity) : 0;
+  
+      metrics.priceMFE = Math.max(metrics.priceMFE, priceRunup);
+      metrics.priceMAE = Math.min(metrics.priceMAE, priceDrawdown);
+    });
+    
+  // For debugging
+  console.log('Excursion Metrics:', metrics);
+  
+    return metrics;
+  }
+  
+  function updateExcursionDisplay(metrics) {
+    // Get the maximum absolute value for scaling
+    const maxValue = Math.max(
+      Math.abs(metrics.positionMFE),
+      Math.abs(metrics.positionMAE),
+      Math.abs(metrics.priceMFE),
+      Math.abs(metrics.priceMAE)
+    );
+  // For debugging
+  console.log('Max Value for scaling:', maxValue);
+
+  // Helper function to update bar and value
+  const updateMetric = (id, value, isNegative = false) => {
+    const bar = document.getElementById(id + 'Bar');
+    const valueElement = document.getElementById(id);
+    
+    if (!bar || !valueElement) {
+      console.error('Elements not found for:', id);
+      return;
+    }
+
+    const absValue = Math.abs(value);
+    const displayValue = isNegative ? `-$${absValue.toFixed(2)}` : `$${absValue.toFixed(2)}`;
+    valueElement.textContent = displayValue;
+    
+    const width = maxValue > 0 ? ((absValue / maxValue) * 100) : 0;
+    bar.style.width = width + '%';
+    
+    // For debugging
+    console.log(`${id}:`, { value, width: width + '%' });
+  };
+  
+  // Update all metrics
+  updateMetric('positionMFE', metrics.positionMFE);
+  updateMetric('positionMAE', metrics.positionMAE, true);
+  updateMetric('priceMFE', metrics.priceMFE);
+  updateMetric('priceMAE', metrics.priceMAE, true);
 }
 
 function updateBestWorstTrades(trades) {
