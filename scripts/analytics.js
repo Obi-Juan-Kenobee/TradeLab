@@ -487,13 +487,27 @@ function updateDetailedStats(trades) {
   const totalPnL = trades.reduce((sum, trade) => {
     return sum + trade.profitLoss;
   }, 0);
+
+    // Calculate total initial investment (sum of entry prices)
+    const totalInvestment = trades.reduce((sum, trade) => {
+      return sum + (trade.entryPrice * trade.quantity);
+    }, 0);
+  
+    // Calculate ROI
+    const roi = totalInvestment > 0 ? ((totalPnL / totalInvestment) * 100).toFixed(2) : "0.00";
+  
+    // Update both P&L displays and ROI
   document.querySelector(".value").textContent = "$" + totalPnL.toFixed(2);
   document.getElementById("totalPnL").textContent = "$" + totalPnL.toFixed(2);
+  document.querySelector(".percentage").textContent ="ROI: " + roi + "%";
 
+    // Update P&L color
   if (totalPnL > 0) {
     document.querySelector(".value").style.color = "#2ecc71";
+    document.querySelector(".percentage").style.color = "#2ecc71";
   } else if (totalPnL < 0) {
     document.querySelector(".value").style.color = "#e74c3c";
+    document.querySelector(".percentage").style.color = "#e74c3c";
   }
 
   // Calculate largest win/loss
