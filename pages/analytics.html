@@ -11,6 +11,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <!-- Chart.js for visualizations -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    .day-of-week-chart {
+      min-height: 400px !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -161,6 +166,115 @@
           </div>
         </div>
 
+        <div class="chart-card day-of-week-chart">
+          <div class="chart-header">
+            <h3>Performance By Day of Week</h3>
+          </div>
+          <canvas id="dayOfWeekChart"></canvas>
+        </div>
+
+        <div class="chart-card price-performance-card">
+          <div class="chart-header">
+            <h3>Performance By Price</h3>
+            <div class="pagination-controls">
+              <button class="prev-page" disabled>&lt;</button>
+              <span class="page-indicator">1 / 1</span>
+              <button class="next-page" disabled>&gt;</button>
+            </div>
+          </div>
+          <div class="price-performance-container">
+            <!-- Price rows will be dynamically inserted here -->
+          </div>
+        </div>
+
+        <style>
+          .price-performance-card {
+            min-height: 400px;
+          }
+
+          .price-performance-container {
+            padding: 15px;
+          }
+
+          .price-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            position: relative;
+            height: 30px;
+          }
+
+          .price-label {
+            width: 120px;
+            font-size: 0.9em;
+            color: #fff;
+            flex-shrink: 0;
+          }
+
+          .performance-bar {
+            flex-grow: 1;
+            height: 20px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+          }
+
+          .bar-fill {
+            position: absolute;
+            height: 100%;
+            left: 0;
+            transition: width 0.3s ease;
+          }
+
+          .bar-fill.positive {
+            background-color: #2ecc71;
+          }
+
+          .bar-fill.negative {
+            background-color: #e74c3c;
+          }
+
+          .performance-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 0.9em;
+            text-align: right;
+            z-index: 1;
+          }
+
+          .percentage {
+            color: rgba(255, 255, 255, 0.7);
+            margin-left: 8px;
+            font-size: 0.8em;
+          }
+
+          .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+
+          .pagination-controls button {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+
+          .pagination-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+
+          .pagination-controls .page-indicator {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+          }
+        </style>
 
           <!-- Trade Excursion Metrics -->
           <div class="excursion-metrics">
