@@ -509,6 +509,14 @@ document.addEventListener('DOMContentLoaded', () => {
         verificationModal.classList.remove('show');
     });
 
+    
+    // Add event listeners for closing the unpaired trades modal
+    document.querySelectorAll('[data-modal="unpairedTradesModal"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            unpairedTradesModal.classList.remove('show', 'stacked');
+        });
+    });
+
     // pairTradesBtn.addEventListener('click', pairSelectedTrades);
     closeDetailsBtn.addEventListener('click', () => {
         tradeDetails.classList.add('hidden');
