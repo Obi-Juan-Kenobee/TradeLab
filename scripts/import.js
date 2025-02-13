@@ -724,6 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
         batchTrade.entries.forEach((entry, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
+                            <td><input type="checkbox" class="trade-checkbox" data-trade-type="entry" data-trade-index="${index}"></td>
                         <td>${entry.date.toLocaleDateString()}</td>
                         <td>${entry.price.toFixed(2)}</td>
                         <td>${entry.quantity}</td>
@@ -744,12 +745,21 @@ document.addEventListener('DOMContentLoaded', () => {
         batchTrade.exits.forEach((exit, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
+                            <td><input type="checkbox" class="trade-checkbox" data-trade-type="exit" data-trade-index="${index}"></td>
                         <td>${exit.date.toLocaleDateString()}</td>
                         <td>${exit.price.toFixed(2)}</td>
                         <td>${exit.quantity}</td>
                         <td><button class="unpair-btn" data-type="exit" data-index="${index}">Unpair</button></td>
                     `;
             exitsTableBody.appendChild(row);
+        });
+
+        // Add event listeners for checkboxes to enable/disable unpair button
+        document.querySelectorAll('.trade-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const hasCheckedBoxes = document.querySelectorAll('.trade-checkbox:checked').length > 0;
+                unpairSelectedBtn.disabled = !hasCheckedBoxes;
+            });
         });
 
         // // Process paired trades first
@@ -833,8 +843,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function unpairSelectedTrades() {
         const selectedTrades = document.querySelectorAll('.trade-checkbox:checked');
         selectedTrades.forEach(checkbox => {
-            const type = checkbox.dataset.type;
-            const index = parseInt(checkbox.dataset.index);
+            const type = checkbox.dataset.tradeType;
+            const index = parseInt(checkbox.dataset.tradeIndex);
             unpairTrade(selectedBatchTrade, type, index);
         });
     }
@@ -849,7 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = document.createElement('tr');
             const isMatchingSymbol = trade.symbol === selectedBatchTrade;
             if (!isMatchingSymbol) row.classList.add('disabled');
-            
+
             row.innerHTML = `
                 <td><input type="checkbox" class="trade-checkbox" data-trade-index="${index}" ${!isMatchingSymbol ? 'disabled' : ''}></td>
                 <td>${trade.date.toLocaleDateString()}</td>
@@ -871,7 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const selectedCheckboxes = document.querySelectorAll('#unpairedTradesBody .trade-checkbox:checked');
         const selectedIndices = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.tradeIndex));
-        
+
         selectedIndices.sort((a, b) => b - a).forEach(index => {
             const trade = unpairedTrades[index];
             if (trade.action === 'buy') {
