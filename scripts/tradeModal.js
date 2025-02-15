@@ -232,7 +232,7 @@ class TradeModal {
 
             // Create modal HTML
             const modal = document.createElement('div');
-            modal.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1);';
+            modal.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; border-radius: 8px; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1);';
             modal.innerHTML = `
                 <h3 style="margin-top: 0;">Select Futures Expiration Month</h3>
                 <div style="margin-bottom: 15px;">
