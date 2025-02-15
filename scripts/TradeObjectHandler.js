@@ -1,19 +1,5 @@
 // Trade class to handle trade data
 class Trade {
-  // Static object to store futures contract specifications
-  static futuresSpecs = {
-    'ES': { contractSize: 50, tickSize: 0.25, tickValue: 12.50 },   // E-mini S&P 500
-    'MES': { contractSize: 5, tickSize: 0.25, tickValue: 1.25 },    // Micro E-mini S&P 500
-    'NQ': { contractSize: 20, tickSize: 0.25, tickValue: 5.00 },    // E-mini Nasdaq-100
-    'MNQ': { contractSize: 2, tickSize: 0.25, tickValue: 0.50 },    // Micro E-mini Nasdaq-100
-    'CL': { contractSize: 1000, tickSize: 0.01, tickValue: 10.00 }, // Crude Oil
-    'GC': { contractSize: 100, tickSize: 0.10, tickValue: 10.00 },  // Gold
-    'SI': { contractSize: 5000, tickSize: 0.005, tickValue: 25.00 }, // Silver
-    'ZB': { contractSize: 1000, tickSize: 0.03125, tickValue: 31.25 }, // 30-Year T-Bond
-    'ZN': { contractSize: 1000, tickSize: 0.015625, tickValue: 15.625 }, // 10-Year T-Note
-    '6E': { contractSize: 125000, tickSize: 0.0001, tickValue: 12.50 }  // Euro FX
-  };
-
   constructor(
     symbol,
     market,
@@ -36,46 +22,15 @@ class Trade {
     this.date = dateObj;
     this.notes = notes;
     this.direction = direction.toLowerCase(); // 'long' or 'short'
-    
-    // Calculate investment and P/L based on market type
-    if (this.market === 'Futures') {
-      const specs = Trade.futuresSpecs[this.symbol.toUpperCase()];
-      if (specs) {
-        // For futures, investment is based on margin requirements, but we'll use a simplified calculation
-        this.investment = parseFloat((this.entryPrice * specs.contractSize * Math.abs(this.quantity)).toFixed(2));
-        this.profitLoss = parseFloat(this.calculateFuturesProfitLoss().toFixed(2));
-      } else {
-        // Fallback to regular calculation if specs not found
-        this.investment = parseFloat((this.entryPrice * Math.abs(this.quantity)).toFixed(2));
-        this.profitLoss = parseFloat(this.calculateProfitLoss().toFixed(2));
-      }
-    } else {
-      // Regular calculation for other markets
-      this.investment = parseFloat((this.entryPrice * Math.abs(this.quantity)).toFixed(2));
-      this.profitLoss = parseFloat(this.calculateProfitLoss().toFixed(2));
-    }
-    
+    this.investment = parseFloat(
+      (this.entryPrice * Math.abs(this.quantity)).toFixed(2));
+    this.profitLoss = parseFloat(this.calculateProfitLoss().toFixed(2));
     this.profitLossPercentage = parseFloat(((this.profitLoss / this.investment) * 100).toFixed(2));
         
     // Calculate MFE and MAE
     const excursion = this.calculateExcursion();
     this.maxRunup = excursion.maxRunup;
     this.maxDrawdown = excursion.maxDrawdown;
-  }
-
-  calculateFuturesProfitLoss() {
-    const specs = Trade.futuresSpecs[this.symbol.toUpperCase()];
-    if (!specs) return this.calculateProfitLoss(); // Fallback to regular calculation
-    
-    const priceDiff = this.direction === "long" 
-      ? this.exitPrice - this.entryPrice 
-      : this.entryPrice - this.exitPrice;
-    
-    // Calculate number of ticks
-    const numberOfTicks = priceDiff / specs.tickSize;
-    
-    // Calculate P/L: number of ticks × tick value × number of contracts
-    return numberOfTicks * specs.tickValue * Math.abs(this.quantity);
   }
 
   calculateProfitLoss() {
@@ -911,3 +866,4 @@ document.addEventListener("DOMContentLoaded", () => {
 //   document.querySelector(".cumulative-pnl").appendChild(todayPnlContainer);
 //   return todayPnlContainer;
 // }
+

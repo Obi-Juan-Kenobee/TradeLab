@@ -17,17 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Futures contract expiration month selection modal
 - Automatic futures symbol construction with proper format (e.g., MESH2025)
 - Support for common futures symbols (ES, NQ, MES, MNQ, CL, GC, SI, ZB, ZN, 6E)
-- Proper P/L calculation for futures contracts using tick size and tick value
-- Contract specifications for common futures instruments
 
 ### Changed
 - Restructured trade entry form to use tabs for different market types
 - Updated form styling for better user experience
 - Improved button layout with addition of reset functionality
-- Modified P/L calculation to handle futures contracts differently from stocks
+- Enhanced cumulative PnL chart with dynamic coloring:
+  - Red segments for losses and green segments for profits
+  - Continuous line with smooth color transitions
+  - Matching fill colors above and below zero line
+- Updated analytics page styling with consistent colors for profit/loss indicators
 
 ### Fixed
 - Duplicate ID issues in form fields
 - Form validation handling for different market types
-- Futures chart loading with proper symbol format
-- P/L calculation for futures trades now uses correct tick values
+- Cumulative PnL and ROI display not updating with trade data
+- Position MAE and Price MAE bars not displaying correctly in analytics
+- Reference error in price performance chart calculation

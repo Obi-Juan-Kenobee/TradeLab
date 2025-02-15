@@ -275,7 +275,7 @@
   }
   
   .bar.negative {
-    background-color: var(--danger-color);
+    background-color: #e74c3c;
   }
   
   .bar-container .value {

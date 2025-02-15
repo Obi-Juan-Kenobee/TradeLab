@@ -88,6 +88,24 @@ function updateMetrics(trades) {
   const avgTrade =
     trades.length > 0 ? (totalPnL / trades.length).toFixed(2) : 0;
   document.getElementById("avgTrade").textContent = "$" + avgTrade;
+
+  // Update cumulative PnL and ROI
+  const cumPnlElement = document.querySelector(".cumulative-pnl .value");
+  const cumRoiElement = document.querySelector(".cumulative-pnl .roi");
+
+  if (cumPnlElement && cumRoiElement) {
+    // Calculate total investment
+    const totalInvestment = trades.reduce((sum, trade) => sum + trade.investment, 0);
+    const roi = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
+
+    // Update PnL display
+    cumPnlElement.textContent = `${totalPnL >= 0 ? "+" : ""}$${Math.abs(totalPnL).toFixed(2)}`;
+    cumPnlElement.className = `value ${totalPnL >= 0 ? "positive" : "negative"}`;
+
+    // Update ROI display
+    cumRoiElement.textContent = `${roi >= 0 ? "+" : ""}${roi.toFixed(2)}%`;
+    cumRoiElement.className = `roi ${roi >= 0 ? "positive" : "negative"}`;
+  }
 }
 
 function loadCharts(trades) {
@@ -209,11 +227,27 @@ function createEquityChart(trades) {
         {
           label: "Cumulative PnL",
           data: chartData.data,
-          borderColor: "#2ecc71",
-          backgroundColor: "rgba(46, 204, 113, 0.1)",
-          fill: true,
+          borderColor: function(context) {
+            const value = context.raw;
+            return value >= 0 ? "#2ecc71" : "#e74c3c";
+          },
+          segment: {
+            borderColor: function(context) {
+              return context.p0.parsed.y >= 0 && context.p1.parsed.y >= 0 ? "#2ecc71" : 
+                     context.p0.parsed.y < 0 && context.p1.parsed.y < 0 ? "#e74c3c" :
+                     createGradient(context.p0.parsed.y, context.p1.parsed.y, "#2ecc71", "#e74c3c");
+            },
+            backgroundColor: function(context) {
+              return context.p0.parsed.y >= 0 ? "rgba(46, 204, 113, 0.1)" : "rgba(231, 76, 60, 0.1)";
+            }
+          },
+          fill: {
+            target: 'origin',
+            above: 'rgba(46, 204, 113, 0.1)',  // Area above origin (green)
+            below: 'rgba(231, 76, 60, 0.1)'    // Area below origin (red)
+          },
           tension: 0.4,
-        },
+        }
       ],
     },
     options: {
@@ -671,7 +705,7 @@ function createPricePerformanceChart(trades) {
       fill.className = `bar-fill ${range.pnl >= 0 ? 'positive' : 'negative'}`;
       
       // Calculate width as percentage of max PnL
-      const width = (Math.abs(range.pnl) / maxAbsPnL) * 100;
+      const width = maxAbsPnL > 0 ? ((Math.abs(range.pnl) / maxAbsPnL) * 100) : 0;
       fill.style.width = `${width}%`;
 
       const value = document.createElement('div');
@@ -797,10 +831,17 @@ function calculateExcursionMetrics(trades) {
     positionMFE: 0,
     positionMAE: 0,
     priceMFE: 0,
-    priceMAE: 0
+    priceMAE: 0,
+    hasData: false
   };
 
   trades.forEach(trade => {
+    if (!metrics.hasData) {
+      metrics.positionMAE = trade.maxDrawdown || 0;
+      metrics.priceMAE = trade.maxDrawdown ? trade.maxDrawdown / Math.abs(trade.quantity) : 0;
+      metrics.hasData = true;
+    }
+
     // Position metrics (considering quantity)
     metrics.positionMFE = Math.max(metrics.positionMFE, trade.maxRunup || 0);
     metrics.positionMAE = Math.min(metrics.positionMAE, trade.maxDrawdown || 0);
@@ -844,11 +885,12 @@ function updateExcursionDisplay(metrics) {
     const displayValue = isNegative ? `-$${absValue.toFixed(2)}` : `$${absValue.toFixed(2)}`;
     valueElement.textContent = displayValue;
     
+    // Calculate width as percentage of maxValue
     const width = maxValue > 0 ? ((absValue / maxValue) * 100) : 0;
     bar.style.width = width + '%';
     
-    // For debugging
-    console.log(`${id}:`, { value, width: width + '%' });
+    // Add appropriate class for coloring
+    bar.className = `bar ${isNegative ? 'negative' : 'positive'}`;
   };
   
   // Update all metrics
@@ -947,4 +989,12 @@ function updateCharts(trades) {
   createTradeTypeChart(trades);
   createDayOfWeekChart(trades);
   createPricePerformanceChart(trades);
+}
+
+function createGradient(start, end, colorStart, colorEnd) {
+  const ctx = document.createElement('canvas').getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 1);
+  gradient.addColorStop(0, colorStart);
+  gradient.addColorStop(1, colorEnd);
+  return gradient;
 }
