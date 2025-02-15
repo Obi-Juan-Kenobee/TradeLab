@@ -53,7 +53,7 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
         }
 
         // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        window.location.href = 'calendar-dashboard.html';
     } else {
         alert('Invalid email or password');
     }
@@ -99,7 +99,7 @@ document.getElementById('signupForm').addEventListener('submit', (e) => {
     }));
 
     // Redirect to dashboard
-    window.location.href = 'dashboard.html';
+    window.location.href = 'calendar-dashboard.html';
 });
 
 // Check for remembered login

@@ -11,7 +11,7 @@ function logout() {
 }
 
 // Protect dashboard route
-if (window.location.pathname.includes('dashboard.html')) {
+if (window.location.pathname.includes('calendar-dashboard.html')) {
     if (!isLoggedIn()) {
         window.location.href = 'auth.html';
     }
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="user-menu">
                 <span>${currentUser.name} ▼</span>
                 <div class="user-dropdown">
-                    <a href="dashboard.html">Dashboard</a>
+                    <a href="calendar-dashboard.html">Dashboard</a>
                     <a href="#" onclick="logout()">Logout</a>
                 </div>
             </div>
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update CTA buttons to point to auth page if not logged in
     document.querySelectorAll('a[href="#"]').forEach(link => {
         if (link.classList.contains('btn-primary') || link.classList.contains('cta-button')) {
-            link.href = currentUser && currentUser.loggedIn ? 'dashboard.html' : 'auth.html';
+            link.href = currentUser && currentUser.loggedIn ? '/pages/calendar-dashboard.html' : 'auth.html';
         }
     });
 });
