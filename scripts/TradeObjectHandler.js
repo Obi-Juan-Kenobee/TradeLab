@@ -16,10 +16,40 @@ class Trade {
     this.entryPrice = parseFloat(entryPrice);
     this.exitPrice = parseFloat(exitPrice);
     this.quantity = parseFloat(quantity);
-    // Ensure date is stored in local timezone without time component
-    const dateObj = new Date(date);
-    dateObj.setHours(0, 0, 0, 0);
-    this.date = dateObj;
+    
+    // Handle date input - ensure it's a Date object set to midnight local time
+    let tradeDate;
+    if (date instanceof Date) {
+      tradeDate = new Date(date);
+    } else if (typeof date === 'string') {
+      // Try parsing as ISO date first (YYYY-MM-DD)
+      const dateParts = date.split(/[-/]/);
+      if (dateParts.length === 3) {
+        // Assume YYYY-MM-DD or MM/DD/YYYY format
+        if (dateParts[0].length === 4) {
+          // YYYY-MM-DD
+          tradeDate = new Date(
+            parseInt(dateParts[0]),
+            parseInt(dateParts[1]) - 1,
+            parseInt(dateParts[2])
+          );
+        } else {
+          // MM/DD/YYYY
+          tradeDate = new Date(
+            parseInt(dateParts[2]),
+            parseInt(dateParts[0]) - 1,
+            parseInt(dateParts[1])
+          );
+        }
+      } else {
+        tradeDate = new Date(date);
+      }
+    } else {
+      tradeDate = new Date();
+    }
+    tradeDate.setHours(0, 0, 0, 0);
+    this.date = tradeDate;
+    
     this.notes = notes;
     this.direction = direction.toLowerCase(); // 'long' or 'short'
     this.investment = parseFloat(
@@ -81,7 +111,7 @@ class Trade {
       entryPrice: this.entryPrice,
       exitPrice: this.exitPrice,
       quantity: this.quantity,
-      date: this.date.toISOString().split('T')[0], // Store date only, no time component
+      date: this.date.toISOString().split('T')[0], // Store as YYYY-MM-DD
       notes: this.notes,
       direction: this.direction,
       profitLoss: this.profitLoss,
@@ -93,19 +123,32 @@ class Trade {
   }
 
   static fromStorageObject(obj) {
+    // Parse the date and set to midnight in local timezone
+    const dateParts = obj.date.split('-');
+    const localDate = new Date(
+      parseInt(dateParts[0]), // year
+      parseInt(dateParts[1]) - 1, // month (0-based)
+      parseInt(dateParts[2]) // day
+    );
+    localDate.setHours(0, 0, 0, 0);
+
     const trade = new Trade(
       obj.symbol,
       obj.market,
       obj.entryPrice,
       obj.exitPrice,
       obj.quantity,
-      obj.date,
+      localDate,
       obj.notes,
       obj.direction
     );
     trade.id = obj.id; // Preserve the original ID
-    // trade.maxRunup = obj.maxRunup;
-    // trade.maxDrawdown = obj.maxDrawdown;
+    // Restore other properties
+    trade.profitLoss = obj.profitLoss;
+    trade.investment = obj.investment;
+    trade.profitLossPercentage = obj.profitLossPercentage;
+    trade.maxRunup = obj.maxRunup;
+    trade.maxDrawdown = obj.maxDrawdown;
     return trade;
   }
 }
@@ -324,12 +367,20 @@ class ExcelStorageStrategy extends StorageStrategy {
             // Handle date conversion
             let tradeDate;
             if (trade.date) {
-              tradeDate =
-                typeof trade.date === "string"
-                  ? new Date(trade.date)
-                  : new Date(XLSX.SSF.parse_date_code(trade.date));
+              let parsedDate;
+              if (typeof trade.date === "string") {
+                // Parse string date and set to midnight in local timezone
+                parsedDate = new Date(trade.date);
+              } else {
+                // Parse Excel date code
+                parsedDate = new Date(XLSX.SSF.parse_date_code(trade.date));
+              }
+              // Set to midnight in local timezone to avoid date shifting
+              parsedDate.setHours(0, 0, 0, 0);
+              tradeDate = parsedDate;
             } else {
               tradeDate = new Date();
+              tradeDate.setHours(0, 0, 0, 0);
             }
 
             // Ensure all numeric values are properly parsed
@@ -437,17 +488,14 @@ class IndexedDBStrategy extends StorageStrategy {
         clearRequest.onsuccess = () => {
           console.log("Cleared existing trades");
 
-          // Ensure each trade has an ID and proper date format
+          // Convert each trade to storage format
           trades.forEach((trade) => {
-            // Make sure each trade is properly structured
-            const processedTrade = {
-              ...trade,
-              id: trade.id || Date.now().toString(),
-              date: new Date(trade.date).toISOString(),
-            };
-
-            console.log("Saving trade:", processedTrade);
-            const addRequest = store.add(processedTrade);
+            // Convert to Trade instance if it's not already one
+            const tradeInstance = trade instanceof Trade ? trade : Trade.fromStorageObject(trade);
+            // Convert to storage format
+            const storageObject = tradeInstance.toStorageObject();
+            console.log("Saving trade:", storageObject);
+            const addRequest = store.add(storageObject);
 
             addRequest.onerror = (event) => {
               console.error("Error adding trade:", addRequest.error);
@@ -530,8 +578,12 @@ class TradeManager {
     }
   }
 
-  async saveTrades() {
+  async saveTrades(trades = null) {
     try {
+      // If trades parameter is provided, update this.trades
+      if (trades !== null) {
+        this.trades = trades;
+      }
       console.log("Saving trades:", this.trades);
       console.log(this.storageStrategy);
       await this.storageStrategy.saveTrades(this.trades);
@@ -866,4 +918,3 @@ document.addEventListener("DOMContentLoaded", () => {
 //   document.querySelector(".cumulative-pnl").appendChild(todayPnlContainer);
 //   return todayPnlContainer;
 // }
-

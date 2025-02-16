@@ -397,3 +397,42 @@
         gap: 0.25rem;
     }
 }
+
+.chart-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
+}
+
+.chart-pagination button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.chart-pagination button:hover {
+  opacity: 1;
+}
+
+.chart-pagination button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  color: #fff;
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+.monthly-performance-chart .chart-container {
+  height: 400px;
+  position: relative;
+}

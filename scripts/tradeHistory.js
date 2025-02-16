@@ -139,18 +139,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             editQuantity.value,
             editDate.value,
             editNotes.value,
-            editDirection.value
+            editDirection.value.toLowerCase()
         );
         updatedTrade.id = editTradeId.value; // Preserve the original ID
 
         try {
-            await tradeManager.saveTrades([...allTrades.filter(t => t.id !== updatedTrade.id), updatedTrade]);
-
-            // Update allTrades array
-            const index = allTrades.findIndex(t => t.id === updatedTrade.id);
-            if (index !== -1) {
-                allTrades[index] = updatedTrade;
-            }
+            // Create a new array with the updated trade
+            const updatedTrades = allTrades.map(trade => 
+                trade.id === updatedTrade.id ? updatedTrade : trade
+            );
+            
+            // Save all trades
+            await tradeManager.saveTrades(updatedTrades);
+            
+            // Update local array
+            allTrades = updatedTrades;
 
             filterTrades();
             closeModal();

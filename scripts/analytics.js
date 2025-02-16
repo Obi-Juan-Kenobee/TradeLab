@@ -1,18 +1,53 @@
+// Global variables for trade data management
 let allTrades = [];
+let filteredTrades = [];
 let equityChart = null;
 let drawdownChart = null;
 let currentViewType = {
   equity: "trade",
   drawdown: "trade",
 };
+let monthlyPerformanceChart = null;
+let currentMonthPage = 0;
+const MONTHS_PER_PAGE = 6;
+
+// Time range constants
+const TIME_RANGES = {
+  '7': { days: 7, label: 'Last 7 Days' },
+  '30': { days: 30, label: 'Last 30 Days' },
+  '60': { days: 60, label: 'Last 60 Days' },
+  '90': { days: 90, label: 'Last 90 Days' },
+  'all': { days: null, label: 'All Time' }
+};
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const loadedTrades = await tradeManager.loadTrades();
     if (Array.isArray(loadedTrades)) {
-      allTrades = loadedTrades;
-      initializeAnalytics();
-      initializeViewSwitches();
+      // Store all trades and sort by date
+      allTrades = loadedTrades.sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      console.log(`Loaded ${allTrades.length} trades`);
+      if (allTrades.length > 0) {
+        // Log the date range of all trades
+        const oldestTrade = new Date(allTrades[allTrades.length - 1].date);
+        const newestTrade = new Date(allTrades[0].date);
+        oldestTrade.setHours(0, 0, 0, 0);
+        newestTrade.setHours(0, 0, 0, 0);
+        
+        console.log("Available trade date range:", {
+          oldest: oldestTrade.toLocaleString(),
+          newest: newestTrade.toLocaleString(),
+          daysSpan: Math.ceil((newestTrade - oldestTrade) / (1000 * 60 * 60 * 24))
+        });
+      }
+      
+      // Get initial time range
+      const timeRange = document.getElementById("timeRange");
+      const initialRange = timeRange ? timeRange.value : 'all';
+      
+      // Apply initial filtering
+      applyTimeRangeFilter(initialRange);
     } else {
       console.warn("Loaded trades is not an array:", loadedTrades);
     }
@@ -26,19 +61,121 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Handle time range change
   document.getElementById("timeRange").addEventListener("change", (event) => {
-    updateAnalytics(allTrades, event.target.value);
+    const selectedRange = event.target.value;
+    console.log("Time range changed to:", TIME_RANGES[selectedRange].label);
+    applyTimeRangeFilter(selectedRange);
   });
 });
 
+function applyTimeRangeFilter(rangeKey) {
+  if (!allTrades || !Array.isArray(allTrades)) {
+    console.warn("No trades available to filter");
+    return;
+  }
+
+  const range = TIME_RANGES[rangeKey];
+  if (!range) {
+    console.warn("Invalid time range:", rangeKey);
+    return;
+  }
+
+  console.log(`Applying ${range.label} filter...`);
+  console.log("Total trades before filtering:", allTrades.length);
+  
+  if (range.days === null) {
+    // "All Time" selected
+    filteredTrades = [...allTrades];
+    console.log(`Showing all ${filteredTrades.length} trades`);
+  } else {
+    // Find the most recent trade date to use as reference
+    const mostRecentTradeDate = new Date(Math.max(...allTrades.map(t => new Date(t.date))));
+    mostRecentTradeDate.setHours(23, 59, 59, 999); // Set to end of day
+    
+    // Calculate start date relative to most recent trade
+    const startDate = new Date(mostRecentTradeDate);
+    startDate.setDate(mostRecentTradeDate.getDate() - range.days);
+    startDate.setHours(0, 0, 0, 0); // Set to start of day
+    
+    console.log("Filtering date range:", {
+      start: startDate.toLocaleString(),
+      end: mostRecentTradeDate.toLocaleString(),
+      recentTradeDate: mostRecentTradeDate.toLocaleString()
+    });
+
+    // Filter trades using the most recent trade as reference
+    filteredTrades = allTrades.filter(trade => {
+      const tradeDate = new Date(trade.date);
+      tradeDate.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
+      
+      // Log first few trades for debugging
+      if (allTrades.indexOf(trade) < 3) {
+        console.log("Trade date comparison:", {
+          tradeDate: tradeDate.toLocaleString(),
+          start: startDate.toLocaleString(),
+          end: mostRecentTradeDate.toLocaleString(),
+          isAfterStart: tradeDate >= startDate,
+          isBeforeEnd: tradeDate <= mostRecentTradeDate
+        });
+      }
+      
+      return tradeDate >= startDate && tradeDate <= mostRecentTradeDate;
+    });
+
+    console.log(`Found ${filteredTrades.length} trades in selected time range`);
+    
+    // Log filtered trades if any
+    if (filteredTrades.length > 0) {
+      console.log("Sample filtered trades:", 
+        filteredTrades.slice(0, 3).map(t => ({
+          date: new Date(t.date).toLocaleString(),
+          pnl: t.profitLoss
+        }))
+      );
+    }
+  }
+
+  // Update UI with filtered trades
+  updateMetrics(filteredTrades);
+  updateCharts(filteredTrades);
+  updateDetailedStats(filteredTrades);
+  updateBestWorstTrades(filteredTrades);
+}
+
 function initializeAnalytics() {
-  updateMetrics(allTrades);
-  loadCharts(allTrades);
-  updateDetailedStats(allTrades);
-  updateBestWorstTrades(allTrades);
+  const timeRange = document.getElementById("timeRange");
+  const initialValue = timeRange ? timeRange.value : "30"; // Default to 30 days if not specified
+  updateMetrics(filteredTrades);
+  loadCharts(filteredTrades);
+  updateDetailedStats(filteredTrades);
+  updateBestWorstTrades(filteredTrades);
 }
 
 function updateAnalytics(allTrades, days) {
-  const filteredTrades = filterTradesByDate(allTrades, days);
+  if (!allTrades || !Array.isArray(allTrades)) {
+    console.warn("Invalid trades array provided to updateAnalytics");
+    return;
+  }
+
+  if (!days) {
+    console.warn("No days value provided, defaulting to 'all'");
+    days = "all";
+  }
+
+  console.log("Filtering trades for time range:", days);
+  console.log("Total trades before filtering:", allTrades.length);
+  
+  const filteredTrades = applyTimeRangeFilter(days);
+  console.log("Filtered trades:", filteredTrades.length);
+
+  if (filteredTrades.length === 0) {
+    console.warn("No trades found for the selected time period");
+    // Still update the UI to show empty state
+    updateMetrics(filteredTrades);
+    updateCharts(filteredTrades);
+    updateDetailedStats(filteredTrades);
+    updateBestWorstTrades(filteredTrades);
+    return;
+  }
 
   updateMetrics(filteredTrades);
   updateCharts(filteredTrades);
@@ -46,75 +183,32 @@ function updateAnalytics(allTrades, days) {
   updateBestWorstTrades(filteredTrades);
 }
 
-function filterTradesByDate(trades, days) {
-  if (days === "all") return trades;
-
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - days);
-  return trades.filter((trade) => new Date(trade.date) >= cutoffDate);
-}
-
-function updateMetrics(trades) {
-  // Calculate win rate
-  const winningTrades = trades.filter((trade) => trade.profitLoss > 0).length;
-  const winRate =
-    trades.length > 0 ? ((winningTrades / trades.length) * 100).toFixed(1) : 0;
-  document.getElementById("winRate").textContent = winRate + "%";
-
-  // Calculate profit factor using the following formula: Profit Factor = Total Gross Profit / Total Gross Loss
-  const grossProfit = trades.reduce((sum, trade) => {
-    if (trade.profitLoss > 0) {
-      return sum + trade.profitLoss;
-    }
-    return sum;
-  }, 0);
-
-  const grossLoss = trades.reduce((sum, trade) => {
-    if (trade.profitLoss < 0) {
-      return sum + Math.abs(trade.profitLoss);
-    }
-    return sum;
-  }, 0);
-
-  const profitFactor =
-    grossLoss !== 0 ? (grossProfit / grossLoss).toFixed(2) : 0;
-  document.getElementById("profitFactor").textContent = profitFactor;
-
-  // Update total trades
-  document.getElementById("totalTrades").textContent = trades.length;
-
-  // Calculate average trade
-  const totalPnL = trades.reduce((sum, trade) => sum + trade.profitLoss, 0);
-  const avgTrade =
-    trades.length > 0 ? (totalPnL / trades.length).toFixed(2) : 0;
-  document.getElementById("avgTrade").textContent = "$" + avgTrade;
-
-  // Update cumulative PnL and ROI
-  const cumPnlElement = document.querySelector(".cumulative-pnl .value");
-  const cumRoiElement = document.querySelector(".cumulative-pnl .roi");
-
-  if (cumPnlElement && cumRoiElement) {
-    // Calculate total investment
-    const totalInvestment = trades.reduce((sum, trade) => sum + trade.investment, 0);
-    const roi = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
-
-    // Update PnL display
-    cumPnlElement.textContent = `${totalPnL >= 0 ? "+" : ""}$${Math.abs(totalPnL).toFixed(2)}`;
-    cumPnlElement.className = `value ${totalPnL >= 0 ? "positive" : "negative"}`;
-
-    // Update ROI display
-    cumRoiElement.textContent = `${roi >= 0 ? "+" : ""}${roi.toFixed(2)}%`;
-    cumRoiElement.className = `roi ${roi >= 0 ? "positive" : "negative"}`;
+function updateCharts(trades) {
+  if (!trades) {
+    console.warn("No trades provided to updateCharts");
+    return;
   }
+
+  if (!Array.isArray(trades)) {
+    console.warn("Trades must be an array");
+    return;
+  }
+
+  window.trades = trades; // Store trades for renderPage
+  renderPage();
 }
 
 function loadCharts(trades) {
+  window.currentTrades = trades; // Store trades for pagination
   createEquityChart(trades);
   createDrawdownChart(trades);
   createWinLossChart(trades);
   createTradeTypeChart(trades);
   createDayOfWeekChart(trades);
   createPricePerformanceChart(trades);
+  createVolumeChart(trades);
+  createAverageTradeChart(trades);
+  createMonthlyPerformanceChart(trades);
 }
 
 function initializeViewSwitches() {
@@ -134,10 +228,7 @@ function initializeViewSwitches() {
 
       // Update the chart
       updateCharts(
-        filterTradesByDate(
-          allTrades,
-          document.getElementById("timeRange").value
-        )
+        filteredTrades
       );
     });
   });
@@ -158,22 +249,34 @@ function aggregateTradesByDate(trades) {
     dailyData[date].totalPnL += trade.profitLoss;
   });
 
-  // Sort dates and calculate cumulative equity
+  // Sort dates and calculate cumulative equity and drawdown
   const sortedDates = Object.keys(dailyData).sort();
   let peak = 0;
   let currentEquity = 0;
+  let maxDrawdownPercent = 0;
 
   sortedDates.forEach((date) => {
     currentEquity += dailyData[date].totalPnL;
     dailyData[date].equity = currentEquity;
-    peak = Math.max(peak, currentEquity);
-    dailyData[date].drawdown =
-      peak > 0 ? ((peak - currentEquity) / peak) * 100 : 0;
+    
+    // Update peak if we have a new high
+    if (currentEquity > peak) {
+      peak = currentEquity;
+    }
+    
+    // Calculate current drawdown percentage
+    // Formula: Drawdown % = ((Peak - Current) / Peak) * 100
+    const currentDrawdownPercent = peak > 0 ? ((peak - currentEquity) / peak) * 100 : 0;
+    dailyData[date].drawdown = currentDrawdownPercent;
+    
+    // Track maximum drawdown percentage seen so far
+    maxDrawdownPercent = Math.max(maxDrawdownPercent, currentDrawdownPercent);
   });
 
   return {
     dates: sortedDates,
     data: dailyData,
+    maxDrawdownPercent: maxDrawdownPercent
   };
 }
 
@@ -307,17 +410,14 @@ function createDrawdownChart(trades) {
     canvas.style.width = '';
   }
 
-  let chartData;
   const dailyAgg = aggregateTradesByDate(trades);
-  chartData = {
+  const chartData = {
     labels: dailyAgg.dates,
-    data: dailyAgg.dates.map((date) => {
-      const dayData = dailyAgg.data[date];
-      return dayData.drawdown;
-    }),
+    data: dailyAgg.dates.map((date) => dailyAgg.data[date].drawdown),
+    maxDrawdown: dailyAgg.maxDrawdownPercent
   };
 
-  const maxDrawdown = Math.max(...chartData.data);
+  const maxDrawdown = chartData.maxDrawdown;
   const chartPadding = maxDrawdown * 0.1;
 
   drawdownChart = new Chart(ctx, {
@@ -326,13 +426,22 @@ function createDrawdownChart(trades) {
       labels: chartData.labels,
       datasets: [
         {
-          label: "Drawdown %",
+          label: "Current Drawdown %",
           data: chartData.data,
           borderColor: "#e74c3c",
           backgroundColor: "rgba(231, 76, 60, 0.1)",
           fill: true,
           tension: 0.4,
         },
+        {
+          label: "Maximum Drawdown %",
+          data: Array(chartData.labels.length).fill(maxDrawdown),
+          borderColor: "#c0392b",
+          borderWidth: 2,
+          borderDash: [5, 5],
+          fill: false,
+          pointRadius: 0,
+        }
       ],
     },
     options: {
@@ -340,7 +449,8 @@ function createDrawdownChart(trades) {
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: true,
+          position: 'top',
         },
         tooltip: {
           callbacks: {
@@ -348,7 +458,8 @@ function createDrawdownChart(trades) {
               return new Date(context[0].label).toLocaleDateString();
             },
             label: function(context) {
-              return 'Drawdown: ' + context.raw.toFixed(2) + '%';
+              const datasetLabel = context.dataset.label || '';
+              return datasetLabel + ': ' + context.raw.toFixed(2) + '%';
             }
           }
         }
@@ -362,6 +473,10 @@ function createDrawdownChart(trades) {
               return value.toFixed(2) + "%";
             },
           },
+          title: {
+            display: true,
+            text: 'Drawdown %'
+          }
         },
         x: {
           ticks: {
@@ -371,6 +486,10 @@ function createDrawdownChart(trades) {
               return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             },
           },
+          title: {
+            display: true,
+            text: 'Date'
+          }
         },
       },
     },
@@ -522,8 +641,17 @@ function createDayOfWeekChart(trades) {
 
   // Calculate performance metrics for each day of the week
   trades.forEach((trade) => {
+    // Ensure we're working with a Date object and set to midnight
     const date = new Date(trade.date);
+    date.setHours(0, 0, 0, 0);
     const dayName = daysOfWeek[date.getDay()];
+    
+    // Skip weekends for stock trades
+    if ((dayName === 'Sunday' || dayName === 'Saturday') && trade.market === 'Stock') {
+      console.warn(`Skipping ${trade.symbol} trade on ${dayName} as stock market is closed on weekends`);
+      return;
+    }
+    
     dayPerformance[dayName].pnl += trade.profitLoss;
     dayPerformance[dayName].totalTrades++;
     if (trade.profitLoss > 0) {
@@ -741,47 +869,220 @@ function createPricePerformanceChart(trades) {
   renderPage();
 }
 
+function createVolumeChart(trades) {
+  if (!trades || trades.length === 0) {
+    console.warn("No trades available for volume chart");
+    return;
+  }
+
+  const canvas = document.getElementById("volumeChart");
+  const ctx = canvas.getContext("2d");
+
+  // Calculate daily volumes
+  const dailyVolumes = {};
+  trades.forEach((trade) => {
+    const date = new Date(trade.date).toISOString().split('T')[0];
+    if (!dailyVolumes[date]) {
+      dailyVolumes[date] = 0;
+    }
+    dailyVolumes[date] += Math.abs(trade.quantity);
+  });
+
+  // Sort dates and prepare chart data
+  const sortedDates = Object.keys(dailyVolumes).sort();
+  const chartData = {
+    labels: sortedDates,
+    data: sortedDates.map(date => dailyVolumes[date])
+  };
+
+  // Create gradient for bars
+  const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+  gradient.addColorStop(0, '#2ecc71');
+  gradient.addColorStop(1, '#27ae60');
+
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [{
+        label: 'Daily Volume',
+        data: chartData.data,
+        backgroundColor: gradient,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              return new Date(context[0].label).toLocaleDateString();
+            },
+            label: function(context) {
+              return `Volume: ${context.raw.toLocaleString()}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString();
+            }
+          },
+          title: {
+            display: true,
+            text: 'Volume'
+          }
+        },
+        x: {
+          ticks: {
+            maxTicksLimit: 10,
+            callback: function(value, index) {
+              const date = new Date(chartData.labels[index]);
+              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+          },
+          title: {
+            display: true,
+            text: 'Date'
+          }
+        }
+      }
+    }
+  });
+}
+
+function createAverageTradeChart(trades) {
+  if (!trades || trades.length === 0) {
+    console.warn("No trades available for average trade chart");
+    return;
+  }
+
+  const canvas = document.getElementById("avgTradeChart");
+  if (!canvas) {
+    console.warn("Average trade chart canvas not found");
+    return;
+  }
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    console.warn("Could not get 2D context for average trade chart");
+    return;
+  }
+
+  // Group trades by date and calculate average P&L
+  const dailyAverages = {};
+  trades.forEach((trade) => {
+    const date = new Date(trade.date).toISOString().split('T')[0];
+    if (!dailyAverages[date]) {
+      dailyAverages[date] = {
+        totalPnL: 0,
+        count: 0
+      };
+    }
+    dailyAverages[date].totalPnL += trade.profitLoss;
+    dailyAverages[date].count++;
+  });
+
+  // Calculate average P&L for each day
+  const sortedDates = Object.keys(dailyAverages).sort();
+  const chartData = {
+    labels: sortedDates,
+    data: sortedDates.map(date => {
+      const avg = dailyAverages[date].totalPnL / dailyAverages[date].count;
+      return avg;
+    })
+  };
+
+  // Create chart
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [{
+        label: 'Average P&L',
+        data: chartData.data,
+        backgroundColor: chartData.data.map(value => value >= 0 ? '#2ecc71' : '#e74c3c'),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              return new Date(context[0].label).toLocaleDateString();
+            },
+            label: function(context) {
+              return `Average P&L: ${formatCurrency(context.raw)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            callback: function(value) {
+              return formatCurrency(value);
+            }
+          },
+          title: {
+            display: true,
+            text: 'Average P&L per Trade'
+          }
+        },
+        x: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+}
+
 function updateDetailedStats(trades) {
   // Calculate total P&L
   const totalPnL = trades.reduce((sum, trade) => {
     return sum + trade.profitLoss;
   }, 0);
 
-  // Calculate total initial investment (sum of entry prices)
-  const totalInvestment = trades.reduce((sum, trade) => {
-    return sum + (trade.entryPrice * trade.quantity);
-  }, 0);
+  // Calculate daily volumes
+  const dailyVolumes = {};
+  trades.forEach((trade) => {
+    const date = new Date(trade.date).toISOString().split('T')[0];
+    if (!dailyVolumes[date]) {
+      dailyVolumes[date] = 0;
+    }
+    dailyVolumes[date] += Math.abs(trade.quantity);
+  });
 
-  // Calculate ROI
-  const roi = totalInvestment > 0 ? ((totalPnL / totalInvestment) * 100).toFixed(2) : "0.00";
+  // Calculate average daily volume
+  const totalVolume = Object.values(dailyVolumes).reduce((sum, volume) => sum + volume, 0);
+  const avgDailyVolume = totalVolume / Object.keys(dailyVolumes).length;
 
-  // Update both P&L displays and ROI
-  document.querySelector(".value").textContent = "$" + totalPnL.toFixed(2);
-  document.getElementById("totalPnL").textContent = "$" + totalPnL.toFixed(2);
-  document.querySelector(".percentage").textContent = "ROI: " + roi + "%";
-
-  // Update P&L color
-  if (totalPnL > 0) {
-    document.querySelector(".value").style.color = "#2ecc71";
-    document.querySelector(".percentage").style.color = "#2ecc71";
-  } else if (totalPnL < 0) {
-    document.querySelector(".value").style.color = "#e74c3c";
-    document.querySelector(".percentage").style.color = "#e74c3c";
-  }
-
-  // Calculate largest win/loss
-  const pnLs = trades.map((trade) => trade.profitLoss);
-  const largestWin = Math.max(...pnLs, 0);
-  const largestLoss = Math.min(...pnLs, 0);
-  document.getElementById("largestWin").textContent =
-    "$" + largestWin.toFixed(2);
-  document.getElementById("largestLoss").textContent =
-    "$" + Math.abs(largestLoss).toFixed(2);
-
-  // Calculate average win/loss
+  // Separate winning and losing trades
   const winningTrades = trades.filter((trade) => trade.profitLoss > 0);
   const losingTrades = trades.filter((trade) => trade.profitLoss < 0);
 
+  // Calculate averages
   const avgWin =
     winningTrades.length > 0
       ? winningTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) /
@@ -790,14 +1091,18 @@ function updateDetailedStats(trades) {
 
   const avgLoss =
     losingTrades.length > 0
-      ? Math.abs(
-          losingTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) /
-            losingTrades.length
-        )
+      ? Math.abs(losingTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) /
+        losingTrades.length)
       : 0;
 
-  document.getElementById("avgWin").textContent = "$" + avgWin.toFixed(2);
-  document.getElementById("avgLoss").textContent = "$" + avgLoss.toFixed(2);
+  // Find largest win and loss
+  const largestWin = winningTrades.length > 0
+    ? Math.max(...winningTrades.map((trade) => trade.profitLoss))
+    : 0;
+
+  const largestLoss = losingTrades.length > 0
+    ? Math.abs(Math.min(...losingTrades.map((trade) => trade.profitLoss)))
+    : 0;
 
   // Calculate win/loss streaks
   let currentStreak = 0;
@@ -806,22 +1111,46 @@ function updateDetailedStats(trades) {
 
   trades.forEach((trade) => {
     if (trade.profitLoss > 0) {
-      currentStreak = currentStreak > 0 ? currentStreak + 1 : 1;
+      if (currentStreak > 0) {
+        currentStreak++;
+      } else {
+        currentStreak = 1;
+      }
       maxWinStreak = Math.max(maxWinStreak, currentStreak);
+    } else if (trade.profitLoss < 0) {
+      if (currentStreak < 0) {
+        currentStreak--;
+      } else {
+        currentStreak = -1;
+      }
+      maxLossStreak = Math.max(maxLossStreak, Math.abs(currentStreak));
     } else {
-      currentStreak = currentStreak < 0 ? currentStreak - 1 : -1;
-      maxLossStreak = Math.min(maxLossStreak, currentStreak);
+      currentStreak = 0;
     }
   });
 
-  document.getElementById("winStreak").textContent = maxWinStreak;
-  document.getElementById("lossStreak").textContent = Math.abs(maxLossStreak);
-
   // Calculate risk/reward ratio
-  const riskReward = avgLoss > 0 ? (avgWin / avgLoss).toFixed(2) : 0;
-  document.getElementById("riskReward").textContent = `${riskReward}:1`;
+  let riskReward;
+  if (avgLoss === 0 && avgWin > 0) {
+    riskReward = "∞"; // Only winning trades
+  } else if (avgLoss === 0 && avgWin === 0) {
+    riskReward = "0"; // No trades or all trades are break-even
+  } else {
+    riskReward = (avgWin / avgLoss).toFixed(2);
+  }
 
-  // Calculate excursion metrics
+  // Update DOM
+  document.getElementById("totalPnL").textContent = formatCurrency(totalPnL);
+  document.getElementById("largestWin").textContent = formatCurrency(largestWin);
+  document.getElementById("largestLoss").textContent = formatCurrency(largestLoss);
+  document.getElementById("avgWin").textContent = formatCurrency(avgWin);
+  document.getElementById("avgLoss").textContent = formatCurrency(avgLoss);
+  document.getElementById("winStreak").textContent = maxWinStreak;
+  document.getElementById("lossStreak").textContent = maxLossStreak;
+  document.getElementById("riskReward").textContent = `${riskReward}:1`;
+  document.getElementById("avgDailyVolume").textContent = Math.round(avgDailyVolume).toLocaleString();
+
+  // Calculate and update excursion metrics
   const excursionMetrics = calculateExcursionMetrics(trades);
   updateExcursionDisplay(excursionMetrics);
 }
@@ -836,6 +1165,11 @@ function calculateExcursionMetrics(trades) {
   };
 
   trades.forEach(trade => {
+    // Skip trades without excursion data
+    if (!trade.maxRunup && !trade.maxDrawdown) {
+      return;
+    }
+
     if (!metrics.hasData) {
       metrics.positionMAE = trade.maxDrawdown || 0;
       metrics.priceMAE = trade.maxDrawdown ? trade.maxDrawdown / Math.abs(trade.quantity) : 0;
@@ -843,19 +1177,23 @@ function calculateExcursionMetrics(trades) {
     }
 
     // Position metrics (considering quantity)
-    metrics.positionMFE = Math.max(metrics.positionMFE, trade.maxRunup || 0);
-    metrics.positionMAE = Math.min(metrics.positionMAE, trade.maxDrawdown || 0);
+    if (trade.maxRunup) {
+      metrics.positionMFE = Math.max(metrics.positionMFE, trade.maxRunup);
+    }
+    if (trade.maxDrawdown) {
+      metrics.positionMAE = Math.min(metrics.positionMAE, trade.maxDrawdown);
+    }
 
-    // Price metrics (independent of quantity)
-    const priceRunup = trade.maxRunup ? trade.maxRunup / Math.abs(trade.quantity) : 0;
-    const priceDrawdown = trade.maxDrawdown ? trade.maxDrawdown / Math.abs(trade.quantity) : 0;
-
-    metrics.priceMFE = Math.max(metrics.priceMFE, priceRunup);
-    metrics.priceMAE = Math.min(metrics.priceMAE, priceDrawdown);
+    // Price metrics (per share/contract)
+    if (trade.maxRunup) {
+      const priceRunup = trade.maxRunup / Math.abs(trade.quantity);
+      metrics.priceMFE = Math.max(metrics.priceMFE, priceRunup);
+    }
+    if (trade.maxDrawdown) {
+      const priceDrawdown = trade.maxDrawdown / Math.abs(trade.quantity);
+      metrics.priceMAE = Math.min(metrics.priceMAE, priceDrawdown);
+    }
   });
-  
-  // For debugging
-  console.log('Excursion Metrics:', metrics);
 
   return metrics;
 }
@@ -868,8 +1206,6 @@ function updateExcursionDisplay(metrics) {
     Math.abs(metrics.priceMFE),
     Math.abs(metrics.priceMAE)
   );
-  // For debugging
-  console.log('Max Value for scaling:', maxValue);
 
   // Helper function to update bar and value
   const updateMetric = (id, value, isNegative = false) => {
@@ -882,7 +1218,7 @@ function updateExcursionDisplay(metrics) {
     }
 
     const absValue = Math.abs(value);
-    const displayValue = isNegative ? `-$${absValue.toFixed(2)}` : `$${absValue.toFixed(2)}`;
+    const displayValue = formatCurrency(isNegative ? -absValue : absValue);
     valueElement.textContent = displayValue;
     
     // Calculate width as percentage of maxValue
@@ -943,52 +1279,102 @@ function updateBestWorstTrades(trades) {
 }
 
 function updateCharts(trades) {
-  // Remove old canvases and containers
-  document.getElementById("equityChart").remove();
-  document.getElementById("drawdownChart").remove();
-  document.getElementById("winLossChart").remove();
-  document.getElementById("tradeTypeChart").remove();
-  document.getElementById("dayOfWeekChart").remove();
-  document.querySelector(".price-performance-container").innerHTML = '';
+  if (!trades) {
+    console.warn("No trades provided to updateCharts");
+    return;
+  }
 
-  // Create new canvas elements
-  const equityCanvas = document.createElement("canvas");
-  equityCanvas.id = "equityChart";
-  document
-    .querySelector(".chart-card.wide.equity-chart")
-    .appendChild(equityCanvas);
+  if (!Array.isArray(trades)) {
+    console.warn("Trades must be an array");
+    return;
+  }
 
-  const drawdownCanvas = document.createElement("canvas");
-  drawdownCanvas.id = "drawdownChart";
-  document
-    .querySelector(".chart-card.wide.drawdown-chart")
-    .appendChild(drawdownCanvas);
+  window.trades = trades; // Store trades for renderPage
+  renderPage();
+}
 
-  const winLossCanvas = document.createElement("canvas");
-  winLossCanvas.id = "winLossChart";
-  document
-    .querySelectorAll(".chart-card:not(.wide)")[0]
-    .appendChild(winLossCanvas);
+function renderPage() {
+  if (!window.trades || !Array.isArray(window.trades)) {
+    console.warn("No valid trades available for rendering");
+    return;
+  }
 
-  const tradeTypeCanvas = document.createElement("canvas");
-  tradeTypeCanvas.id = "tradeTypeChart";
-  document
-    .querySelectorAll(".chart-card:not(.wide)")[1]
-    .appendChild(tradeTypeCanvas);
+  // Safely remove existing canvases
+  const safeRemove = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.remove();
+    }
+  };
 
-  const dayOfWeekCanvas = document.createElement("canvas");
-  dayOfWeekCanvas.id = "dayOfWeekChart";
-  document
-    .querySelectorAll(".chart-card:not(.wide)")[2]
-    .appendChild(dayOfWeekCanvas);
+  safeRemove("equityChart");
+  safeRemove("drawdownChart");
+  safeRemove("winLossChart");
+  safeRemove("tradeTypeChart");
+  safeRemove("dayOfWeekChart");
+  safeRemove("volumeChart");
+  safeRemove("avgTradeChart");
+  safeRemove("monthlyPerformanceChart");
+  safeRemove("pricePerformanceChart");
 
-  // Recreate charts with new data
-  createEquityChart(trades);
-  createDrawdownChart(trades);
-  createWinLossChart(trades);
-  createTradeTypeChart(trades);
-  createDayOfWeekChart(trades);
-  createPricePerformanceChart(trades);
+  document.querySelector(".price-performance-container")?.remove();
+
+  // Create and append canvases
+  const chartConfig = [
+    { id: "equityChart", container: ".chart-card.equity-chart .chart-container" },
+    { id: "drawdownChart", container: ".chart-card.drawdown-chart .chart-container" },
+    { id: "avgTradeChart", container: ".chart-card.avg-trade-chart .chart-container" },
+    { id: "volumeChart", container: ".chart-card.volume-chart .chart-container" },
+    { id: "winLossChart", container: ".chart-card.win-loss-chart .chart-container" },
+    { id: "tradeTypeChart", container: ".chart-card.trade-type-chart .chart-container" },
+    { id: "dayOfWeekChart", container: ".chart-card.day-of-week-chart" },
+    { id: "monthlyPerformanceChart", container: ".chart-card.monthly-performance-chart .chart-container" }
+  ];
+
+  // Create each canvas
+  chartConfig.forEach(config => {
+    const container = document.querySelector(config.container);
+    if (!container) {
+      console.warn(`Container not found: ${config.container}`);
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.id = config.id;
+    container.appendChild(canvas);
+  });
+
+  // Create price performance chart separately due to its unique structure
+  const pricePerformanceCard = document.querySelector(".chart-card.price-performance-card");
+  if (pricePerformanceCard) {
+    const container = document.createElement("div");
+    container.className = "price-performance-container";
+    const canvas = document.createElement("canvas");
+    canvas.id = "pricePerformanceChart";
+    container.appendChild(canvas);
+    pricePerformanceCard.appendChild(container);
+  }
+
+  // Create all charts with the current trades
+  const trades = window.trades;
+  if (trades && trades.length > 0) {
+    try {
+      // Create charts in a specific order to handle dependencies
+      createEquityChart(trades);
+      createDrawdownChart(trades);
+      createWinLossChart(trades);
+      createTradeTypeChart(trades);
+      createDayOfWeekChart(trades);
+      createPricePerformanceChart(trades);
+      createVolumeChart(trades);
+      createAverageTradeChart(trades);
+      createMonthlyPerformanceChart(trades);
+    } catch (error) {
+      console.error("Error creating charts:", error);
+    }
+  } else {
+    console.warn("No trades available for creating charts");
+  }
 }
 
 function createGradient(start, end, colorStart, colorEnd) {
@@ -997,4 +1383,198 @@ function createGradient(start, end, colorStart, colorEnd) {
   gradient.addColorStop(0, colorStart);
   gradient.addColorStop(1, colorEnd);
   return gradient;
+}
+
+function createMonthlyPerformanceChart(trades) {
+  if (!trades || trades.length === 0) {
+    console.warn("No trades available for monthly performance chart");
+    return;
+  }
+
+  // Group trades by month and calculate performance
+  const monthlyPerformance = new Array(12).fill(0).map(() => ({
+    totalPnL: 0,
+    count: 0
+  }));
+
+  trades.forEach((trade) => {
+    const date = new Date(trade.date);
+    const month = date.getMonth();
+    monthlyPerformance[month].totalPnL += trade.profitLoss;
+    monthlyPerformance[month].count++;
+  });
+
+  // Calculate percentage of total profit for each month
+  const totalProfit = monthlyPerformance.reduce((sum, month) => sum + Math.max(0, month.totalPnL), 0);
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  const chartData = monthlyPerformance.map((month, index) => ({
+    month: monthNames[index],
+    pnl: month.totalPnL,
+    percentage: totalProfit > 0 ? (month.totalPnL / totalProfit * 100) : 0
+  }));
+
+  // Update pagination
+  const totalPages = Math.ceil(12 / MONTHS_PER_PAGE);
+  document.getElementById('monthlyPerfPageIndicator').textContent = `${currentMonthPage + 1} / ${totalPages}`;
+  document.getElementById('monthlyPerfPrevBtn').disabled = currentMonthPage === 0;
+  document.getElementById('monthlyPerfNextBtn').disabled = currentMonthPage === totalPages - 1;
+
+  // Get data for current page
+  const startIdx = currentMonthPage * MONTHS_PER_PAGE;
+  const pageData = chartData.slice(startIdx, startIdx + MONTHS_PER_PAGE);
+
+  // Create or update chart
+  const ctx = document.getElementById('monthlyPerformanceChart').getContext('2d');
+  
+  if (monthlyPerformanceChart) {
+    monthlyPerformanceChart.destroy();
+  }
+
+  monthlyPerformanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: pageData.map(d => d.month),
+      datasets: [{
+        data: pageData.map(d => d.pnl),
+        backgroundColor: pageData.map(d => d.pnl >= 0 ? '#2ecc71' : '#e74c3c'),
+        borderWidth: 0,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const data = pageData[context.dataIndex];
+              return [
+                `P&L: ${formatCurrency(data.pnl)}`,
+                `${data.percentage.toFixed(2)}% of total profit`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)'
+          },
+          ticks: {
+            callback: function(value) {
+              return formatCurrency(value);
+            }
+          }
+        },
+        y: {
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+}
+
+// Add event listeners for pagination
+document.getElementById('monthlyPerfPrevBtn').addEventListener('click', () => {
+  if (currentMonthPage > 0) {
+    currentMonthPage--;
+    createMonthlyPerformanceChart(window.trades);
+  }
+});
+
+document.getElementById('monthlyPerfNextBtn').addEventListener('click', () => {
+  const totalPages = Math.ceil(12 / MONTHS_PER_PAGE);
+  if (currentMonthPage < totalPages - 1) {
+    currentMonthPage++;
+    createMonthlyPerformanceChart(window.trades);
+  }
+});
+
+function updateMetrics(trades) {
+  if (!trades || !Array.isArray(trades)) {
+    console.warn("Invalid trades array provided to updateMetrics");
+    // Set default values for metrics when no valid trades
+    document.getElementById("winRate").textContent = "0%";
+    document.getElementById("profitFactor").textContent = "0";
+    document.getElementById("totalTrades").textContent = "0";
+    document.getElementById("avgTrade").textContent = "$0";
+    
+    const cumPnlElement = document.querySelector(".cumulative-pnl .value");
+    const cumRoiElement = document.querySelector(".cumulative-pnl .roi");
+    if (cumPnlElement) cumPnlElement.textContent = "$0.00";
+    if (cumRoiElement) cumRoiElement.textContent = "0.00%";
+    return;
+  }
+
+  // Calculate win rate
+  const winningTrades = trades.filter((trade) => trade.profitLoss > 0).length;
+  const winRate = trades.length > 0 ? ((winningTrades / trades.length) * 100).toFixed(1) : 0;
+  document.getElementById("winRate").textContent = winRate + "%";
+
+  // Calculate profit factor
+  const grossProfit = trades.reduce((sum, trade) => {
+    if (trade.profitLoss > 0) {
+      return sum + trade.profitLoss;
+    }
+    return sum;
+  }, 0);
+
+  const grossLoss = trades.reduce((sum, trade) => {
+    if (trade.profitLoss < 0) {
+      return sum + Math.abs(trade.profitLoss);
+    }
+    return sum;
+  }, 0);
+
+  const profitFactor = grossLoss !== 0 ? (grossProfit / grossLoss).toFixed(2) : grossProfit > 0 ? "∞" : "0";
+  document.getElementById("profitFactor").textContent = profitFactor;
+
+  // Update total trades
+  document.getElementById("totalTrades").textContent = trades.length.toString();
+
+  // Calculate average trade
+  const totalPnL = trades.reduce((sum, trade) => sum + trade.profitLoss, 0);
+  const avgTrade = trades.length > 0 ? (totalPnL / trades.length).toFixed(2) : 0;
+  document.getElementById("avgTrade").textContent = formatCurrency(avgTrade);
+
+  // Update cumulative PnL and ROI
+  const cumPnlElement = document.querySelector(".cumulative-pnl .value");
+  const cumRoiElement = document.querySelector(".cumulative-pnl .roi");
+
+  if (cumPnlElement && cumRoiElement) {
+    // Calculate total investment
+    const totalInvestment = trades.reduce((sum, trade) => sum + trade.investment, 0);
+    const roi = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
+
+    // Update PnL display
+    cumPnlElement.textContent = `${totalPnL >= 0 ? "+" : ""}${formatCurrency(Math.abs(totalPnL))}`;
+    cumPnlElement.className = `value ${totalPnL >= 0 ? "positive" : "negative"}`;
+
+    // Update ROI display
+    cumRoiElement.textContent = `${roi >= 0 ? "+" : ""}${roi.toFixed(2)}%`;
+    cumRoiElement.className = `roi ${roi >= 0 ? "positive" : "negative"}`;
+  }
+}
+
+// Helper function to format currency values
+function formatCurrency(value) {
+  const numValue = parseFloat(value);
+  return `$${Math.abs(numValue).toFixed(2)}`;
+}
+
+// Helper function to format dates consistently
+function formatTradeDate(date) {
+  if (!date) return null;
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return null;
+  return d;
 }
