@@ -358,6 +358,7 @@ textarea {
     border-radius: 8px;
     margin-bottom: 1rem;
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
 }
 
 .todays-pnl h2 {

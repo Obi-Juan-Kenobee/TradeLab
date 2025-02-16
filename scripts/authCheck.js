@@ -11,7 +11,7 @@ function logout() {
 }
 
 // Protect dashboard route
-if (window.location.pathname.includes('calendar-dashboard.html')) {
+if (window.location.pathname.includes('/pages/calendar-dashboard.html')) {
     if (!isLoggedIn()) {
         window.location.href = 'auth.html';
     }
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="user-menu">
                 <span>${currentUser.name} ▼</span>
                 <div class="user-dropdown">
-                    <a href="calendar-dashboard.html">Dashboard</a>
+                    <a href="/pages/calendar-dashboard.html">Dashboard</a>
                     <a href="#" onclick="logout()">Logout</a>
                 </div>
             </div>
