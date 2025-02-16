@@ -110,6 +110,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const lastDay = new Date(currentYear, monthIndex + 1, 0);
         const startingDay = firstDay.getDay();
 
+        // Calculate the start of the first week
+        const firstWeekStart = new Date(firstDay);
+        firstWeekStart.setDate(firstWeekStart.getDate() - startingDay);
+
         // Add empty cells for days before the first of the month
         for (let i = 0; i < startingDay; i++) {
             const emptyCell = document.createElement('div');
@@ -117,9 +121,13 @@ document.addEventListener('DOMContentLoaded', function() {
             dailyGrid.appendChild(emptyCell);
         }
 
+        let currentWeekStart = new Date(firstWeekStart);
+        let weekNumber = 1;
+
         // Add cells for each day of the month
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const cell = document.createElement('div');
+            const currentDate = new Date(currentYear, monthIndex, day);
             const dayTrades = getDayTrades(day, monthIndex);
             const pnl = calculateDayPnL(day, monthIndex);
             
@@ -128,14 +136,55 @@ document.addEventListener('DOMContentLoaded', function() {
             const isToday = isCurrentDay(currentYear, monthIndex, day);
             if (isToday) cell.classList.add('today');
 
-            cell.innerHTML = `
-                <span class="day-number">${day}</span>
-                ${dayTrades.length > 0 ? `
-                    <span class="day-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
-                        ${formatPnL(pnl)}
-                    </span>
-                ` : ''}
-            `;
+            const isSaturday = currentDate.getDay() === 6;
+            const isLastDayOfMonth = day === lastDay.getDate();
+            
+            // Show weekly summary on Saturdays or the last day of the month
+            if (isSaturday || isLastDayOfMonth) {
+                const weekStats = calculateWeeklyPnL(currentWeekStart, monthIndex);
+                
+                // Only show week summary if there are trades
+                if (weekStats.trades > 0) {
+                    cell.classList.add('week-summary');
+                    cell.innerHTML = `
+                        <span class="day-number">${day}</span>
+                        ${dayTrades.length > 0 ? `
+                            <span class="day-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
+                                ${formatPnL(pnl)}
+                            </span>
+                        ` : ''}
+                        <div class="week-total ${weekStats.pnl >= 0 ? 'positive' : 'negative'}">
+                            Week ${weekNumber}
+                            <span>${formatPnL(weekStats.pnl)}</span>
+                            <small>${weekStats.trades} trades</small>
+                        </div>
+                    `;
+                } else {
+                    cell.innerHTML = `
+                        <span class="day-number">${day}</span>
+                        ${dayTrades.length > 0 ? `
+                            <span class="day-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
+                                ${formatPnL(pnl)}
+                            </span>
+                        ` : ''}
+                    `;
+                }
+
+                if (isSaturday) {
+                    weekNumber++;
+                    // Update for next week
+                    currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+                }
+            } else {
+                cell.innerHTML = `
+                    <span class="day-number">${day}</span>
+                    ${dayTrades.length > 0 ? `
+                        <span class="day-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
+                            ${formatPnL(pnl)}
+                        </span>
+                    ` : ''}
+                `;
+            }
             
             if (dayTrades.length > 0) {
                 cell.title = `${dayTrades.length} trade${dayTrades.length > 1 ? 's' : ''}\nP/L: ${formatPnL(pnl)}`;
@@ -143,6 +192,41 @@ document.addEventListener('DOMContentLoaded', function() {
             
             dailyGrid.appendChild(cell);
         }
+    }
+
+    function calculateWeeklyPnL(startDate, monthIndex) {
+        const trades = tradeManager.trades;
+        let totalPnL = 0;
+        let tradeCount = 0;
+
+        // Calculate end date (Saturday or end of month)
+        const endDate = new Date(startDate);
+        const monthEnd = new Date(currentYear, monthIndex + 1, 0);
+        
+        // If we're in the last week, use month end as the end date
+        if (startDate > new Date(currentYear, monthIndex, monthEnd.getDate() - 6)) {
+            endDate.setTime(monthEnd.getTime());
+        } else {
+            endDate.setDate(startDate.getDate() + (6 - startDate.getDay()));
+        }
+
+        // Ensure we don't go beyond the current month
+        const monthStart = new Date(currentYear, monthIndex, 1);
+
+        // Adjust start and end dates to stay within the month
+        const effectiveStartDate = new Date(Math.max(startDate, monthStart));
+        const effectiveEndDate = new Date(Math.min(endDate, monthEnd));
+
+        trades.forEach(trade => {
+            const tradeDate = new Date(trade.date);
+            // Only count trades within the current month's week portion
+            if (tradeDate >= effectiveStartDate && tradeDate <= effectiveEndDate) {
+                totalPnL += (trade.exitPrice - trade.entryPrice) * trade.quantity;
+                tradeCount++;
+            }
+        });
+
+        return { pnl: totalPnL, trades: tradeCount };
     }
 
     function calculateMonthPnL(monthIndex) {

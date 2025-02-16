@@ -131,6 +131,8 @@
     align-items: center;
     position: relative;
     transition: all 0.3s ease;
+    min-height: 80px;
+    padding-bottom: 25px;
 }
 
 .day-cell.win {
@@ -147,6 +149,12 @@
     transform: scale(1.05);
     z-index: 1;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.day-cell.week-summary {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    position: relative;
 }
 
 .day-number {
@@ -195,6 +203,39 @@
     justify-content: space-between;
     font-size: 0.9rem;
     color: var(--text-secondary);
+}
+
+.week-total {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 4px;
+    font-size: 0.8rem;
+    text-align: center;
+    background-color: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.week-total span {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.week-total small {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.week-total.positive {
+    color: #27ae60;
+}
+
+.week-total.negative {
+    color: #e74c3c;
 }
 
 .fa-chevron-right:hover,
