@@ -37,8 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         console.log("Available trade date range:", {
           oldest: oldestTrade.toLocaleString(),
-          newest: newestTrade.toLocaleString(),
-          daysSpan: Math.ceil((newestTrade - oldestTrade) / (1000 * 60 * 60 * 24))
+          newest: newestTrade.toLocaleString()
         });
       }
       
@@ -87,22 +86,20 @@ function applyTimeRangeFilter(rangeKey) {
     filteredTrades = [...allTrades];
     console.log(`Showing all ${filteredTrades.length} trades`);
   } else {
-    // Find the most recent trade date to use as reference
-    const mostRecentTradeDate = new Date(Math.max(...allTrades.map(t => new Date(t.date))));
-    mostRecentTradeDate.setHours(23, 59, 59, 999); // Set to end of day
+    // Calculate date range
+    const end = new Date();
+    end.setHours(23, 59, 59, 999); // Set to end of day
     
-    // Calculate start date relative to most recent trade
-    const startDate = new Date(mostRecentTradeDate);
-    startDate.setDate(mostRecentTradeDate.getDate() - range.days);
-    startDate.setHours(0, 0, 0, 0); // Set to start of day
+    const start = new Date();
+    start.setDate(start.getDate() - range.days);
+    start.setHours(0, 0, 0, 0); // Set to start of day
     
     console.log("Filtering date range:", {
-      start: startDate.toLocaleString(),
-      end: mostRecentTradeDate.toLocaleString(),
-      recentTradeDate: mostRecentTradeDate.toLocaleString()
+      start: start.toLocaleString(),
+      end: end.toLocaleString()
     });
 
-    // Filter trades using the most recent trade as reference
+    // Filter trades using the same approach as tradeHistory.js
     filteredTrades = allTrades.filter(trade => {
       const tradeDate = new Date(trade.date);
       tradeDate.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
@@ -111,14 +108,14 @@ function applyTimeRangeFilter(rangeKey) {
       if (allTrades.indexOf(trade) < 3) {
         console.log("Trade date comparison:", {
           tradeDate: tradeDate.toLocaleString(),
-          start: startDate.toLocaleString(),
-          end: mostRecentTradeDate.toLocaleString(),
-          isAfterStart: tradeDate >= startDate,
-          isBeforeEnd: tradeDate <= mostRecentTradeDate
+          start: start.toLocaleString(),
+          end: end.toLocaleString(),
+          isAfterStart: tradeDate >= start,
+          isBeforeEnd: tradeDate <= end
         });
       }
       
-      return tradeDate >= startDate && tradeDate <= mostRecentTradeDate;
+      return tradeDate >= start && tradeDate <= end;
     });
 
     console.log(`Found ${filteredTrades.length} trades in selected time range`);
