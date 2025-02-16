@@ -178,6 +178,11 @@
             can unpair them or pair additional trades together.</p>
         </div>
         <div class="trades-table-container">
+          <div class="trades-table-actions">
+            <button id="createFromUnpairedBtn" class="secondary-btn">
+              <i class="fas fa-link"></i> Create Trade from Unpaired
+            </button>
+          </div>
           <table id="batchTradesTable" class="trades-table">
             <thead>
               <tr>
@@ -242,40 +247,77 @@
     </div>
   </div>
 
-  
-    <!-- Unpaired Trades Modal -->
-    <div id="unpairedTradesModal" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Add Trades to Batch</h2>
-          <button class="close-modal" data-modal="unpairedTradesModal">&times;</button>
+  <!-- All Unpaired Trades Modal -->
+  <div id="allUnpairedTradesModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Create Trade from Unpaired</h2>
+        <button class="close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="verification-instructions">
+          <p>Select trades you want to pair together. You can select multiple trades to create a batch trade.</p>
         </div>
-        <div class="modal-body">
-          <div class="verification-instructions">
-            <p>Select trades to add to the current batch. Only trades of the same symbol can be added.</p>
-          </div>
-          <div class="trades-table-container">
-            <table id="unpairedTradesTable" class="trades-table">
-              <thead>
-                <tr>
-                  <th>Select</th>
-                  <th>Date</th>
-                  <th>Symbol</th>
-                  <th>Action</th>
-                  <th>Price</th>
-                  <th>Quantity</th>
-                </tr>
-              </thead>
-              <tbody id="unpairedTradesBody"></tbody>
-            </table>
-          </div>
-          <div class="verification-controls">
-            <button id="addSelectedTradesBtn" class="btn-primary">Add Selected</button>
-            <button class="btn-secondary" data-modal="unpairedTradesModal">Cancel</button>
-          </div>
+        <div class="trades-table-container">
+          <table id="allUnpairedTradesTable" class="trades-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAllUnpaired"></th>
+                <th>Date</th>
+                <th>Symbol</th>
+                <th>Action</th>
+                <th>Price</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody id="allUnpairedTradesBody"></tbody>
+          </table>
+        </div>
+        <div class="modal-actions">
+          <button id="pairSelectedTradesBtn" class="primary-btn">
+            <i class="fas fa-link"></i> Pair Selected Trades
+          </button>
+          <button class="secondary-btn close-modal">
+            <i class="fas fa-times"></i> Cancel
+          </button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Unpaired Trades Modal -->
+  <div id="unpairedTradesModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Trades to Batch</h2>
+        <button class="close-modal" data-modal="unpairedTradesModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="verification-instructions">
+          <p>Select trades to add to the current batch. Only trades of the same symbol can be added.</p>
+        </div>
+        <div class="trades-table-container">
+          <table id="unpairedTradesTable" class="trades-table">
+            <thead>
+              <tr>
+                <th>Select</th>
+                <th>Date</th>
+                <th>Symbol</th>
+                <th>Action</th>
+                <th>Price</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody id="unpairedTradesBody"></tbody>
+          </table>
+        </div>
+        <div class="verification-controls">
+          <button id="addSelectedTradesBtn" class="btn-primary">Add Selected</button>
+          <button class="btn-secondary" data-modal="unpairedTradesModal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Footer -->
   <footer class="footer">
