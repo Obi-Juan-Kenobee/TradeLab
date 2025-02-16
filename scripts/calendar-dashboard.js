@@ -32,24 +32,47 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('currentYear').textContent = currentYear;
     }
 
+    function getMonthStats(monthIndex) {
+        const trades = tradeManager.trades;
+        let winCount = 0;
+        let lossCount = 0;
+        let totalPnL = 0;
+
+        trades.forEach(trade => {
+            const tradeDate = new Date(trade.date);
+            if (tradeDate.getFullYear() === currentYear && tradeDate.getMonth() === monthIndex) {
+                const pnl = (trade.exitPrice - trade.entryPrice) * trade.quantity;
+                totalPnL += pnl;
+                if (pnl > 0) winCount++;
+                else if (pnl < 0) lossCount++;
+            }
+        });
+
+        return { winCount, lossCount, totalPnL };
+    }
+
     function renderYearView() {
         const monthsGrid = document.querySelector('.months-grid');
         monthsGrid.innerHTML = '';
 
         monthNames.forEach((month, index) => {
-            const monthPnL = calculateMonthPnL(index);
-            const card = createMonthCard(month, monthPnL, index);
+            const stats = getMonthStats(index);
+            const card = createMonthCard(month, stats, index);
             monthsGrid.appendChild(card);
         });
     }
 
-    function createMonthCard(month, pnl, monthIndex) {
+    function createMonthCard(month, stats, monthIndex) {
         const card = document.createElement('div');
-        card.className = 'month-card';
+        card.className = `month-card ${stats.totalPnL >= 0 ? 'profit' : 'loss'}`;
         card.innerHTML = `
             <h3>${month}</h3>
-            <div class="month-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
-                ${formatPnL(pnl)}
+            <div class="month-pnl ${stats.totalPnL >= 0 ? 'positive' : 'negative'}">
+                ${formatPnL(stats.totalPnL)}
+            </div>
+            <div class="month-stats">
+                <span>Wins: ${stats.winCount}</span>
+                <span>Losses: ${stats.lossCount}</span>
             </div>
         `;
 
@@ -67,6 +90,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         monthlyView.style.display = 'block';
         yearlyView.style.display = 'none';
+    }
+
+    function getDayTrades(day, monthIndex) {
+        const trades = tradeManager.trades;
+        return trades.filter(trade => {
+            const tradeDate = new Date(trade.date);
+            return tradeDate.getFullYear() === currentYear && 
+                   tradeDate.getMonth() === monthIndex && 
+                   tradeDate.getDate() === day;
+        });
     }
 
     function renderMonthCalendar(monthIndex) {
@@ -87,19 +120,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add cells for each day of the month
         for (let day = 1; day <= lastDay.getDate(); day++) {
             const cell = document.createElement('div');
-            cell.className = 'day-cell';
+            const dayTrades = getDayTrades(day, monthIndex);
+            const pnl = calculateDayPnL(day, monthIndex);
+            
+            cell.className = `day-cell ${pnl > 0 ? 'win' : pnl < 0 ? 'loss' : ''}`;
             
             const isToday = isCurrentDay(currentYear, monthIndex, day);
             if (isToday) cell.classList.add('today');
 
-            const pnl = calculateDayPnL(day, monthIndex);
-            
             cell.innerHTML = `
                 <span class="day-number">${day}</span>
-                <span class="day-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
-                    ${formatPnL(pnl)}
-                </span>
+                ${dayTrades.length > 0 ? `
+                    <span class="day-pnl ${pnl >= 0 ? 'positive' : 'negative'}">
+                        ${formatPnL(pnl)}
+                    </span>
+                ` : ''}
             `;
+            
+            if (dayTrades.length > 0) {
+                cell.title = `${dayTrades.length} trade${dayTrades.length > 1 ? 's' : ''}\nP/L: ${formatPnL(pnl)}`;
+            }
             
             dailyGrid.appendChild(cell);
         }
@@ -107,55 +147,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function calculateMonthPnL(monthIndex) {
         const trades = tradeManager.trades;
-        const currentYear = new Date().getFullYear(); // Get current year dynamically
-    
         return trades.reduce((total, trade) => {
-            // 1. Robust Date Parsing: Use a consistent date format and parse explicitly
-            try {
-                const tradeDate = new Date(trade.date); // Try direct parsing first
-    
-                if (isNaN(tradeDate) && typeof trade.date === 'string'){ //Check if the date is invalid and a string, then split and parse
-                    const dateParts = trade.date.split('-'); // Assuming YYYY-MM-DD format
-                    if(dateParts.length === 3){
-                        const year = parseInt(dateParts[0]);
-                        const month = parseInt(dateParts[1]) - 1; // Adjust for zero-based month
-                        const day = parseInt(dateParts[2]);
-                        tradeDate = new Date(year, month, day);
-                    } else {
-                        console.error("Invalid date format:", trade.date);
-                        return total; // Skip this trade if date is invalid
-                    }
-    
-                }
-    
-                if (isNaN(tradeDate)) {
-                    console.error("Invalid date:", trade.date);
-                    return total; // Skip this trade if date is invalid
-                }
-    
-    
-                // 2. Correct Month Comparison: Use zero-based index directly
-                if (tradeDate.getFullYear() === currentYear && tradeDate.getMonth() === monthIndex) {
-                    // 3. Ensure numeric values: Parse to float if necessary
-                    const profit = parseFloat(trade.exitPrice) - parseFloat(trade.entryPrice);
-                    const quantity = parseFloat(trade.quantity);
-    
-                    if (isNaN(profit) || isNaN(quantity)) {
-                        console.error("Invalid price or quantity for trade:", trade);
-                        return total; // Skip if prices or quantity are not numbers
-                    }
-                    return total + (profit * quantity);
-                }
-            } catch (error) {
-                console.error("Error processing trade:", trade, error);
+            const tradeDate = new Date(trade.date);
+            if (tradeDate.getFullYear() === currentYear && tradeDate.getMonth() === monthIndex) {
+                return total + ((trade.exitPrice - trade.entryPrice) * trade.quantity);
             }
-    
             return total;
         }, 0);
     }
 
     function calculateDayPnL(day, monthIndex) {
-        const trades = JSON.parse(localStorage.getItem('trades') || '[]');
+        const trades = tradeManager.trades;
         return trades.reduce((total, trade) => {
             const tradeDate = new Date(trade.date);
             if (tradeDate.getFullYear() === currentYear && 
