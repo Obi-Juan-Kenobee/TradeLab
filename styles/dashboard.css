@@ -145,6 +145,20 @@
   margin-left: auto;
 }
 
+.cumulative-pnl .trade-info {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 0.5rem;
+    text-align: center;
+}
+
+.period-pnl {
+    border-top: 2px solid var(--border-color);
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
 @media (max-width: 768px) {
   .dashboard-container {
     flex-direction: column;
@@ -182,6 +196,16 @@
 
   .cumulative-pnl .percentage {
     margin-left: 0;
+  }
+
+  .period-pnl {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+  
+  .cumulative-pnl .trade-info {
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
   }
 }
 
