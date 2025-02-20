@@ -33,80 +33,1082 @@
         </div>
 
         <div class="guide-content">
-          <section class="guide-section">
-            <h2><i class="fas fa-book"></i> Getting Started</h2>
-            <p>Welcome to TradeLab! This guide will help you make the most of our trading journal platform.</p>
-            
-            <h3>Quick Start</h3>
+          <!-- Table of Contents -->
+          <div class="table-of-contents">
+            <h2><i class="fas fa-list"></i> Quick Navigation</h2>
+            <ul>
+              <li><a href="#creating-account">1. Creating an Account</a></li>
+              <li><a href="#manual-trade">2. Manual Trade Entry</a></li>
+              <li><a href="#importing-trades">3. Importing Trades</a></li>
+              <li><a href="#trade-history">4. Trade History</a></li>
+              <li><a href="#analytics">5. Analytics</a></li>
+              <li><a href="#market-insights">6. Market Insights</a></li>
+              <li><a href="#settings">7. Settings</a></li>
+              <li><a href="#tips">8. Tips and Tricks</a></li>
+              <li><a href="#about-storage">9. About TradeLab's Storage</a></li>
+            </ul>
+          </div>
+
+          <section id="creating-account" class="guide-section">
+            <h2><i class="fas fa-user-plus"></i> 1. Creating an Account</h2>
+            <p>Get started with TradeLab by creating your personal account:</p>
             <ol>
-              <li>Navigate to the <a href="trade-entry.html">Manual Entry</a> page to start logging your trades</li>
-              <li>Use the <a href="import.html">Import Trades</a> feature to bulk import your trading history</li>
-              <li>View your performance in the <a href="analytics.html">Analytics</a> section</li>
+              <li>Click the "Sign Up" button on the homepage</li>
+              <li>Enter your email address and create a secure password</li>
+              <li>Verify your email address through the confirmation link</li>
+              <li>Complete your profile with basic trading information</li>
             </ol>
           </section>
 
-          <section class="guide-section">
-            <h2><i class="fas fa-plus-circle"></i> Manual Trade Entry</h2>
-            <p>Record your trades individually using our intuitive trade entry form:</p>
+          <section id="manual-trade" class="guide-section">
+            <h2><i class="fas fa-plus-circle"></i> 2. Manual Trade Entry</h2>
+            <p>Record your trades easily using our intuitive trade entry form:</p>
+            <h3>Key Features:</h3>
             <ul>
-              <li><strong>Symbol:</strong> Enter the trading symbol (e.g., AAPL, MSFT)</li>
-              <li><strong>Market:</strong> Specify the market (e.g., Stocks, Crypto)</li>
-              <li><strong>Entry Price:</strong> Your buy-in price</li>
-              <li><strong>Exit Price:</strong> Your selling price</li>
-              <li><strong>Quantity:</strong> Number of shares/units traded</li>
-              <li><strong>Date:</strong> When the trade was executed</li>
-              <li><strong>Notes:</strong> Add any relevant trade notes or strategy used</li>
+              <li><strong>Symbol Input:</strong> Enter any trading symbol (stocks, crypto, forex)</li>
+              <li><strong>Direction:</strong> Specify Long or Short position</li>
+              <li><strong>Market Selection:</strong> Choose from various markets (Stocks, Crypto, Forex, etc.)</li>
+              <li><strong>Price Fields:</strong> Enter your entry and exit prices</li>
+              <li><strong>Quantity:</strong> Specify the size of your position</li>
+              <li><strong>Date Selection:</strong> Choose the trade execution date</li>
+              <li><strong>Notes:</strong> Add detailed trade notes, strategy used, and observations</li>
+            </ul>
+            <h3>Real-time Features:</h3>
+            <ul>
+              <li>Automatic P/L calculation as you enter prices</li>
+              <li>ROI percentage calculation</li>
+              <li>TradingView chart integration for price verification</li>
+              <li>Quick edit functionality for trade modifications</li>
             </ul>
           </section>
 
-          <section class="guide-section">
-            <h2><i class="fas fa-file-import"></i> Importing Trades</h2>
-            <p>Import multiple trades at once from your Excel/CSV files:</p>
+          <section id="importing-trades" class="guide-section">
+            <h2><i class="fas fa-file-import"></i> 3. Importing Trades</h2>
+            <p>Import multiple trades at once from your broker statements or custom spreadsheets:</p>
+
+            <h3>Supported File Formats</h3>
+            <ul>
+              <li><strong>Excel Files:</strong> .xlsx (Modern Excel), .xls (Legacy Excel)</li>
+              <li><strong>CSV Files:</strong> Comma-separated values (.csv)</li>
+            </ul>
+
+            <h3>Import Methods</h3>
             <ol>
-              <li>Prepare your spreadsheet with the required columns using our template found <a href="import.html">here.</a></li>
-              <li>Click "Choose File" to select your spreadsheet</li>
-              <li>Map your columns to our trade fields</li>
-              <li>Click "Import" to process your trades</li>
-            </ol>
-            <p><strong>Supported Formats:</strong> .xlsx, .xls, .csv</p>
-            <p class="note">*Supported brokers: Fidelity, TD Ameritrade and Robinhood.</p>
-            <p class="note">If you want your broker supported please <a href="contact.html">contact us.</a> If you can, download a sample template from your broker.</p>
-          </section>
-
-          <section class="guide-section">
-            <h2><i class="fas fa-chart-bar"></i> Analytics</h2>
-            <p>Track your trading performance with our comprehensive analytics:</p>
-            <ul>
-              <li><strong>Win Rate:</strong> Percentage of profitable trades</li>
-              <li><strong>Profit/Loss:</strong> Total and average P/L metrics</li>
-              <li><strong>Trade History:</strong> Visual representation of your trading activity</li>
-              <li><strong>Performance by Market:</strong> See which markets you perform best in</li>
-            </ul>
-          </section>
-
-          <section class="guide-section">
-            <h2><i class="fas fa-globe"></i> Market Insights</h2>
-            <p>Stay informed with market data from TradingView:</p>
-            <ul>
-              <li>Market overview across different asset classes</li>
-              <li>Top gainers and losers</li>
-              <li>Economic calendar</li>
-              <li>Cryptocurrency market data</li>
-            </ul>
-          </section>
-
-          <section class="guide-section">
-            <h2><i class="fas fa-cog"></i> Tips & Best Practices</h2>
-            <ul>
-              <li>Our template works best, but if you can't copy the data to our template, we recommend renaming the columns to match ours for easier importing.
-                While this is not necessary, it makes it easier for us to process your trades. We currently support Fidelity, TD Ameritrade (Schwab) and Robinhood.
+              <li><strong>Using Our Template:</strong>
+                <ul>
+                  <li>Download our pre-formatted Excel template</li>
+                  <li>Fill in your trade data following the template structure</li>
+                  <li>Import the completed template for guaranteed compatibility</li>
+                </ul>
               </li>
-              <li>Add detailed notes to learn from your trades</li>
-              <li>Review your analytics weekly to identify patterns</li>
-              <li>Use the import feature for historical trades</li>
+              <li><strong>Direct Broker Import:</strong>
+                <ul>
+                  <li>Export your trades from your broker's platform</li>
+                  <li>Upload the file directly - our system will attempt to map the columns</li>
+                  <li>Currently supporting: Fidelity, TD Ameritrade (Schwab), and Robinhood formats</li>
+                </ul>
+              </li>
+              <li><strong>Custom Spreadsheet:</strong>
+                <ul>
+                  <li>Use your own spreadsheet format</li>
+                  <li>Ensure it contains the required columns (see below)</li>
+                  <li>Our smart column mapping will attempt to match your headers</li>
+                </ul>
+              </li>
+            </ol>
+
+            <h3>Required Data Fields</h3>
+            <div class="required-columns">
+              <ul>
+                <li><strong>Date:</strong> Trade execution date (supports multiple formats: MM/DD/YYYY, DD/MM/YYYY, YYYY-MM-DD)</li>
+                <li><strong>Symbol:</strong> Trading symbol/ticker (e.g., AAPL, BTC-USD)</li>
+                <li><strong>Entry Price:</strong> Purchase price per unit</li>
+                <li><strong>Exit Price:</strong> Selling price per unit</li>
+                <li><strong>Quantity:</strong> Number of shares/contracts/units</li>
+                <li><strong>Direction:</strong> Optional, defaults to "Long" if not specified</li>
+                <li><strong>Market:</strong> Optional, type of instrument (Stocks, Crypto, Forex, etc.)</li>
+                <li><strong>Notes:</strong> Optional, any trade-specific notes</li>
+              </ul>
+            </div>
+
+            <h3>Smart Column Mapping</h3>
+            <p>Our system includes intelligent column mapping that can recognize various header names:</p>
+            <ul>
+              <li><strong>Date Recognition:</strong> Matches variations like "Trade Date", "Execution Date", "Settlement Date"</li>
+              <li><strong>Symbol Recognition:</strong> Matches "Ticker", "Security", "Instrument", "Stock Symbol"</li>
+              <li><strong>Price Recognition:</strong> Matches "Cost Basis", "Fill Price", "Execution Price"</li>
+              <li><strong>Quantity Recognition:</strong> Matches "Size", "Amount", "Units", "Contracts"</li>
             </ul>
+
+            <h3>Import Process</h3>
+            <ol>
+              <li><strong>File Upload:</strong>
+                <ul>
+                  <li>Drag and drop your file into the upload zone, or</li>
+                  <li>Click "Choose File" to select from your computer</li>
+                </ul>
+              </li>
+              <li><strong>Data Preview:</strong>
+                <ul>
+                  <li>Review your data in the preview table</li>
+                  <li>Verify column mappings are correct</li>
+                  <li>Check for any data formatting issues</li>
+                </ul>
+              </li>
+              <li><strong>Trade Verification:</strong>
+                <ul>
+                  <li>Review paired trades (entry/exit matches)</li>
+                  <li>Manually pair or unpair trades if needed</li>
+                  <li>View detailed transaction information</li>
+                </ul>
+              </li>
+              <li><strong>Import Confirmation:</strong>
+                <ul>
+                  <li>Confirm the trades to be imported</li>
+                  <li>System performs final validation</li>
+                  <li>Trades are added to your journal</li>
+                </ul>
+              </li>
+            </ol>
+
+            <h3>Advanced Features</h3>
+            <ul>
+              <li><strong>Multi-Leg Trade Support:</strong> System can pair multiple entries/exits for complex trades</li>
+              <li><strong>Batch Processing:</strong> Import hundreds of trades at once</li>
+              <li><strong>Error Handling:</strong> Clear error messages for invalid data</li>
+              <li><strong>Data Validation:</strong> Automatic checks for data consistency</li>
+            </ul>
+
+            <h3>Tips for Successful Imports</h3>
+            <ul>
+              <li><strong>Use the Template:</strong> For the most reliable import experience, use our provided template</li>
+              <li><strong>Check Dates:</strong> Ensure dates are in a consistent format throughout your file</li>
+              <li><strong>Verify Symbols:</strong> Make sure symbols match your broker's format</li>
+              <li><strong>Review Preview:</strong> Always check the data preview before confirming import</li>
+              <li><strong>Back Up Data:</strong> Keep a copy of your original import file</li>
+            </ul>
+
+            <div class="note">
+              <p><strong>Note for Broker Statements:</strong> When importing directly from broker statements that use multiple rows per trade (separate rows for buy and sell), our system will attempt to automatically pair related transactions. You can manually adjust these pairings if needed.</p>
+            </div>
           </section>
-        </div>
+
+          <section id="trade-history" class="guide-section">
+            <h2><i class="fas fa-history"></i> 4. Trade History</h2>
+            <p>The Trade History page provides a comprehensive view of all your trading activity with powerful filtering and analysis tools.</p>
+
+            <h3>Trade Statistics Dashboard</h3>
+            <p>At the top of the page, you'll find key performance metrics:</p>
+            <ul>
+              <li><strong>Total Trades:</strong> Number of completed trades in your journal</li>
+              <li><strong>Win Rate:</strong> Percentage of profitable trades</li>
+              <li><strong>Total P/L:</strong> Cumulative profit/loss across all trades</li>
+              <li><strong>Average P/L:</strong> Mean profit/loss per trade</li>
+            </ul>
+
+            <h3>Advanced Filtering</h3>
+            <p>Filter your trades using multiple criteria simultaneously:</p>
+            <div class="feature-list">
+              <ul>
+                <li><strong>Symbol Search:</strong>
+                  <ul>
+                    <li>Type any trading symbol to filter trades</li>
+                    <li>Case-insensitive search</li>
+                    <li>Partial matches supported (e.g., "APP" will find "AAPL")</li>
+                  </ul>
+                </li>
+                <li><strong>Market Type:</strong>
+                  <ul>
+                    <li>Filter by market category:</li>
+                    <li>Stocks</li>
+                    <li>Futures</li>
+                    <li>Crypto</li>
+                    <li>Options</li>
+                  </ul>
+                </li>
+                <li><strong>Trade Direction:</strong>
+                  <ul>
+                    <li>Long positions</li>
+                    <li>Short positions</li>
+                  </ul>
+                </li>
+                <li><strong>Date Range:</strong>
+                  <ul>
+                    <li>Select specific date ranges</li>
+                    <li>Custom calendar picker</li>
+                    <li>Quick date range clearing</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h3>Trade List Features</h3>
+            <ul>
+              <li><strong>Sortable Columns:</strong>
+                <ul>
+                  <li>Date (newest/oldest)</li>
+                  <li>Symbol (A-Z)</li>
+                  <li>Profit/Loss (highest/lowest)</li>
+                  <li>ROI percentage</li>
+                  <li>Position size</li>
+                </ul>
+              </li>
+              <li><strong>Visual Indicators:</strong>
+                <ul>
+                  <li>Green highlighting for profitable trades</li>
+                  <li>Red highlighting for losing trades</li>
+                  <li>Direction icons (↑ for long, ↓ for short)</li>
+                  <li>Market type indicators</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Trade Details Modal</h3>
+            <p>Click on any trade to view detailed information:</p>
+            <ul>
+              <li><strong>Basic Information:</strong>
+                <ul>
+                  <li>Trade date and time</li>
+                  <li>Symbol and market type</li>
+                  <li>Position direction</li>
+                </ul>
+              </li>
+              <li><strong>Financial Details:</strong>
+                <ul>
+                  <li>Entry and exit prices</li>
+                  <li>Position size</li>
+                  <li>Total investment amount</li>
+                  <li>Profit/Loss amount</li>
+                  <li>Return on Investment (ROI)</li>
+                </ul>
+              </li>
+              <li><strong>Technical Analysis:</strong>
+                <ul>
+                  <li>TradingView price chart</li>
+                  <li>Technical indicators</li>
+                  <li>Market conditions at time of trade</li>
+                </ul>
+              </li>
+              <li><strong>Trade Notes:</strong>
+                <ul>
+                  <li>Strategy used</li>
+                  <li>Entry/exit reasons</li>
+                  <li>Lessons learned</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Trade Management</h3>
+            <ul>
+              <li><strong>Edit Trades:</strong>
+                <ul>
+                  <li>Modify trade details</li>
+                  <li>Update notes and analysis</li>
+                  <li>Correct entry/exit information</li>
+                </ul>
+              </li>
+              <li><strong>Delete Trades:</strong>
+                <ul>
+                  <li>Remove individual trades</li>
+                  <li>Bulk delete option for multiple trades</li>
+                  <li>Confirmation prompt for safety</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Performance Updates</h3>
+            <p>The statistics dashboard automatically updates when:</p>
+            <ul>
+              <li>Applying filters</li>
+              <li>Editing trade details</li>
+              <li>Deleting trades</li>
+              <li>Adding new trades</li>
+            </ul>
+
+            <div class="tips">
+              <h3>Tips for Trade History Management</h3>
+              <ul>
+                <li><strong>Regular Review:</strong> Set aside time weekly to review your trade history and identify patterns</li>
+                <li><strong>Detailed Notes:</strong> Add comprehensive notes to trades while the information is fresh</li>
+                <li><strong>Use Filters:</strong> Analyze specific trading strategies or symbols by using the filtering system</li>
+                <li><strong>Track Progress:</strong> Monitor your win rate and average P/L to gauge improvement over time</li>
+              </ul>
+            </div>
+
+            <div class="note">
+              <p><strong>Note:</strong> All changes to trades are automatically saved and will be reflected in your analytics and reports. Make sure to double-check any modifications before confirming them.</p>
+            </div>
+          </section>
+
+          <section id="analytics" class="guide-section">
+            <h2><i class="fas fa-chart-bar"></i> 5. Analytics</h2>
+            <p>The Analytics page provides powerful insights into your trading performance through comprehensive data visualization and statistical analysis.</p>
+
+            <h3>Time Range Selection</h3>
+            <p>Customize your analysis period with flexible time range options:</p>
+            <ul>
+              <li><strong>Preset Ranges:</strong>
+                <ul>
+                  <li>Current Year</li>
+                  <li>Last 7 Days</li>
+                  <li>Last 30 Days</li>
+                  <li>Last 90 Days</li>
+                </ul>
+              </li>
+              <li><strong>Custom Date Range:</strong>
+                <ul>
+                  <li>Select specific start and end dates</li>
+                  <li>Calendar picker interface</li>
+                  <li>Apply button to update analysis</li>
+                </ul>
+              </li>
+              <li><strong>Year Selection:</strong> Quick access to historical yearly data</li>
+            </ul>
+
+            <h3>Key Performance Metrics</h3>
+            <p>Monitor essential trading statistics at a glance:</p>
+            <ul>
+              <li><strong>Cumulative P/L:</strong>
+                <ul>
+                  <li>Total profit/loss for selected period</li>
+                  <li>Return on Investment (ROI) percentage</li>
+                </ul>
+              </li>
+              <li><strong>Win Rate:</strong> Percentage of profitable trades</li>
+              <li><strong>Profit Factor:</strong> Ratio of gross profits to gross losses</li>
+              <li><strong>Total Trades:</strong> Number of completed trades</li>
+              <li><strong>Average Trade:</strong> Mean profit/loss per trade</li>
+              <li><strong>Best Trade:</strong> Highest profit trade details</li>
+              <li><strong>Worst Trade:</strong> Largest loss trade details</li>
+            </ul>
+
+            <h3>Performance Charts</h3>
+            <p>Visual analysis through multiple chart types:</p>
+            <div class="feature-list">
+              <ul>
+                <li><strong>Equity Curve:</strong>
+                  <ul>
+                    <li>Cumulative profit/loss over time</li>
+                    <li>View by trade or date</li>
+                    <li>Interactive tooltips with trade details</li>
+                  </ul>
+                </li>
+                <li><strong>Drawdown Analysis:</strong>
+                  <ul>
+                    <li>Maximum drawdown visualization</li>
+                    <li>Recovery periods</li>
+                    <li>Risk management insights</li>
+                  </ul>
+                </li>
+                <li><strong>Average Trade P&L:</strong>
+                  <ul>
+                    <li>Profit/loss distribution</li>
+                    <li>Performance consistency analysis</li>
+                    <li>Trend identification</li>
+                  </ul>
+                </li>
+                <li><strong>Daily Volume:</strong>
+                  <ul>
+                    <li>Trading activity patterns</li>
+                    <li>Volume vs. performance correlation</li>
+                    <li>Market participation trends</li>
+                  </ul>
+                </li>
+                <li><strong>Win/Loss Distribution:</strong>
+                  <ul>
+                    <li>Visual breakdown of profitable vs. losing trades</li>
+                    <li>Performance ratios</li>
+                    <li>Risk/reward analysis</li>
+                  </ul>
+                </li>
+                <li><strong>Trade Type Performance:</strong>
+                  <ul>
+                    <li>Performance by market type (Stocks, Futures, Crypto, Options)</li>
+                    <li>Long vs. Short comparison</li>
+                    <li>Strategy effectiveness analysis</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h3>Trade Excursion Analysis</h3>
+            <p>Detailed analysis of trade execution quality:</p>
+            <ul>
+              <li><strong>Maximum Adverse Excursion (MAE):</strong>
+                <ul>
+                  <li>Maximum potential loss during trades</li>
+                  <li>Stop-loss optimization insights</li>
+                  <li>Risk management effectiveness</li>
+                </ul>
+              </li>
+              <li><strong>Maximum Favorable Excursion (MFE):</strong>
+                <ul>
+                  <li>Maximum potential profit during trades</li>
+                  <li>Profit target optimization</li>
+                  <li>Exit strategy analysis</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Interactive Features</h3>
+            <ul>
+              <li><strong>Chart Interactions:</strong>
+                <ul>
+                  <li>Zoom in/out capabilities</li>
+                  <li>Hover tooltips with detailed information</li>
+                  <li>Click-through for detailed trade analysis</li>
+                </ul>
+              </li>
+              <li><strong>Data Filtering:</strong>
+                <ul>
+                  <li>Multiple timeframe analysis</li>
+                  <li>Market-specific filtering</li>
+                  <li>Strategy-based segmentation</li>
+                </ul>
+              </li>
+            </ul>
+
+            <div class="tips">
+              <h3>Analytics Best Practices</h3>
+              <ul>
+                <li><strong>Regular Review:</strong> Set aside time weekly to analyze your performance metrics</li>
+                <li><strong>Pattern Recognition:</strong> Use multiple timeframes to identify consistent patterns</li>
+                <li><strong>Risk Management:</strong> Monitor drawdown and win rate to optimize position sizing</li>
+                <li><strong>Strategy Refinement:</strong> Use trade type analysis to focus on most profitable approaches</li>
+              </ul>
+            </div>
+
+            <div class="note">
+              <p><strong>Note:</strong> All analytics are calculated in real-time based on your trading data. The more trades you record, the more meaningful your analytics will become. Use these insights to make data-driven decisions about your trading strategy.</p>
+            </div>
+          </section>
+
+          <section id="market-insights" class="guide-section">
+            <h2><i class="fas fa-globe"></i> 6. Market Insights</h2>
+            <p>The Market Insights page provides real-time market data and analysis tools powered by TradingView integration, helping you stay informed about global market conditions.</p>
+
+            <h3>Market Overview</h3>
+            <p>A comprehensive dashboard showing key market indices and trends:</p>
+            <ul>
+              <li><strong>Global Indices:</strong>
+                <ul>
+                  <li>S&P 500 Index (SPXUSD)</li>
+                  <li>NASDAQ 100 (NSXUSD)</li>
+                  <li>Dow Jones Industrial Average (DJI)</li>
+                  <li>Nikkei 225 (NKY)</li>
+                  <li>DAX Index (DEU40)</li>
+                  <li>FTSE 100 (UKXGBP)</li>
+                </ul>
+              </li>
+              <li><strong>Interactive Features:</strong>
+                <ul>
+                  <li>Real-time price updates</li>
+                  <li>Percentage change indicators</li>
+                  <li>Price charts with customizable timeframes</li>
+                  <li>Symbol information and details</li>
+                </ul>
+              </li>
+              <li><strong>Visualization Options:</strong>
+                <ul>
+                  <li>Line charts</li>
+                  <li>Candlestick views</li>
+                  <li>Technical indicators</li>
+                  <li>Volume analysis</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Top Gainers/Losers</h3>
+            <p>Track the day's most significant market movers:</p>
+            <ul>
+              <li><strong>Stock Performance:</strong>
+                <ul>
+                  <li>Biggest percentage gainers</li>
+                  <li>Largest price declines</li>
+                  <li>Volume leaders</li>
+                  <li>New 52-week highs/lows</li>
+                </ul>
+              </li>
+              <li><strong>Market Sectors:</strong>
+                <ul>
+                  <li>Sector-wise performance</li>
+                  <li>Industry group analysis</li>
+                  <li>Market rotation insights</li>
+                </ul>
+              </li>
+              <li><strong>Real-time Updates:</strong>
+                <ul>
+                  <li>Automatic data refresh</li>
+                  <li>Price change notifications</li>
+                  <li>Breaking news alerts</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Cryptocurrency Market</h3>
+            <p>Comprehensive cryptocurrency market coverage:</p>
+            <ul>
+              <li><strong>Major Cryptocurrencies:</strong>
+                <ul>
+                  <li>Bitcoin (BTC)</li>
+                  <li>Ethereum (ETH)</li>
+                  <li>Leading altcoins</li>
+                  <li>Market capitalization rankings</li>
+                </ul>
+              </li>
+              <li><strong>Market Metrics:</strong>
+                <ul>
+                  <li>Price action</li>
+                  <li>24-hour trading volume</li>
+                  <li>Market dominance</li>
+                  <li>Price correlations</li>
+                </ul>
+              </li>
+              <li><strong>Trading Pairs:</strong>
+                <ul>
+                  <li>USD pairs</li>
+                  <li>Stablecoin markets</li>
+                  <li>Cross-currency rates</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Economic Calendar</h3>
+            <p>Stay informed about market-moving economic events:</p>
+            <ul>
+              <li><strong>Event Coverage:</strong>
+                <ul>
+                  <li>Central bank decisions</li>
+                  <li>Economic indicators</li>
+                  <li>Earnings releases</li>
+                  <li>Government reports</li>
+                </ul>
+              </li>
+              <li><strong>Event Details:</strong>
+                <ul>
+                  <li>Release times and dates</li>
+                  <li>Expected impact level</li>
+                  <li>Previous results</li>
+                  <li>Forecast values</li>
+                </ul>
+              </li>
+              <li><strong>Customization Options:</strong>
+                <ul>
+                  <li>Filter by importance</li>
+                  <li>Country/region selection</li>
+                  <li>Time zone adjustment</li>
+                  <li>Event type filtering</li>
+                </ul>
+              </li>
+            </ul>
+
+            <div class="tips">
+              <h3>Using Market Insights Effectively</h3>
+              <ul>
+                <li><strong>Pre-Market Analysis:</strong> Review indices and futures before market open</li>
+                <li><strong>Sector Rotation:</strong> Monitor sector performance to identify market trends</li>
+                <li><strong>Event Planning:</strong> Plan trades around major economic releases</li>
+                <li><strong>Correlation Analysis:</strong> Track relationships between different markets</li>
+              </ul>
+            </div>
+
+            <div class="note">
+              <p><strong>Note:</strong> Market data is provided through TradingView integration. All information is updated in real-time, but slight delays may occur depending on your internet connection. Use this information as part of your broader market analysis strategy.</p>
+            </div>
+          </section>
+
+          <section id="settings" class="guide-section">
+            <h2><i class="fas fa-cog"></i> 7. Settings</h2>
+            <p>The Settings page allows you to customize your TradeLab experience and manage your trading data.</p>
+
+            <h3>Data Storage</h3>
+            <p>Choose and manage how your trading data is stored:</p>
+            <ul>
+              <li><strong>Excel Storage:</strong>
+                <ul>
+                  <li>Export trades to Excel files</li>
+                  <li>Perfect for data backup and external analysis</li>
+                  <li>Compatible with spreadsheet software</li>
+                  <li>Manual control over data location</li>
+                </ul>
+              </li>
+              <li><strong>IndexedDB Storage:</strong>
+                <ul>
+                  <li>Advanced browser database storage</li>
+                  <li>Large storage capacity (>50MB)</li>
+                  <li>Optimized for large datasets</li>
+                  <li>Data persists until manually cleared</li>
+                  <li><em>Note:</em> Data is browser-specific and not synced across devices</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Storage Information</h3>
+            <p>Monitor your data storage usage:</p>
+            <ul>
+              <li><strong>Storage Statistics:</strong>
+                <ul>
+                  <li>Available storage space</li>
+                  <li>Currently used storage</li>
+                  <li>Remaining storage capacity</li>
+                </ul>
+              </li>
+              <li><strong>Storage Warnings:</strong>
+                <ul>
+                  <li>Low storage alerts</li>
+                  <li>Storage limit notifications</li>
+                  <li>Data integrity warnings</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Data Management</h3>
+            <p>Tools for managing your trading data:</p>
+            <ul>
+              <li><strong>Export Trades:</strong>
+                <ul>
+                  <li>Download all trades as Excel file</li>
+                  <li>Choose export location</li>
+                  <li>Select data format</li>
+                  <li>Include/exclude specific data fields</li>
+                </ul>
+              </li>
+              <li><strong>Import Trades:</strong>
+                <ul>
+                  <li>Import from Excel files</li>
+                  <li>Merge with existing data</li>
+                  <li>Validate imported data</li>
+                  <li>Handle duplicate entries</li>
+                </ul>
+              </li>
+              <li><strong>Clear Data:</strong>
+                <ul>
+                  <li>Remove all trading data</li>
+                  <li>Confirmation prompt for safety</li>
+                  <li>Optional backup before clearing</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Display Settings</h3>
+            <p>Customize the visual appearance of TradeLab:</p>
+            <ul>
+              <li><strong>Theme Options:</strong>
+                <ul>
+                  <li>Light theme: Bright, clean interface</li>
+                  <li>Dark theme: Reduced eye strain in low light</li>
+                  <li>System default: Matches your device settings</li>
+                </ul>
+              </li>
+              <li><strong>Date Format:</strong>
+                <ul>
+                  <li>Choose preferred date display format</li>
+                  <li>Set timezone preferences</li>
+                  <li>Configure week start day</li>
+                </ul>
+              </li>
+              <li><strong>Number Format:</strong>
+                <ul>
+                  <li>Currency symbol placement</li>
+                  <li>Decimal places for amounts</li>
+                  <li>Thousands separator style</li>
+                </ul>
+              </li>
+            </ul>
+
+            <div class="tips">
+              <h3>Settings Best Practices</h3>
+              <ul>
+                <li><strong>Regular Backups:</strong> Export your data regularly to prevent loss</li>
+                <li><strong>Storage Management:</strong> Monitor available space and clear unnecessary data</li>
+                <li><strong>Theme Selection:</strong> Choose a theme that reduces eye strain for your environment</li>
+                <li><strong>Data Validation:</strong> Always verify imported data for accuracy</li>
+              </ul>
+            </div>
+
+            <div class="note">
+              <p><strong>Important:</strong> Changes to settings are saved automatically. Some settings may require a page refresh to take effect. Always export your data before making significant changes or clearing data.</p>
+            </div>
+          </section>
+
+          <section id="tips" class="guide-section">
+            <h2><i class="fas fa-lightbulb"></i> 8. Tips and Tricks</h2>
+            <p>Learn proven strategies and techniques to improve your trading performance, along with how TradeLab's features can help implement them effectively.</p>
+
+            <h3>Risk Management Essentials</h3>
+            <div class="feature-list">
+              <ul>
+                <li><strong>Position Sizing:</strong>
+                  <ul>
+                    <li>Never risk more than 1-2% of your portfolio on a single trade</li>
+                    <li>Use TradeLab's Analytics to track position sizes relative to your portfolio</li>
+                    <li>Monitor cumulative risk across multiple positions</li>
+                    <li>Set maximum position size limits in Settings</li>
+                  </ul>
+                </li>
+                <li><strong>Stop Loss Management:</strong>
+                  <ul>
+                    <li>Always set stop losses before entering trades</li>
+                    <li>Use the Trade Entry form to document your stop loss levels</li>
+                    <li>Analyze your stop loss effectiveness in the Analytics section</li>
+                    <li>Review Maximum Adverse Excursion (MAE) to optimize stop placements</li>
+                  </ul>
+                </li>
+                <li><strong>Portfolio Diversification:</strong>
+                  <ul>
+                    <li>Spread risk across different markets and sectors</li>
+                    <li>Use Market Insights to identify uncorrelated assets</li>
+                    <li>Monitor sector exposure in Analytics</li>
+                    <li>Set alerts for overexposure to single sectors</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h3>Trade Planning and Execution</h3>
+            <div class="feature-list">
+              <ul>
+                <li><strong>Pre-Trade Checklist:</strong>
+                  <ul>
+                    <li>Review economic calendar for potential market-moving events</li>
+                    <li>Check market correlation in Market Insights</li>
+                    <li>Verify position size matches risk parameters</li>
+                    <li>Document your trade plan in the Notes section</li>
+                  </ul>
+                </li>
+                <li><strong>Entry Optimization:</strong>
+                  <ul>
+                    <li>Use multiple timeframe analysis for entry confirmation</li>
+                    <li>Track success rates at different times using Analytics</li>
+                    <li>Document entry triggers in Trade Notes</li>
+                    <li>Review historical entries during similar market conditions</li>
+                  </ul>
+                </li>
+                <li><strong>Exit Strategy:</strong>
+                  <ul>
+                    <li>Set clear profit targets based on risk-reward ratio</li>
+                    <li>Use trailing stops for trending markets</li>
+                    <li>Monitor Maximum Favorable Excursion (MFE) to optimize exits</li>
+                    <li>Document exit reasons for future analysis</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h3>Performance Analysis</h3>
+            <div class="feature-list">
+              <ul>
+                <li><strong>Regular Review Process:</strong>
+                  <ul>
+                    <li>Schedule weekly performance reviews using Calendar</li>
+                    <li>Compare results against market benchmarks</li>
+                    <li>Identify patterns in winning and losing trades</li>
+                    <li>Use Analytics to track improvement over time</li>
+                  </ul>
+                </li>
+                <li><strong>Metrics to Monitor:</strong>
+                  <ul>
+                    <li>Win rate by market type and strategy</li>
+                    <li>Average winner vs. average loser ratio</li>
+                    <li>Maximum drawdown and recovery time</li>
+                    <li>Risk-adjusted return metrics</li>
+                  </ul>
+                </li>
+                <li><strong>Strategy Refinement:</strong>
+                  <ul>
+                    <li>Use Trade History filters to analyze specific strategies</li>
+                    <li>Identify highest probability setups</li>
+                    <li>Track strategy performance across different market conditions</li>
+                    <li>Document strategy adjustments in Notes</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h3>Psychology and Discipline</h3>
+            <div class="feature-list">
+              <ul>
+                <li><strong>Emotional Control:</strong>
+                  <ul>
+                    <li>Use the Trade Entry form to enforce pre-planned entries</li>
+                    <li>Document emotional state in Trade Notes</li>
+                    <li>Review performance during different emotional states</li>
+                    <li>Set daily loss limits and stick to them</li>
+                  </ul>
+                </li>
+                <li><strong>Trading Journal:</strong>
+                  <ul>
+                    <li>Record detailed notes for every trade</li>
+                    <li>Include market context and conditions</li>
+                    <li>Document lessons learned from both wins and losses</li>
+                    <li>Use screenshots to capture trade setups</li>
+                  </ul>
+                </li>
+                <li><strong>Continuous Learning:</strong>
+                  <ul>
+                    <li>Review Trade History regularly to identify patterns</li>
+                    <li>Use Analytics to validate new strategies</li>
+                    <li>Track improvement in specific areas</li>
+                    <li>Set measurable goals for skill development</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h3>Market Analysis</h3>
+            <div class="feature-list">
+              <ul>
+                <li><strong>Technical Analysis:</strong>
+                  <ul>
+                    <li>Use Market Insights for multi-timeframe analysis</li>
+                    <li>Track success rates with different indicators</li>
+                    <li>Document key support and resistance levels</li>
+                    <li>Monitor market correlations</li>
+                  </ul>
+                </li>
+                <li><strong>Fundamental Analysis:</strong>
+                  <ul>
+                    <li>Use Economic Calendar to plan around major events</li>
+                    <li>Track sector performance and rotation</li>
+                    <li>Monitor market sentiment indicators</li>
+                    <li>Document macro themes affecting your trades</li>
+                  </ul>
+                </li>
+                <li><strong>Market Conditions:</strong>
+                  <ul>
+                    <li>Adapt strategies to current volatility</li>
+                    <li>Track performance in different market regimes</li>
+                    <li>Use Market Insights to identify trend changes</li>
+                    <li>Monitor volume patterns and liquidity</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <div class="advanced-tips">
+              <h3>Advanced Trading Tips</h3>
+              <ul>
+                <li><strong>Scale Your Winners:</strong> Use Analytics to identify your most reliable setups and gradually increase position sizes on these trades</li>
+                <li><strong>Cut Losses Early:</strong> Monitor your average loss size and set alerts for trades approaching your maximum acceptable loss</li>
+                <li><strong>Time Management:</strong> Use Calendar to schedule your trading activities, including research, execution, and review times</li>
+                <li><strong>Risk-Reward Optimization:</strong> Use Analytics to find your optimal risk-reward ratio based on historical performance</li>
+              </ul>
+            </div>
+
+            <div class="note">
+              <p><strong>Remember:</strong> Successful trading is a marathon, not a sprint. Use TradeLab's comprehensive tools to develop and refine your strategy over time. Focus on consistent execution and risk management rather than seeking quick profits.</p>
+            </div>
+
+            <div class="warning">
+              <p><strong>Important:</strong> Past performance does not guarantee future results. Always manage your risk appropriately and never trade with money you cannot afford to lose. Use these tips as guidelines but develop a strategy that fits your personal trading style and risk tolerance.</p>
+            </div>
+          </section>
+
+          <section id="about-storage" class="guide-section">
+            <h2><i class="fas fa-database"></i> About TradeLab's Storage</h2>
+            
+            <h3>Project Background</h3>
+            <p>TradeLab started as a class project but evolved into something much more meaningful. As a junior software engineer who also trades actively, I noticed a significant gap in the market: while there are excellent trading journal solutions available, many come with substantial subscription costs that can be challenging for beginners.</p>
+            
+            <p>Having just completed my coding classes, I decided to transform my class project into a real-world application that could help traders like myself. The goal was clear: create a comprehensive, powerful trading journal that remains accessible to everyone, especially those just starting their trading journey.</p>
+
+            <div class="note">
+              <p><strong>Project Vision:</strong> As both a developer and trader, I understand the importance of having robust tools without breaking the bank. TradeLab aims to provide professional-grade features while keeping costs minimal through smart technical choices.</p>
+            </div>
+
+            <h3>Understanding Browser Storage</h3>
+            <p>Modern web browsers offer several ways to store data locally. Let's explore each option and understand why we chose IndexedDB for TradeLab:</p>
+
+            <div class="storage-types">
+              <h4>Local Storage</h4>
+              <ul>
+                <li><strong>What it is:</strong> Simple key-value storage mechanism in the browser</li>
+                <li><strong>Storage Limit:</strong> Usually 5-10 MB per domain</li>
+                <li><strong>Data Persistence:</strong> Persists until explicitly cleared, survives browser restarts</li>
+                <li><strong>Security:</strong> Vulnerable to XSS attacks, data stored as plain text</li>
+                <li><strong>Why Not for TradeLab:</strong>
+                  <ul>
+                    <li>Limited storage capacity for trade data</li>
+                    <li>No structured query support</li>
+                    <li>Can't store complex data types (only strings)</li>
+                    <li>No built-in indexing for performance</li>
+                  </ul>
+                </li>
+              </ul>
+
+              <h4>Session Storage</h4>
+              <ul>
+                <li><strong>What it is:</strong> Similar to Local Storage but with session-based persistence</li>
+                <li><strong>Storage Limit:</strong> Also typically 5-10 MB</li>
+                <li><strong>Data Persistence:</strong> Only lasts for one browser session, cleared when tab closes</li>
+                <li><strong>Security:</strong> Slightly more secure than Local Storage due to session isolation</li>
+                <li><strong>Why Not for TradeLab:</strong>
+                  <ul>
+                    <li>Temporary nature unsuitable for trade records</li>
+                    <li>Same limitations as Local Storage</li>
+                    <li>Data loss risk when closing browser</li>
+                  </ul>
+                </li>
+              </ul>
+
+              <h4>Cache API</h4>
+              <ul>
+                <li><strong>What it is:</strong> Modern API for storing network requests and responses</li>
+                <li><strong>Storage Limit:</strong> Based on available disk space</li>
+                <li><strong>Data Persistence:</strong> Managed by service workers, survives browser restarts</li>
+                <li><strong>Security:</strong> Protected by same-origin policy, requires HTTPS</li>
+                <li><strong>Why Not for TradeLab:</strong>
+                  <ul>
+                    <li>Designed for caching network resources</li>
+                    <li>Not optimized for structured data storage</li>
+                    <li>Lacks querying and indexing capabilities</li>
+                  </ul>
+                </li>
+              </ul>
+
+              <h4>IndexedDB (Our Choice)</h4>
+              <ul>
+                <li><strong>What it is:</strong> Low-level API for client-side storage of structured data</li>
+                <li><strong>Storage Limit:</strong> Generally >50MB, can extend with user permission</li>
+                <li><strong>Data Persistence:</strong> Permanent until explicitly deleted, survives browser restarts</li>
+                <li><strong>Security Features:</strong>
+                  <ul>
+                    <li>Protected by same-origin policy</li>
+                    <li>Built-in transaction support</li>
+                    <li>Data integrity protection</li>
+                    <li>Resistant to XSS attacks</li>
+                  </ul>
+                </li>
+                <li><strong>Perfect for TradeLab Because:</strong>
+                  <ul>
+                    <li>Supports complex data structures needed for trades</li>
+                    <li>Provides robust querying capabilities</li>
+                    <li>Offers excellent performance with indexes</li>
+                    <li>Handles large datasets efficiently</li>
+                    <li>Built-in data integrity protection</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <div class="storage-security">
+              <h4>A Note on Security</h4>
+              <p>While browser storage options have different security characteristics, it's important to understand that:</p>
+              <ul>
+                <li>All browser storage is isolated per domain (same-origin policy)</li>
+                <li>No browser storage is suitable for sensitive data like passwords</li>
+                <li>Data should be encrypted if storing sensitive information</li>
+                <li>Regular backups are essential regardless of storage method</li>
+              </ul>
+            </div>
+
+            <div class="note">
+              <p><strong>Data Protection:</strong> TradeLab implements additional security measures beyond the basic browser storage security:</p>
+              <ul>
+                <li>Data validation before storage</li>
+                <li>Regular integrity checks</li>
+                <li>Automated backup reminders</li>
+                <li>Export functionality for manual backups</li>
+              </ul>
+            </div>
+
+            <p>For more detailed information about browser storage, check out these resources:</p>
+            <ul>
+              <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API" target="_blank">Mozilla's IndexedDB Documentation</a></li>
+              <li><a href="https://web.dev/storage-for-the-web/" target="_blank">Web Storage Overview</a></li>
+            <h3>Why IndexedDB?</h3>
+            <p>We chose IndexedDB as our primary storage solution for several compelling reasons:</p>
+            <ul>
+              <li><strong>Database-Like Capabilities:</strong>
+                <ul>
+                  <li>Complex data structures support</li>
+                  <li>Efficient indexing and querying</li>
+                  <li>Transaction support for data integrity</li>
+                  <li>Significant storage capacity (generally >50MB)</li>
+                </ul>
+              </li>
+              <li><strong>Cost Benefits:</strong>
+                <ul>
+                  <li>No server costs passed to users</li>
+                  <li>No need for expensive database hosting</li>
+                  <li>Completely free for users</li>
+                </ul>
+              </li>
+              <li><strong>Privacy:</strong>
+                <ul>
+                  <li>Data stays on your device</li>
+                  <li>No external data transmission</li>
+                  <li>Complete control over your information</li>
+                </ul>
+              </li>
+            </ul>
+
+            <h3>Cloud Storage with Supabase</h3>
+            <p>For users who want cloud backup and synchronization, we've integrated Supabase as our cloud storage solution:</p>
+            
+            <div class="feature-list">
+              <ul>
+                <li><strong>Why Supabase?</strong>
+                  <ul>
+                    <li>Generous free tier for our users</li>
+                    <li>PostgreSQL database reliability</li>
+                    <li>Modern security features</li>
+                    <li>Real-time synchronization capabilities</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+
+            <h3>Storage Capacity Analysis</h3>
+            <p>Let's break down the storage requirements for trade data:</p>
+            
+            <div class="storage-analysis">
+              <h4>Single Trade Object (Approximate Size):</h4>
+              <ul>
+                <li>Date: 8 bytes</li>
+                <li>Symbol: ~10 bytes</li>
+                <li>Entry/Exit Prices: 16 bytes</li>
+                <li>Position Size: 8 bytes</li>
+                <li>Notes (average): 200 bytes</li>
+                <li>Additional Metadata: 50 bytes</li>
+                <li><strong>Total per trade: ~300 bytes</strong></li>
+              </ul>
+
+              <h4>Storage Calculations:</h4>
+              <ul>
+                <li>Active trader (20 trades/day): 6,000 bytes/day</li>
+                <li>Monthly usage: ~180KB</li>
+                <li>Yearly usage: ~2.2MB</li>
+              </ul>
+
+              <h4>Supabase Free Tier (1GB):</h4>
+              <ul>
+                <li>Can support: ~500 active traders</li>
+                <li>Or: ~2,000 moderate traders</li>
+                <li>Or: ~5,000 casual traders</li>
+              </ul>
+            </div>
+
+            <div class="future-plans">
+              <h3>Future Plans</h3>
+              <p>As a growing project focused on user feedback and experience, we're constantly evolving:</p>
+              <ul>
+                <li><strong>Storage Options:</strong> Evaluating additional storage providers based on user needs</li>
+                <li><strong>Data Migration:</strong> Developing tools for seamless migration between storage options</li>
+                <li><strong>Backup Solutions:</strong> Creating more robust backup and recovery options</li>
+                <li><strong>User Feedback:</strong> Actively incorporating user suggestions for storage improvements</li>
+              </ul>
+            </div>
+
+            <div class="note">
+              <p><strong>Your Feedback Matters:</strong> As a project born from real trading needs and developed by a trader for traders, your input is invaluable. We're committed to growing and improving based on the community's needs while maintaining our core mission of providing powerful, accessible trading tools.</p>
+            </div>
+
+            <div class="warning">
+              <p><strong>Important:</strong> While we strive to provide reliable storage solutions, we recommend regularly exporting your trade data as a backup. This is good practice regardless of which storage option you choose.</p>
+            </div>
+          </section>
+          </div>
       </main>
     </div>
 
@@ -155,5 +1157,6 @@
     <script src="../scripts/global.js"></script>
     <script src="../scripts/authCheck.js"></script>
     <script src="../scripts/auth.js"></script>
+    <!-- <script src="../scripts/user-guide.js"></script> -->
   </body>
 </html>

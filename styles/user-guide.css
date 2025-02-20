@@ -69,6 +69,105 @@ p.note {
     opacity: 0.7;
 }
 
+/* Table of Contents Styles */
+.table-of-contents {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    /* position: sticky; */
+    top: 5rem;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.table-of-contents h2 {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.table-of-contents h2::after {
+    content: '\f077';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 0.8em;
+    margin-left: auto;
+    transition: transform 0.3s ease;
+}
+
+.table-of-contents.collapsed h2::after {
+    transform: rotate(180deg);
+}
+
+.table-of-contents ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.table-of-contents.collapsed ul {
+    max-height: 0;
+}
+
+.table-of-contents li {
+    margin: 0.75rem 0;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.table-of-contents.collapsed li {
+    opacity: 0;
+}
+
+.table-of-contents a {
+    color: var(--text-color);
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.table-of-contents a:hover {
+    background: var(--hover-bg);
+    color: var(--primary-color);
+    border-left: 3px solid var(--primary-color);
+    padding-left: 1.5rem;
+    text-decoration: none;
+}
+
+.table-of-contents.collapsed {
+    padding: 1rem 2rem;
+    background: rgba(var(--card-bg-rgb), 0.95);
+    backdrop-filter: blur(5px);
+}
+
+.scrollDown .table-of-contents {
+    transform: translate3d(0, -20%, 0);
+}
+
+.scrollUp .table-of-contents {
+    filter: drop-shadow(0 -10px 20px rgb(170, 170, 170));
+}
+
+/* Active state for table of contents links */
+.table-of-contents a:target {
+    background: var(--hover-bg);
+    color: var(--primary-color);
+    border-left: 3px solid var(--primary-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .guide-content {
@@ -77,6 +176,21 @@ p.note {
 
     .guide-section {
         padding: 1.5rem;
+    }
+
+    .table-of-contents {
+        position: relative;
+        top: 0;
+        margin: 1rem 0 2rem 0;
+        padding: 1.5rem;
+    }
+
+    .table-of-contents h2 {
+        font-size: 1.3rem;
+    }
+
+    .table-of-contents a {
+        padding: 0.4rem 0.8rem;
     }
 }
 
