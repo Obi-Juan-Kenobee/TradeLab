@@ -276,3 +276,62 @@
         gap: 0px;
     }
 }
+
+@media screen and (max-width: 400px) {
+    .calendar-container {
+        padding: 0.75rem;
+    }
+
+    .days-grid {
+        gap: 0.25rem;
+    }
+
+    .day-cell {
+        min-height: 40px;
+        padding: 0.25rem;
+        padding-bottom: 15px;
+    }
+
+    .day-number {
+        font-size: 0.75rem;
+    }
+
+    .day-pnl {
+        font-size: 0.7rem;
+    }
+
+    .weekday-header span {
+        font-size: 0.75rem;
+    }
+
+    .monthly-header {
+        margin-bottom: 1rem;
+    }
+
+    .monthly-header h2 {
+        font-size: 1.1rem;
+        margin: 0 1rem;
+    }
+
+    .btn-back {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .months-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .month-card {
+        padding: 1rem;
+    }
+
+    .month-card h3 {
+        font-size: 1rem;
+    }
+
+    .month-pnl {
+        font-size: 1rem;
+    }
+}

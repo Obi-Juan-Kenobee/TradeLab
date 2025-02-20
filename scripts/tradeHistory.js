@@ -323,8 +323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             deleteButton.style.color = 'red';
             deleteButton.addEventListener('click', async () => {
                 if (confirm('Are you sure you want to delete this trade?')) {
-                    const tradeHandler = new TradeObjectHandler();
-                    await tradeHandler.deleteTrade(trade.id);
+                    await tradeManager.deleteTrade(trade.id);
                     allTrades = allTrades.filter(t => t.id !== trade.id);
                     filterTrades();
                 }

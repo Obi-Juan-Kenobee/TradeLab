@@ -11,11 +11,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
   <!-- Chart.js for visualizations -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <style>
-    .day-of-week-chart {
-      min-height: 400px !important;
-    }
-  </style>
 </head>
 
 <body>
@@ -79,13 +74,25 @@
       <div class="content-header">
         <h1>Analytics</h1>
         <div class="date-filter">
-          <select id="timeRange">
-            <option value="7">Last 7 Days</option>
-            <option value="30">Last 30 Days</option>
-            <option value="60">Last 60 Days</option>
-            <option value="90">Last 90 Days</option>
-            <option value="all" selected>All Time</option>
-          </select>
+          <div class="filter-group">
+            <select id="timeRange" class="filter-select">
+              <option value="current">Current Year</option>
+              <option value="7">Last 7 Days</option>
+              <option value="30">Last 30 Days</option>
+              <option value="90">Last 90 Days</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            <select id="yearSelect" class="filter-select">
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+            </select>
+            <div id="customDateRange" class="custom-date-range" style="display: none;">
+              <input type="date" id="startDate" class="date-input">
+              <span>to</span>
+              <input type="date" id="endDate" class="date-input">
+              <button id="applyCustomRange" class="apply-btn">Apply</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -117,6 +124,16 @@
           <h3>Average Trade</h3>
           <div class="metric-value" id="avgTrade">--</div>
           <div class="metric-change positive"></div>
+        </div>
+        <div class="metric-card">
+          <h3>Best Trade</h3>
+          <div class="metric-value" id="bestTrade">--</div>
+          <div class="metric-change"></div>
+        </div>
+        <div class="metric-card">
+          <h3>Worst Trade</h3>
+          <div class="metric-value" id="worstTrade">--</div>
+          <div class="metric-change"></div>
         </div>
 
         <!-- Charts -->
@@ -222,95 +239,6 @@
             <!-- Price rows will be dynamically inserted here -->
           </div>
         </div>
-
-        <style>
-          .price-performance-card {
-            min-height: 400px;
-          }
-
-          .price-performance-container {
-            padding: 15px;
-          }
-
-          .price-row {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            position: relative;
-            height: 30px;
-          }
-
-          .price-label {
-            width: 120px;
-            font-size: 0.9em;
-            color: #fff;
-            flex-shrink: 0;
-          }
-
-          .performance-bar {
-            flex-grow: 1;
-            height: 20px;
-            position: relative;
-            background: rgba(255, 255, 255, 0.1);
-          }
-
-          .bar-fill {
-            position: absolute;
-            height: 100%;
-            left: 0;
-            transition: width 0.3s ease;
-          }
-
-          .bar-fill.positive {
-            background-color: #2ecc71;
-          }
-
-          .bar-fill.negative {
-            background-color: #e74c3c;
-          }
-
-          .performance-value {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #fff;
-            font-size: 0.9em;
-            text-align: right;
-            z-index: 1;
-          }
-
-          .percentage {
-            color: rgba(255, 255, 255, 0.7);
-            margin-left: 8px;
-            font-size: 0.8em;
-          }
-
-          .pagination-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-          }
-
-          .pagination-controls button {
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-          }
-
-          .pagination-controls button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-
-          .pagination-controls .page-indicator {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9em;
-          }
-        </style>
 
           <!-- Trade Excursion Metrics -->
           <div class="excursion-metrics">
@@ -440,8 +368,8 @@
       <div class="footer-section">
         <h3>Social</h3>
         <div class="social-links">
-          <a href="#"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
-          <a href="#"><i class="fab fa-github" aria-label="GitHub"></i></a>
+          <a href="https://www.linkedin.com/in/obi-juan-kenobi/" target="_blank"><i class="fab fa-linkedin" aria-label="LinkedIn"></i></a>
+          <a href="https://github.com/Obi-Juan-Kenobee" target="_blank"><i class="fab fa-github" aria-label="GitHub"></i></a>
         </div>
       </div>
     </div>

@@ -24,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Color-coded bars for positive/negative performance
 - Added detailed date comparison logging in analytics for better debugging
 - Added trade date range information in analytics page load
+- Enhanced time period filtering in analytics:
+  - Added year selector (2024/2025)
+  - New time period options (Current Year, Last 7/30/90 Days)
+  - Custom date range picker for specific time periods
+  - Improved UI with modern filter controls
 
 ### Changed
 - Restructured trade entry form to use tabs for different market types
@@ -40,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated calendar link in navigation to point to `calendar-dashboard.html`
 - Standardized direction values in edit trade form to use lowercase "long"/"short"
 - Improved debugging logs in analytics to better track date filtering process
+- Refactored analytics time filtering system for better performance and reliability
+- Simplified analytics UI updates to reduce redundant calls
 
 ### Fixed
 - Duplicate ID issues in form fields
@@ -47,13 +54,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cumulative PnL and ROI display not updating with trade data
 - Position MAE and Price MAE bars not displaying correctly in analytics
 - Reference error in price performance chart calculation
-- Fixed date shifting issues in trade display
-- Fixed Performance by Price chart not displaying
-- Fixed drawdown calculation and display
-- Corrected excursion metrics (MFE/MAE) calculations
-- Fixed analytics chart filters to correctly display trades based on the most recent trade date instead of system date
-- Fixed date range filtering logic to use consistent date boundaries for accurate comparisons
-- Fixed date handling in analytics to match the proven approach from trade history page
+- Fixed date shifting issues
+- Fixed analytics time period filtering errors:
+  - Resolved constant variable assignment issue
+  - Fixed invalid time range handling
+  - Improved error handling for empty trade arrays
 
 ## [1.0.0] - 2024-02-15
 

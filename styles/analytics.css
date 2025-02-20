@@ -289,6 +289,136 @@
     text-align: right;
     padding-right: 0.5rem;
   }
+
+  .day-of-week-chart {
+    min-height: 400px !important;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .filter-select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    min-width: 120px;
+  }
+
+  .custom-date-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .date-input {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .apply-btn {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .apply-btn:hover {
+    background-color: #45a049;
+  }
+
+  .price-performance-card {
+    min-height: 400px;
+  }
+
+  .price-performance-container {
+    padding: 15px;
+  }
+
+  .price-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    position: relative;
+    height: 30px;
+  }
+
+  .price-label {
+    width: 120px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    flex-shrink: 0;
+  }
+
+  .performance-bar {
+    flex-grow: 1;
+    height: 20px;
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .bar-fill {
+    position: absolute;
+    height: 100%;
+    left: 0;
+    transition: width 0.3s ease;
+  }
+
+  .bar-fill.positive {
+    background-color: #2ecc71;
+  }
+
+  .bar-fill.negative {
+    background-color: #e74c3c;
+  }
+
+  .performance-value {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #fff;
+    font-size: 0.9em;
+    text-align: right;
+    z-index: 1;
+  }
+
+  .percentage {
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: 8px;
+    font-size: 0.8em;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pagination-controls button {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination-controls .page-indicator {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9em;
+  }
   
   @media (min-width: 768px) {
     .excursion-grid {
@@ -410,7 +540,7 @@
 .chart-pagination button {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--text-color);
   cursor: pointer;
   padding: 0.5rem;
   opacity: 0.7;
@@ -427,7 +557,7 @@
 }
 
 .page-indicator {
-  color: #fff;
+  color: var(--text-color);
   opacity: 0.7;
   font-size: 0.9rem;
 }

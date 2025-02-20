@@ -13,11 +13,11 @@ const MONTHS_PER_PAGE = 6;
 
 // Time range constants
 const TIME_RANGES = {
+  'current': { type: 'year', label: 'Current Year' },
   '7': { days: 7, label: 'Last 7 Days' },
   '30': { days: 30, label: 'Last 30 Days' },
-  '60': { days: 60, label: 'Last 60 Days' },
   '90': { days: 90, label: 'Last 90 Days' },
-  'all': { days: null, label: 'All Time' }
+  'custom': { type: 'custom', label: 'Custom Range' }
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -27,46 +27,90 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Store all trades and sort by date
       allTrades = loadedTrades.sort((a, b) => new Date(b.date) - new Date(a.date));
       
-      console.log(`Loaded ${allTrades.length} trades`);
-      if (allTrades.length > 0) {
-        // Log the date range of all trades
-        const oldestTrade = new Date(allTrades[allTrades.length - 1].date);
-        const newestTrade = new Date(allTrades[0].date);
-        oldestTrade.setHours(0, 0, 0, 0);
-        newestTrade.setHours(0, 0, 0, 0);
-        
-        console.log("Available trade date range:", {
-          oldest: oldestTrade.toLocaleString(),
-          newest: newestTrade.toLocaleString()
-        });
+      // Initialize date inputs with reasonable defaults
+      const startDate = document.getElementById('startDate');
+      const endDate = document.getElementById('endDate');
+      if (startDate && endDate) {
+        const today = new Date();
+        endDate.value = today.toISOString().split('T')[0];
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        startDate.value = thirtyDaysAgo.toISOString().split('T')[0];
       }
       
-      // Get initial time range
+      // Get initial time range and year
       const timeRange = document.getElementById("timeRange");
-      const initialRange = timeRange ? timeRange.value : 'all';
+      const yearSelect = document.getElementById("yearSelect");
+      const initialRange = timeRange ? timeRange.value : 'current';
+      const initialYear = yearSelect ? yearSelect.value : new Date().getFullYear().toString();
       
       // Apply initial filtering
-      applyTimeRangeFilter(initialRange);
-    } else {
-      console.warn("Loaded trades is not an array:", loadedTrades);
+      if (allTrades.length > 0) {
+        applyTimeRangeFilter(initialRange, initialYear);
+      } else {
+        console.log("No trades available");
+        updateAnalytics([]);
+      }
     }
   } catch (error) {
     console.error("Error loading trades:", error);
-    const tradesListElement = document.getElementById("allTradesList");
-    if (tradesListElement) {
-      tradesListElement.innerHTML = `<div class="error-message">Error loading trades: ${error.message}</div>`;
-    }
+    updateAnalytics([]);
   }
 
   // Handle time range change
   document.getElementById("timeRange").addEventListener("change", (event) => {
     const selectedRange = event.target.value;
-    console.log("Time range changed to:", TIME_RANGES[selectedRange].label);
-    applyTimeRangeFilter(selectedRange);
+    const selectedYear = document.getElementById("yearSelect").value;
+    const customDateRange = document.getElementById("customDateRange");
+    
+    // Show/hide custom date range inputs
+    if (customDateRange) {
+      customDateRange.style.display = selectedRange === 'custom' ? 'flex' : 'none';
+    }
+    
+    if (selectedRange !== 'custom') {
+      applyTimeRangeFilter(selectedRange, selectedYear);
+    }
+  });
+
+  // Handle year selection change
+  document.getElementById("yearSelect").addEventListener("change", (event) => {
+    const selectedRange = document.getElementById("timeRange").value;
+    const selectedYear = event.target.value;
+    
+    if (selectedRange !== 'custom') {
+      applyTimeRangeFilter(selectedRange, selectedYear);
+    }
+  });
+
+  // Handle custom range apply button
+  document.getElementById("applyCustomRange").addEventListener("click", () => {
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    
+    if (startDate && endDate) {
+      applyCustomDateFilter(startDate, endDate);
+    }
   });
 });
 
-function applyTimeRangeFilter(rangeKey) {
+// Update the analytics function to work with the new time range system
+function updateAnalytics(trades) {
+  if (!trades || !Array.isArray(trades)) {
+    console.warn("No trades provided to updateAnalytics");
+    trades = [];
+  }
+
+  console.log(`Updating analytics with ${trades.length} trades`);
+  
+  // Update all UI components with the filtered trades
+  updateMetrics(trades);
+  updateCharts(trades);
+  updateDetailedStats(trades);
+  updateBestWorstTrades(trades);
+}
+
+function applyTimeRangeFilter(rangeKey, year) {
   if (!allTrades || !Array.isArray(allTrades)) {
     console.warn("No trades available to filter");
     return;
@@ -79,63 +123,66 @@ function applyTimeRangeFilter(rangeKey) {
   }
 
   console.log(`Applying ${range.label} filter...`);
-  console.log("Total trades before filtering:", allTrades.length);
   
-  if (range.days === null) {
-    // "All Time" selected
-    filteredTrades = [...allTrades];
-    console.log(`Showing all ${filteredTrades.length} trades`);
-  } else {
-    // Calculate date range
-    const end = new Date();
-    end.setHours(23, 59, 59, 999); // Set to end of day
-    
-    const start = new Date();
+  let end = new Date();
+  end.setHours(23, 59, 59, 999);
+  
+  let start = new Date();
+  
+  if (range.type === 'year') {
+    // Filter by specific year
+    start = new Date(year, 0, 1, 0, 0, 0, 0);
+    end = new Date(year, 11, 31, 23, 59, 59, 999);
+  } else if (range.days) {
+    // Filter by last N days
     start.setDate(start.getDate() - range.days);
-    start.setHours(0, 0, 0, 0); // Set to start of day
-    
-    console.log("Filtering date range:", {
-      start: start.toLocaleString(),
-      end: end.toLocaleString()
-    });
+    start.setHours(0, 0, 0, 0);
+  }
+  
+  console.log("Filtering date range:", {
+    start: start.toLocaleString(),
+    end: end.toLocaleString()
+  });
 
-    // Filter trades using the same approach as tradeHistory.js
-    filteredTrades = allTrades.filter(trade => {
-      const tradeDate = new Date(trade.date);
-      tradeDate.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
-      
-      // Log first few trades for debugging
-      if (allTrades.indexOf(trade) < 3) {
-        console.log("Trade date comparison:", {
-          tradeDate: tradeDate.toLocaleString(),
-          start: start.toLocaleString(),
-          end: end.toLocaleString(),
-          isAfterStart: tradeDate >= start,
-          isBeforeEnd: tradeDate <= end
-        });
-      }
-      
-      return tradeDate >= start && tradeDate <= end;
-    });
+  // Filter trades within the date range
+  filteredTrades = allTrades.filter(trade => {
+    const tradeDate = new Date(trade.date);
+    return tradeDate >= start && tradeDate <= end;
+  });
 
-    console.log(`Found ${filteredTrades.length} trades in selected time range`);
-    
-    // Log filtered trades if any
-    if (filteredTrades.length > 0) {
-      console.log("Sample filtered trades:", 
-        filteredTrades.slice(0, 3).map(t => ({
-          date: new Date(t.date).toLocaleString(),
-          pnl: t.profitLoss
-        }))
-      );
-    }
+  console.log(`Filtered to ${filteredTrades.length} trades`);
+  
+  // Update all charts and statistics with filtered data
+  updateAnalytics(filteredTrades);
+}
+
+function applyCustomDateFilter(startDate, endDate) {
+  if (!allTrades || !Array.isArray(allTrades)) {
+    console.warn("No trades available to filter");
+    return;
   }
 
-  // Update UI with filtered trades
-  updateMetrics(filteredTrades);
-  updateCharts(filteredTrades);
-  updateDetailedStats(filteredTrades);
-  updateBestWorstTrades(filteredTrades);
+  const start = new Date(startDate);
+  start.setHours(0, 0, 0, 0);
+  
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  
+  console.log("Applying custom date filter:", {
+    start: start.toLocaleString(),
+    end: end.toLocaleString()
+  });
+
+  // Filter trades within the custom date range
+  filteredTrades = allTrades.filter(trade => {
+    const tradeDate = new Date(trade.date);
+    return tradeDate >= start && tradeDate <= end;
+  });
+
+  console.log(`Filtered to ${filteredTrades.length} trades`);
+  
+  // Update all charts and statistics with filtered data
+  updateAnalytics(filteredTrades);
 }
 
 function initializeAnalytics() {
@@ -143,39 +190,6 @@ function initializeAnalytics() {
   const initialValue = timeRange ? timeRange.value : "30"; // Default to 30 days if not specified
   updateMetrics(filteredTrades);
   loadCharts(filteredTrades);
-  updateDetailedStats(filteredTrades);
-  updateBestWorstTrades(filteredTrades);
-}
-
-function updateAnalytics(allTrades, days) {
-  if (!allTrades || !Array.isArray(allTrades)) {
-    console.warn("Invalid trades array provided to updateAnalytics");
-    return;
-  }
-
-  if (!days) {
-    console.warn("No days value provided, defaulting to 'all'");
-    days = "all";
-  }
-
-  console.log("Filtering trades for time range:", days);
-  console.log("Total trades before filtering:", allTrades.length);
-  
-  const filteredTrades = applyTimeRangeFilter(days);
-  console.log("Filtered trades:", filteredTrades.length);
-
-  if (filteredTrades.length === 0) {
-    console.warn("No trades found for the selected time period");
-    // Still update the UI to show empty state
-    updateMetrics(filteredTrades);
-    updateCharts(filteredTrades);
-    updateDetailedStats(filteredTrades);
-    updateBestWorstTrades(filteredTrades);
-    return;
-  }
-
-  updateMetrics(filteredTrades);
-  updateCharts(filteredTrades);
   updateDetailedStats(filteredTrades);
   updateBestWorstTrades(filteredTrades);
 }
@@ -1088,8 +1102,8 @@ function updateDetailedStats(trades) {
 
   const avgLoss =
     losingTrades.length > 0
-      ? Math.abs(losingTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) /
-        losingTrades.length)
+      ? losingTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) /
+        losingTrades.length
       : 0;
 
   // Find largest win and loss
@@ -1098,7 +1112,7 @@ function updateDetailedStats(trades) {
     : 0;
 
   const largestLoss = losingTrades.length > 0
-    ? Math.abs(Math.min(...losingTrades.map((trade) => trade.profitLoss)))
+    ? Math.min(...losingTrades.map((trade) => trade.profitLoss))
     : 0;
 
   // Calculate win/loss streaks
@@ -1499,21 +1513,11 @@ document.getElementById('monthlyPerfNextBtn').addEventListener('click', () => {
 function updateMetrics(trades) {
   if (!trades || !Array.isArray(trades)) {
     console.warn("Invalid trades array provided to updateMetrics");
-    // Set default values for metrics when no valid trades
-    document.getElementById("winRate").textContent = "0%";
-    document.getElementById("profitFactor").textContent = "0";
-    document.getElementById("totalTrades").textContent = "0";
-    document.getElementById("avgTrade").textContent = "$0";
-    
-    const cumPnlElement = document.querySelector(".cumulative-pnl .value");
-    const cumRoiElement = document.querySelector(".cumulative-pnl .roi");
-    if (cumPnlElement) cumPnlElement.textContent = "$0.00";
-    if (cumRoiElement) cumRoiElement.textContent = "0.00%";
     return;
   }
 
-  // Calculate win rate
-  const winningTrades = trades.filter((trade) => trade.profitLoss > 0).length;
+  // Calculate winning trades
+  const winningTrades = trades.filter(trade => trade.profitLoss > 0).length;
   const winRate = trades.length > 0 ? ((winningTrades / trades.length) * 100).toFixed(1) : 0;
   document.getElementById("winRate").textContent = winRate + "%";
 
@@ -1527,7 +1531,7 @@ function updateMetrics(trades) {
 
   const grossLoss = trades.reduce((sum, trade) => {
     if (trade.profitLoss < 0) {
-      return sum + Math.abs(trade.profitLoss);
+      return sum + trade.profitLoss;
     }
     return sum;
   }, 0);
@@ -1540,8 +1544,24 @@ function updateMetrics(trades) {
 
   // Calculate average trade
   const totalPnL = trades.reduce((sum, trade) => sum + trade.profitLoss, 0);
-  const avgTrade = trades.length > 0 ? (totalPnL / trades.length).toFixed(2) : 0;
+  const avgTrade = trades.length > 0 ? (totalPnL / trades.length) : 0;
   document.getElementById("avgTrade").textContent = formatCurrency(avgTrade);
+
+  // Find best and worst trades
+  if (trades.length > 0) {
+    const bestTrade = trades.reduce((best, trade) => trade.profitLoss > best.profitLoss ? trade : best, trades[0]);
+    const worstTrade = trades.reduce((worst, trade) => trade.profitLoss < worst.profitLoss ? trade : worst, trades[0]);
+    
+    document.getElementById("bestTrade").textContent = formatCurrency(bestTrade.profitLoss);
+    document.getElementById("worstTrade").textContent = formatCurrency(worstTrade.profitLoss);
+    
+    // Update classes for color coding
+    document.getElementById("bestTrade").className = "metric-value positive";
+    document.getElementById("worstTrade").className = "metric-value negative";
+  } else {
+    document.getElementById("bestTrade").textContent = "$0.00";
+    document.getElementById("worstTrade").textContent = "$0.00";
+  }
 
   // Update cumulative PnL and ROI
   const cumPnlElement = document.querySelector(".cumulative-pnl .value");
@@ -1553,7 +1573,7 @@ function updateMetrics(trades) {
     const roi = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
 
     // Update PnL display
-    cumPnlElement.textContent = `${totalPnL >= 0 ? "+" : ""}${formatCurrency(Math.abs(totalPnL))}`;
+    cumPnlElement.textContent = formatCurrency(totalPnL);
     cumPnlElement.className = `value ${totalPnL >= 0 ? "positive" : "negative"}`;
 
     // Update ROI display
@@ -1565,7 +1585,8 @@ function updateMetrics(trades) {
 // Helper function to format currency values
 function formatCurrency(value) {
   const numValue = parseFloat(value);
-  return `$${Math.abs(numValue).toFixed(2)}`;
+  const sign = numValue >= 0 ? "+" : "-";
+  return `${sign}$${Math.abs(numValue).toFixed(2)}`;
 }
 
 // Helper function to format dates consistently
