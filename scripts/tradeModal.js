@@ -232,12 +232,12 @@ class TradeModal {
 
             // Create modal HTML
             const modal = document.createElement('div');
-            modal.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; border-radius: 8px; z-index: 1001; box-shadow: 0 2px 10px rgba(0,0,0,0.1);';
+            modal.className = 'futures-expiration-modal';
             modal.innerHTML = `
-                <h3 style="margin-top: 0;">Select Futures Expiration Month</h3>
-                <div style="margin-bottom: 15px;">
+                <h3>Select Futures Expiration Month</h3>
+                <div class="futures-expiration-buttons">
                     ${months.map(month => `
-                        <button style="margin: 5px; padding: 8px 16px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: white;"
+                        <button class="futures-expiration-button"
                                 data-letter="${month.letter}">
                             ${month.name}
                         </button>
@@ -247,7 +247,7 @@ class TradeModal {
 
             // Create overlay
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000;';
+            overlay.className = 'futures-expiration-overlay';
 
             // Add click handlers
             modal.addEventListener('click', (e) => {
@@ -261,9 +261,30 @@ class TradeModal {
                 }
             });
 
+            // Add click handler to close on overlay click
+            overlay.addEventListener('click', () => {
+                document.body.removeChild(modal);
+                document.body.removeChild(overlay);
+                resolve(null);
+            });
+
+            // Add keyboard handler for Escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    document.body.removeChild(modal);
+                    document.body.removeChild(overlay);
+                    document.removeEventListener('keydown', handleEscape);
+                    resolve(null);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+
             // Add to document
             document.body.appendChild(overlay);
             document.body.appendChild(modal);
+
+            // Focus first button for keyboard navigation
+            modal.querySelector('button').focus();
         });
     }
 

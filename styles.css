@@ -38,10 +38,24 @@
     --footer: #3d66d9;
 }
 
+/* Fix for horizontal scrollbar */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    max-width: 100%;
+}
+
+/* Ensure images and tables don't cause overflow */
+img, table {
+    max-width: 100%;
+    height: auto;
 }
 
 /* Theme Toggle Styles */
@@ -280,10 +294,14 @@ h2 {
 @media (max-width: 1200px) {
     .container {
         max-width: 960px;
+        width: 100%;
+        padding: 20px;
     }
 
     .footer-content {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 0 1rem;
     }
 }
 
@@ -296,6 +314,8 @@ h2 {
     }
     .container {
         max-width: 768px;
+        width: 100%;
+        padding: 15px;
     }
 
     .nav-links {
@@ -309,20 +329,34 @@ h2 {
 
     .navbar {
         height: 70px;
+        padding: 1rem;
     }
+    
     .footer-content {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        flex-direction: column;
+        padding: 0 1rem;
+    }
+    
+    .footer-section {
+        width: 100%;
+        margin-bottom: 2rem;
     }
 }
 
 /* Medium Tablet View */
 @media (max-width: 768px) {
     .container {
-        max-width: 576px;
+        max-width: 100%;
+        width: 100%;
+        padding: 15px;
     }
     
     .footer-content {
-        grid-template-columns: 1fr;
+        padding: 0 1rem;
+    }
+    
+    .footer-section {
+        width: 100%;
     }
 }
 
@@ -330,6 +364,19 @@ h2 {
 @media (max-width: 576px) {
     .container {
         padding: 10px;
+        width: 100%;
+    }
+    
+    .navbar {
+        padding: 0.5rem;
+    }
+    
+    .footer {
+        padding: 2rem 0 0 0;
+    }
+    
+    .footer-content {
+        padding: 0 0.5rem;
     }
 }
 
@@ -337,8 +384,11 @@ h2 {
 @media (min-width: 2560px) {
     .container {
         max-width: 1920px;
+        width: 100%;
     }
+    
     .footer-content {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        max-width: 1920px;
+        padding: 0 2rem;
     }
 }

@@ -64,13 +64,93 @@ class Trade {
   }
 
   calculateProfitLoss() {
-    let rawPL = 0;
-    if (this.direction === "long") {
-      rawPL = (this.exitPrice - this.entryPrice) * Math.abs(this.quantity);
+    // Futures contract specifications
+    const tickData = {
+      // Equity Index Futures
+      ES: { tickSize: 0.25, tickValue: 12.50 },    // E-mini S&P 500
+      NQ: { tickSize: 0.25, tickValue: 5.00 },     // E-mini Nasdaq-100
+      RTY: { tickSize: 0.10, tickValue: 10.00 },   // E-mini Russell 2000
+      YM: { tickSize: 1.00, tickValue: 5.00 },     // E-mini Dow
+      MES: { tickSize: 0.25, tickValue: 1.25 },    // Micro E-mini S&P 500
+      MNQ: { tickSize: 0.25, tickValue: 0.50 },    // Micro E-mini Nasdaq-100
+      M2K: { tickSize: 0.10, tickValue: 1.00 },    // Micro E-mini Russell 2000
+      MYM: { tickSize: 1.00, tickValue: 0.50 },    // Micro E-mini Dow
+
+      // Energy Futures
+      CL: { tickSize: 0.01, tickValue: 10.00 },    // Crude Oil
+      NG: { tickSize: 0.001, tickValue: 10.00 },   // Natural Gas
+      HO: { tickSize: 0.0001, tickValue: 4.20 },   // Heating Oil
+      RB: { tickSize: 0.0001, tickValue: 4.20 },   // RBOB Gasoline
+      MCL: { tickSize: 0.01, tickValue: 1.00 },    // Micro Crude Oil
+
+      // Metals Futures
+      GC: { tickSize: 0.10, tickValue: 10.00 },    // Gold
+      SI: { tickSize: 0.005, tickValue: 25.00 },   // Silver
+      HG: { tickSize: 0.0005, tickValue: 12.50 },  // Copper
+      MGC: { tickSize: 0.10, tickValue: 1.00 },    // Micro Gold
+      SIL: { tickSize: 0.005, tickValue: 2.50 },   // Micro Silver
+
+      // Agricultural Futures
+      ZC: { tickSize: 0.25, tickValue: 12.50 },    // Corn
+      ZW: { tickSize: 0.25, tickValue: 12.50 },    // Wheat
+      ZS: { tickSize: 0.25, tickValue: 12.50 },    // Soybeans
+      ZM: { tickSize: 0.10, tickValue: 10.00 },    // Soybean Meal
+      ZL: { tickSize: 0.0001, tickValue: 6.00 },   // Soybean Oil
+      KC: { tickSize: 0.05, tickValue: 18.75 },    // Coffee
+      CT: { tickSize: 0.01, tickValue: 5.00 },     // Cotton
+      SB: { tickSize: 0.01, tickValue: 11.20 },    // Sugar
+
+      // Financial Futures
+      ZN: { tickSize: 0.015625, tickValue: 15.625 }, // 10-Year T-Note
+      ZB: { tickSize: 0.03125, tickValue: 31.25 },   // 30-Year T-Bond
+      ZF: { tickSize: 0.0078125, tickValue: 7.8125 }, // 5-Year T-Note
+      ZT: { tickSize: 0.00390625, tickValue: 3.90625 }, // 2-Year T-Note
+      GE: { tickSize: 0.0025, tickValue: 12.50 },    // Eurodollar
+      ZQ: { tickSize: 0.0025, tickValue: 10.4167 },  // 30-Day Fed Funds
+
+      // Currency Futures
+      "6E": { tickSize: 0.0001, tickValue: 12.50 },    // Euro FX
+      "6B": { tickSize: 0.0001, tickValue: 6.25 },     // British Pound
+      "6J": { tickSize: 0.0000001, tickValue: 12.50 }, // Japanese Yen
+      "6C": { tickSize: 0.0001, tickValue: 10.00 },    // Canadian Dollar
+      "6A": { tickSize: 0.0001, tickValue: 10.00 },    // Australian Dollar
+      "6N": { tickSize: 0.0001, tickValue: 12.50 },    // New Zealand Dollar
+      "6M": { tickSize: 0.00001, tickValue: 5.00 },    // Mexican Peso
+      "M6E": { tickSize: 0.0001, tickValue: 1.25 },    // Micro Euro FX
+
+      // Cryptocurrency Futures
+      BTC: { tickSize: 5.00, tickValue: 5.00 },      // Bitcoin
+      ETH: { tickSize: 0.50, tickValue: 0.50 },      // Ethereum
+      MBT: { tickSize: 5.00, tickValue: 0.50 },      // Micro Bitcoin
+      MET: { tickSize: 0.50, tickValue: 0.05 },      // Micro Ether
+
+      // VIX Futures
+      VX: { tickSize: 0.05, tickValue: 50.00 },      // VIX
+      VXM: { tickSize: 0.05, tickValue: 5.00 }       // Mini VIX
+    };
+
+    // Check if this is a futures trade
+    if (this.market.toLowerCase() === 'futures' && tickData[this.symbol]) {
+      const { tickSize, tickValue } = tickData[this.symbol];
+      const priceDifference = this.direction === 'long' 
+        ? this.exitPrice - this.entryPrice 
+        : this.entryPrice - this.exitPrice;
+      
+      // Calculate number of ticks (rounded to nearest tick)
+      const numTicks = Math.round(priceDifference / tickSize);
+      
+      // Calculate PNL based on tick value
+      return numTicks * tickValue * Math.abs(this.quantity);
     } else {
-      rawPL = (this.entryPrice - this.exitPrice) * Math.abs(this.quantity);
+      // For non-futures trades, use the regular calculation
+      let rawPL = 0;
+      if (this.direction === "long") {
+        rawPL = (this.exitPrice - this.entryPrice) * Math.abs(this.quantity);
+      } else {
+        rawPL = (this.entryPrice - this.exitPrice) * Math.abs(this.quantity);
+      }
+      return rawPL;
     }
-    return rawPL;
   }
   
   calculateExcursion() {

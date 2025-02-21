@@ -168,7 +168,6 @@
     position: fixed;
     left: 0;
     top: 80px;
-    height: calc(80vh - 50px);
     z-index: 999;
     transform: translateX(0);
   }
