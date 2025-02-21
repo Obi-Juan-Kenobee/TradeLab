@@ -36,23 +36,82 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to update storage information
   const updateStorageInfo = async () => {
     try {
-      if (!navigator.storage || !navigator.storage.estimate) {
-        throw new Error("Storage API not supported");
+      const storageType = localStorage.getItem("storagePreference") || "indexedDB";
+      const progressBar = document.getElementById("storageProgressBar");
+
+      if (storageType === "supabase") {
+        // Mock data for Supabase storage (20MB limit)
+        const quota = 20 * 1024 * 1024; // 20MB in bytes
+        const usage = Math.floor(Math.random() * 15 * 1024 * 1024); // Random usage up to 15MB
+        const remaining = quota - usage;
+
+        // Update UI
+        availableStorageEl.textContent = formatBytes(quota);
+        usedStorageEl.textContent = formatBytes(usage);
+        remainingStorageEl.textContent = formatBytes(remaining);
+
+        // Update progress bar
+        if (progressBar) {
+          const percentage = (usage / quota) * 100;
+          progressBar.style.width = `${percentage}%`;
+          
+          // Change color based on usage
+          if (percentage > 90) {
+            progressBar.style.backgroundColor = 'var(--error-color)';
+          } else if (percentage > 70) {
+            progressBar.style.backgroundColor = 'var(--warning-color)';
+          } else {
+            progressBar.style.backgroundColor = 'var(--accent-primary)';
+          }
+        }
+      } else if (storageType === "indexedDB") {
+        if (!navigator.storage || !navigator.storage.estimate) {
+          throw new Error("Storage API not supported");
+        }
+
+        const estimate = await navigator.storage.estimate();
+        const quota = estimate.quota || 0;
+        const usage = estimate.usage || 0;
+        const remaining = quota - usage;
+
+        // Update UI
+        availableStorageEl.textContent = formatBytes(quota);
+        usedStorageEl.textContent = formatBytes(usage);
+        remainingStorageEl.textContent = formatBytes(remaining);
+
+        // Update progress bar
+        if (progressBar) {
+          const percentage = (usage / quota) * 100;
+          progressBar.style.width = `${percentage}%`;
+          
+          // Change color based on usage
+          if (percentage > 90) {
+            progressBar.style.backgroundColor = 'var(--error-color)';
+          } else if (percentage > 70) {
+            progressBar.style.backgroundColor = 'var(--warning-color)';
+          } else {
+            progressBar.style.backgroundColor = 'var(--accent-primary)';
+          }
+        }
+      } else {
+        // Excel storage - no limit
+        availableStorageEl.textContent = "No limit";
+        usedStorageEl.textContent = "N/A";
+        remainingStorageEl.textContent = "N/A";
+        
+        if (progressBar) {
+          progressBar.style.width = "0%";
+        }
       }
-
-      const estimate = await navigator.storage.estimate();
-      const quota = estimate.quota || 0;
-      const usage = estimate.usage || 0;
-      const remaining = quota - usage;
-
-      availableStorageEl.textContent = formatBytes(quota);
-      usedStorageEl.textContent = formatBytes(usage);
-      remainingStorageEl.textContent = formatBytes(remaining);
     } catch (error) {
       console.error("Error getting storage info:", error);
       availableStorageEl.textContent = "Not available";
       usedStorageEl.textContent = "Not available";
       remainingStorageEl.textContent = "Not available";
+      
+      if (progressBar) {
+        progressBar.style.width = "0%";
+      }
     }
   };
 
@@ -298,6 +357,29 @@ document.addEventListener("DOMContentLoaded", () => {
       document.documentElement.setAttribute('data-theme', selectedTheme);
     });
   }
+
+  // Handle storage type change
+  storageOptions.forEach((option) => {
+    option.addEventListener("change", async (e) => {
+      const newStorageType = e.target.value;
+      
+      if (newStorageType === "supabase") {
+        // Show warning about cloud storage limit
+        const proceed = confirm(
+          "Cloud storage has a 20MB limit per user. Your data will be stored securely in the cloud and accessible from any device. Continue?"
+        );
+        if (!proceed) {
+          // Revert to previous storage type
+          const previousType = localStorage.getItem("storagePreference") || "indexedDB";
+          document.querySelector(`input[name="storageType"][value="${previousType}"]`).checked = true;
+          return;
+        }
+      }
+      
+      // Update storage info immediately
+      await updateStorageInfo();
+    });
+  });
 
   // Initial load
   loadSettings();

@@ -73,65 +73,57 @@
 
         <div class="settings-section">
           <h2>Data Storage</h2>
-
-          <div class="storage-option">
-            <label for="uploadDownload">
-              <i class="fas fa-file-excel"></i>
-              Upload/Download Excel
-              <span class="description">Export your trades to Excel files that you can save anywhere. Perfect for data backup and analysis in spreadsheet software.</span>
-              <span class="warning"><i class="fas fa-info-circle"></i> Tip: Use the Data Management section below to import/export your trades as Excel files.</span>
-            </label>
-          </div>
-
-            <div class="storage-option">
-              <input
-                type="radio"
-                id="indexedDB"
-                name="storageType"
-                value="indexedDB"
-              />
-              <label for="indexedDB">
-                <i class="fas fa-database"></i>
-                IndexedDB Storage
-                <span class="description"
-                  >Advanced browser database with larger storage capacity
-                  (>50MB). Better performance for large datasets. Data persists
-                  until manually cleared.</span
-                >
-                <span class="warning"
-                  ><i class="fas fa-exclamation-triangle"></i> Note: Data is
-                  stored locally in this browser only. Your trades will not be
-                  accessible from other devices.</span
-                >
-              </label>
-            </div>
-          </div>
-
-          <div id="storageInfo" class="storage-info">
-            <h3>Storage Usage</h3>
-            <div class="storage-stats">
-              <div class="storage-stat-item">
-                <span class="stat-label">Available Storage:</span>
-                <span id="availableStorage" class="stat-value"
-                  >Calculating...</span
-                >
-              </div>
-              <div class="storage-stat-item">
-                <span class="stat-label">Used Storage:</span>
-                <span id="usedStorage" class="stat-value">Calculating...</span>
-              </div>
-              <div class="storage-stat-item">
-                <span class="stat-label">Remaining Storage:</span>
-                <span id="remainingStorage" class="stat-value"
-                  >Calculating...</span
-                >
+          <div class="settings-group">
+            <div class="setting-item">
+              <h3>Storage Type</h3>
+              <div class="storage-options">
+                <label class="storage-option">
+                  <input type="radio" name="storageType" value="indexedDB" checked>
+                  <div class="storage-option-content">
+                    <i class="fas fa-database"></i>
+                    <span>Local Storage</span>
+                    <small>Store data in your browser</small>
+                  </div>
+                </label>
+                <label class="storage-option">
+                  <input type="radio" name="storageType" value="supabase">
+                  <div class="storage-option-content">
+                    <i class="fas fa-cloud"></i>
+                    <span>Cloud Storage</span>
+                    <small>Store data securely in the cloud (20MB limit)</small>
+                  </div>
+                </label>
+                <label class="storage-option">
+                  <input type="radio" name="storageType" value="excel">
+                  <div class="storage-option-content">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Excel</span>
+                    <small>Import/Export data via Excel files</small>
+                  </div>
+                </label>
               </div>
             </div>
-            <span class="warning storage-warning">
-              <i class="fas fa-exclamation-triangle"></i> Note: Storage values
-              are estimates and represent the total space shared by all browser
-              storage mechanisms (LocalStorage, IndexedDB, and Cache API).
-            </span>
+
+            <div class="setting-item">
+              <h3>Storage Usage</h3>
+              <div class="storage-info">
+                <div class="storage-stat">
+                  <label>Available Storage:</label>
+                  <span id="availableStorage">Calculating...</span>
+                </div>
+                <div class="storage-stat">
+                  <label>Used Storage:</label>
+                  <span id="usedStorage">Calculating...</span>
+                </div>
+                <div class="storage-stat">
+                  <label>Remaining Storage:</label>
+                  <span id="remainingStorage">Calculating...</span>
+                </div>
+                <div class="storage-progress">
+                  <div id="storageProgressBar" class="progress-bar"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div
@@ -261,6 +253,7 @@
           </button>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- Footer -->

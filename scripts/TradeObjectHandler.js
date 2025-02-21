@@ -614,24 +614,37 @@ class TradeManager {
   }
 
   loadStoragePreference() {
-    const storageType = localStorage.getItem("storagePreference") || "indexedDB";
-    this.setStorageStrategy(storageType);
+    // Get storage preference or default to indexedDB
+    const storageType = localStorage.getItem("storagePreference");
+    
+    // If no preference is set, set it to indexedDB
+    if (!storageType) {
+      localStorage.setItem("storagePreference", "indexedDB");
+    }
+    
+    // Set the storage strategy
+    this.setStorageStrategy(storageType || "indexedDB");
   }
 
   async setStorageStrategy(type) {
     try {
-      if (type === "indexedDB") {
+      // Normalize storage type to lowercase for case-insensitive comparison
+      const normalizedType = type.toLowerCase();
+      
+      if (normalizedType === "indexeddb") {
         this.storageStrategy = new IndexedDBStrategy();
-      } else if (type === "excel") {
+      } else if (normalizedType === "excel") {
         this.storageStrategy = new ExcelStorageStrategy();
       } else {
         // Default to IndexedDB if type is not recognized
         console.warn(`Storage type '${type}' not recognized, defaulting to IndexedDB`);
         this.storageStrategy = new IndexedDBStrategy();
+        // Update the storage preference to match what we're actually using
+        localStorage.setItem("storagePreference", "indexedDB");
       }
 
       // Save the preference
-      localStorage.setItem("storagePreference", type);
+      localStorage.setItem("storagePreference", normalizedType === "indexeddb" ? "indexedDB" : type);
       
       // Load trades with new strategy
       await this.loadTrades();
@@ -639,6 +652,7 @@ class TradeManager {
       console.error("Error setting storage strategy:", error);
       // If setting strategy fails, default to IndexedDB
       this.storageStrategy = new IndexedDBStrategy();
+      localStorage.setItem("storagePreference", "indexedDB");
     }
   }
 
