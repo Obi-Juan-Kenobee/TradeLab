@@ -7,6 +7,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const exportDataBtn = document.getElementById("exportData");
   const importDataBtn = document.getElementById("importData");
   const clearDataBtn = document.getElementById("clearData");
+  const themeSelect = document.getElementById("theme");
+
+  // User profile elements
+  const updateUsernameBtn = document.getElementById("updateUsername");
+  const updateEmailBtn = document.getElementById("updateEmail");
+  const updatePasswordBtn = document.getElementById("updatePassword");
+  const usernameInput = document.getElementById("username");
+  const emailInput = document.getElementById("email");
+  const currentPasswordInput = document.getElementById("currentPassword");
+  const newPasswordInput = document.getElementById("newPassword");
+  const confirmPasswordInput = document.getElementById("confirmPassword");
 
   // Storage info elements
   const availableStorageEl = document.getElementById("availableStorage");
@@ -47,22 +58,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load current settings
   const loadSettings = () => {
-    const storageType =
-      localStorage.getItem("storagePreference") || "localStorage";
-    const defaultView = localStorage.getItem("defaultView") || "list";
-    const dateFormat = localStorage.getItem("dateFormat") || "MM/DD/YYYY";
+    const storageType = localStorage.getItem("storagePreference") || "indexedDB";
     const autoBackup = localStorage.getItem("autoBackup") === "true";
     const backupInterval = localStorage.getItem("backupInterval") || "daily";
+    const theme = localStorage.getItem("theme") || "light";
 
-    // Set storage type
-    // document.querySelector(`input[value="${storageType}"]`).checked = true;
+    // Load user profile info if it exists
+    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+    if (currentUser.username && usernameInput) {
+      usernameInput.value = currentUser.username;
+    }
+    if (currentUser.email && emailInput) {
+      emailInput.value = currentUser.email;
+    }
 
-    // Set other options
-    document.getElementById("defaultView").value = defaultView;
-    document.getElementById("dateFormat").value = dateFormat;
-    autoBackupCheckbox.checked = autoBackup;
-    backupIntervalSelect.value = backupInterval;
-    backupIntervalSelect.disabled = !autoBackup;
+    // Set theme if it exists
+    if (themeSelect) {
+      themeSelect.value = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    // Set other options if they exist
+    if (autoBackupCheckbox) {
+      autoBackupCheckbox.checked = autoBackup;
+    }
+    if (backupIntervalSelect) {
+      backupIntervalSelect.value = backupInterval;
+      backupIntervalSelect.disabled = !autoBackup;
+    }
   };
 
   // Handle auto backup toggle
@@ -72,20 +95,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle settings save
   saveSettingsBtn.addEventListener("click", async () => {
-    const storageType = document.querySelector(
-      'input[name="storageType"]:checked'
-    ).value;
-    const defaultView = document.getElementById("defaultView").value;
-    const dateFormat = document.getElementById("dateFormat").value;
-    const autoBackup = autoBackupCheckbox.checked;
-    const backupInterval = backupIntervalSelect.value;
-
     try {
-      // Save settings to localStorage
-      localStorage.setItem("defaultView", defaultView);
-      localStorage.setItem("dateFormat", dateFormat);
-      localStorage.setItem("autoBackup", autoBackup);
-      localStorage.setItem("backupInterval", backupInterval);
+      // Get storage type if selected
+      const storageTypeInput = document.querySelector('input[name="storageType"]:checked');
+      const storageType = storageTypeInput ? storageTypeInput.value : localStorage.getItem("storagePreference") || "indexedDB";
+
+      // Save auto backup settings if they exist
+      if (autoBackupCheckbox) {
+        localStorage.setItem("autoBackup", autoBackupCheckbox.checked);
+      }
+      if (backupIntervalSelect) {
+        localStorage.setItem("backupInterval", backupIntervalSelect.value);
+      }
+
+      // Save theme settings if they exist
+      if (themeSelect) {
+        const selectedTheme = themeSelect.value;
+        localStorage.setItem("theme", selectedTheme);
+        document.documentElement.setAttribute('data-theme', selectedTheme);
+      }
+
+      // Save storage preference
+      localStorage.setItem("storagePreference", storageType);
 
       // Get the tradeManager instance
       if (window.tradeManager) {
@@ -111,6 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.removeItem("dateFormat");
       localStorage.removeItem("autoBackup");
       localStorage.removeItem("backupInterval");
+      localStorage.removeItem("theme");
       loadSettings();
       alert("Settings have been reset to default.");
     }
@@ -180,6 +212,92 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  // Handle username update
+  updateUsernameBtn.addEventListener("click", () => {
+    const newUsername = usernameInput.value.trim();
+    if (!newUsername) {
+      alert("Please enter a valid username");
+      return;
+    }
+
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      currentUser.username = newUsername;
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      alert("Username updated successfully!");
+    } catch (error) {
+      console.error("Error updating username:", error);
+      alert("Error updating username. Please try again.");
+    }
+  });
+
+  // Handle email update
+  updateEmailBtn.addEventListener("click", () => {
+    const newEmail = emailInput.value.trim();
+    if (!newEmail || !newEmail.includes("@")) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      currentUser.email = newEmail;
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      alert("Email updated successfully!");
+    } catch (error) {
+      console.error("Error updating email:", error);
+      alert("Error updating email. Please try again.");
+    }
+  });
+
+  // Handle password update
+  updatePasswordBtn.addEventListener("click", () => {
+    const currentPassword = currentPasswordInput.value;
+    const newPassword = newPasswordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all password fields");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("New password and confirmation do not match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      alert("New password must be at least 8 characters long");
+      return;
+    }
+
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
+      // In a real application, you would verify the current password with the backend
+      // and hash the new password before storing it
+      currentUser.password = newPassword;
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
+      
+      // Clear password fields
+      currentPasswordInput.value = "";
+      newPasswordInput.value = "";
+      confirmPasswordInput.value = "";
+      
+      alert("Password updated successfully!");
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert("Error updating password. Please try again.");
+    }
+  });
+
+  // Handle theme changes
+  if (themeSelect) {
+    themeSelect.addEventListener("change", (e) => {
+      const selectedTheme = e.target.value;
+      document.documentElement.setAttribute('data-theme', selectedTheme);
+    });
+  }
 
   // Initial load
   loadSettings();

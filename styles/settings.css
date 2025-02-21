@@ -242,12 +242,71 @@
 
 /* Settings Actions */
 .settings-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.settings-actions .btn-primary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--accent-primary-light);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.settings-actions .btn-primary:hover {
+    background-color: var(--accent-primary);
+    transform: translateY(-1px);
+}
+
+.settings-actions .btn-primary:active {
+    transform: translateY(0);
+}
+
+.settings-actions .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background-color: transparent;
+    color: var(--text-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.settings-actions .btn-secondary:hover {
+    background-color: var(--bg-color);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    transform: translateY(-1px);
+}
+
+.settings-actions .btn-secondary:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 767px) {
+    .settings-actions {
+        flex-direction: column;
+    }
+
+    .settings-actions button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Form Controls */
@@ -265,6 +324,128 @@ select:focus,
 input[type="text"]:focus {
     outline: none;
     border-color: var(--accent-primary-light);
+}
+
+/* User Profile Settings */
+.settings-section {
+    margin-bottom: 3rem;
+}
+
+.settings-section h2 {
+    color: var(--text-color);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* User Profile specific styles */
+.settings-section:nth-of-type(3) {
+    background: linear-gradient(145deg, var(--card-bg), var(--bg-color));
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.settings-section:nth-of-type(3) .settings-group {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.settings-section:nth-of-type(3) .setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+}
+
+.settings-section:nth-of-type(3) label {
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+.settings-section:nth-of-type(3) .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.settings-section:nth-of-type(3) .form-input:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(var(--accent-primary), 0.1);
+    outline: none;
+}
+
+.settings-section:nth-of-type(3) .form-input::placeholder {
+    color: var(--text-color);
+    opacity: 0.6;
+}
+
+.settings-section:nth-of-type(3) .btn-secondary {
+    align-self: flex-start;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--accent-primary);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.settings-section:nth-of-type(3) .btn-secondary:hover {
+    background-color: var(--accent-primary);
+    transform: translateY(-1px);
+}
+
+.settings-section:nth-of-type(3) .btn-secondary:active {
+    transform: translateY(0);
+}
+
+/* Password section specific styles */
+.settings-section:nth-of-type(3) .setting-item:has([type="password"]) {
+    background-color: var(--card-bg);
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .settings-section:nth-of-type(3) .setting-item {
+        display: grid;
+        grid-template-columns: 200px 1fr auto;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .settings-section:nth-of-type(3) .setting-item:has([type="password"]) {
+        grid-template-columns: 200px 1fr;
+    }
+
+    .settings-section:nth-of-type(3) .setting-item:has(#confirmPassword) {
+        grid-template-columns: 200px 1fr auto;
+    }
+}
+
+@media (max-width: 767px) {
+    .settings-section:nth-of-type(3) {
+        padding: 1.5rem;
+    }
+
+    .settings-section:nth-of-type(3) .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Responsive Design */
