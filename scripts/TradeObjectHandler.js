@@ -203,13 +203,32 @@ class Trade {
   }
 
   static fromStorageObject(obj) {
-    // Parse the date and set to midnight in local timezone
-    const dateParts = obj.date.split('-');
-    const localDate = new Date(
-      parseInt(dateParts[0]), // year
-      parseInt(dateParts[1]) - 1, // month (0-based)
-      parseInt(dateParts[2]) // day
-    );
+    let localDate;
+    
+    // Handle different date formats
+    if (obj.date instanceof Date) {
+      // If it's already a Date object
+      localDate = new Date(obj.date);
+    } else if (typeof obj.date === 'string') {
+      // If it's a string, try to parse it
+      const dateParts = obj.date.split(/[-T]/); // Handle both YYYY-MM-DD and ISO format
+      if (dateParts.length >= 3) {
+        localDate = new Date(
+          parseInt(dateParts[0]), // year
+          parseInt(dateParts[1]) - 1, // month (0-based)
+          parseInt(dateParts[2]) // day
+        );
+      } else {
+        // Fallback to default date parsing
+        localDate = new Date(obj.date);
+      }
+    } else {
+      // Fallback to current date if date is invalid
+      console.warn('Invalid date format in trade object:', obj.date);
+      localDate = new Date();
+    }
+    
+    // Ensure midnight in local timezone
     localDate.setHours(0, 0, 0, 0);
 
     const trade = new Trade(
@@ -510,16 +529,41 @@ class IndexedDBStrategy extends StorageStrategy {
 
   async openDB() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.dbName, this.version);
+      // First, try to get the current version
+      const checkRequest = indexedDB.open(this.dbName);
+      
+      checkRequest.onsuccess = () => {
+        const currentVersion = checkRequest.result.version;
+        checkRequest.result.close();  // Close the connection
+        
+        // Use the higher version number
+        const finalVersion = Math.max(this.version, currentVersion);
+        const request = indexedDB.open(this.dbName, finalVersion);
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
 
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        if (!db.objectStoreNames.contains(this.storeName)) {
-          db.createObjectStore(this.storeName, { keyPath: "id" });
-        }
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName, { keyPath: "id" });
+          }
+        };
+      };
+
+      checkRequest.onerror = () => {
+        // If we can't check the version, try with our default version
+        const request = indexedDB.open(this.dbName, this.version);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName, { keyPath: "id" });
+          }
+        };
       };
     });
   }
